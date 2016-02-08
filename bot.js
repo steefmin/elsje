@@ -8,13 +8,17 @@ var os = require('os');
 
 var controller = Botkit.slackbot({
 	json_file_store: '/home/steef/botkit/storage',
-	debug: false,
+	debug: true,
 });
 
 var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
+controller.on('rtm_close', function(bot,message){
+	bot.reply(message,"Ik ga slapen");
+	bot.startRTM();
+});
 
 controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct_mention,mention',function(bot, message) {
     bot.api.reactions.add({
@@ -86,48 +90,48 @@ helpWithNamen = function(response,convo){
 }
 
 controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(bot, message) {
-    bot.startConversation(message,function(err, convo) {
-        convo.ask('Are you sure you want me to shutdown?',[
-            {
-                pattern: bot.utterances.yes,
-                callback: function(response, convo) {
-                    convo.say('Bye!');
-                    convo.next();
-                    setTimeout(function() {
-                        process.exit();
-                    },3000);
-                }
-            },
-        {
-            pattern: bot.utterances.no,
-            default: true,
-            callback: function(response, convo) {
-                convo.say('*Phew!*');
-                convo.next();
-            }
-        }
-        ]);
-    });
+	bot.startConversation(message,function(err, convo) {
+		convo.ask('Are you sure you want me to shutdown?',[
+			{
+				pattern: bot.utterances.yes,
+				callback: function(response, convo) {
+					convo.say('Bye!');
+					convo.next();
+					setTimeout(function() {
+						process.exit();
+					},3000);
+				}
+			},
+			{
+				pattern: bot.utterances.no,
+				default: true,
+				callback: function(response, convo) {
+					convo.say('*Phew!*');
+					convo.next();
+				}
+			}
+		]);
+	});
 });
 
 controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime','identify yourself','who are you','what is your name'],'direct_message,direct_mention,mention,ambient',function(bot, message) {
-    var hostname = os.hostname();
-    var uptime = formatUptime(process.uptime());
-    bot.reply(message,':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al  ' + uptime + ' op  ' + hostname + '.');
+	var hostname = os.hostname();
+	var uptime = formatUptime(process.uptime());
+	bot.reply(message,':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al  ' + uptime + ' op  ' + hostname + '.');
 });
 
 function formatUptime(uptime) {
-    var unit = 'seconden';
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'minuten';
-    }
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'uren';
-    }
-    uptime = Math.round(uptime*10)/10 + ' ' + unit;
-    return uptime;
+	var unit = 'seconden';
+	if (uptime > 60) {
+		uptime = uptime / 60;
+		unit = 'minuten';
+	}
+	if (uptime > 60) {
+		uptime = uptime / 60;
+		unit = 'uren';
+	}
+	uptime = Math.round(uptime) + ' ' + unit;
+	return uptime;
 }
 
 controller.hears(['takenlijst','lijst'],'mention,direct_mention,direct_message,ambient',function(bot,message){

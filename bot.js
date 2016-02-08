@@ -8,7 +8,7 @@ var os = require('os');
 
 var controller = Botkit.slackbot({
 	json_file_store: '/home/steef/botkit/storage',
-	debug: true,
+	debug: false,
 });
 
 var bot = controller.spawn({
@@ -17,7 +17,6 @@ var bot = controller.spawn({
 
 
 controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct_mention,mention',function(bot, message) {
-
     bot.api.reactions.add({
         timestamp: message.ts,
         channel: message.channel,
@@ -27,8 +26,6 @@ controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct
             bot.botkit.log('Failed to add emoji reaction :(',err);
         }
     });
-
-
     controller.storage.users.get(message.user,function(err, user) {
         if (user && user.name) {
             bot.reply(message,'Hoi ' + user.name + '!!');
@@ -55,7 +52,6 @@ controller.hears(['noem me (.*)'],'direct_message,direct_mention,mention',functi
 });
 
 controller.hears(['what is my name','who am i','wie ben ik','hoe heet ik','wat is mijn naam'],'direct_message,direct_mention,mention',function(bot, message) {
-
     controller.storage.users.get(message.user,function(err, user) {
         if (user && user.name) {
             bot.reply(message,'Jouw naam is ' + user.name);
@@ -70,7 +66,6 @@ controller.hears(['help'],'direct_message,direct_mention',function(bot, message)
 });
 helpMe = function(response,convo){
 	convo.ask('Ik kan helpen met de "takenlijst" en onthouden van "namen"',function(response,convo){
-//		console.log(response);
 		if(response.text == "Takenlijst" || response.text == "takenlijst"){
 			helpWithTakenlijst(response,convo);
 		}else if (response.text == "Namen" || response.text == "namen"){
@@ -91,7 +86,6 @@ helpWithNamen = function(response,convo){
 }
 
 controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(bot, message) {
-
     bot.startConversation(message,function(err, convo) {
         convo.ask('Are you sure you want me to shutdown?',[
             {
@@ -116,14 +110,10 @@ controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(b
     });
 });
 
-
 controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime','identify yourself','who are you','what is your name'],'direct_message,direct_mention,mention,ambient',function(bot, message) {
-
     var hostname = os.hostname();
     var uptime = formatUptime(process.uptime());
-
     bot.reply(message,':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al  ' + uptime + ' op  ' + hostname + '.');
-
 });
 
 function formatUptime(uptime) {
@@ -136,13 +126,11 @@ function formatUptime(uptime) {
         uptime = uptime / 60;
         unit = 'uren';
     }
-
     uptime = Math.round(uptime*10)/10 + ' ' + unit;
     return uptime;
 }
 
 controller.hears(['takenlijst','lijst'],'mention,direct_mention,direct_message,ambient',function(bot,message){
-	console.log("Is dit een direct_message?: "+message.event=="direct_message")
 	if(message.event!="direct_message"){
 		showTaskList(message);	
 	}else{
@@ -196,7 +184,6 @@ wanneerKlaar = function(response,convo){
 }
 welkKanaal = function(response,convo){
 	convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
-		console.log(response)
 		if(true){ //check if input is existing channel
 			opslaanVanTaak(response,convo);
 			convo.next();
@@ -226,12 +213,13 @@ opslaanVanTaak = function(response,convo){
 					tasks: list['tasks'],
 				});
 			});
-			bot.reply(response,"Ok, toegevoegd aan de lijst.");
+			bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
 		}else{
 			bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
 		}
 	});
 }
+
 showTaskList = function(message){
 	controller.storage.channels.get(message.channel,function(err,channel_data){
 		var string = "\nTakenlijst van <#"+channel_data.id+">\n```";
@@ -250,7 +238,7 @@ showTaskList = function(message){
 			}
 			return string+=addtostring;
 		});	
-		bot.reply(message,""+string+"```");
+		bot.reply(message,string+"```");
 	});
 
 }
@@ -261,6 +249,7 @@ addSpaces = function(numberOfSpaces){
 	}
 	return spaces;
 }
+
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message,ambient',function(bot,message){
 	console.log(message);
 	bot.startConversation(message,completeTask);
@@ -277,25 +266,23 @@ completeTask = function(response,convo){
 		}
 	});
 }
-
 TaskDone = function(response,convo){
-        convo.on('end',function(convo){
-                if(convo.status=='completed'){
-                        var res = convo.extractResponses();
+	convo.on('end',function(convo){
+		if(convo.status=='completed'){
+			var res = convo.extractResponses();
 			var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
-	                        controller.storage.channels.get(response.channel, function(err, channel_data){
-					channel_data['tasks'].forEach(function(value,index,array){
-						if(value.taskid == number){
-							value.status = "done";
-							console.log("changed to done");
-						}
-					});
-                	                controller.storage.channels.save(channel_data);
-        	                });
-	                        bot.reply(response,"Ok, verwijderd van de lijst.");
+	                controller.storage.channels.get(response.channel, function(err, channel_data){
+				channel_data['tasks'].forEach(function(value,index,array){
+					if(value.taskid == number){
+						value.status = "done";
+						console.log("changed to done");
+					}
+				});
+                	        controller.storage.channels.save(channel_data);
+        	        });
+	                bot.reply(response,"Ok, verwijderd van de lijst.");
                 }else{
                         bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
                 }
         });
 }
-

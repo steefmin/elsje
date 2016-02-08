@@ -1,5 +1,5 @@
 if (!process.env.token) {
-    console.log('Error: Specify token in environment');
+	console.log('Error: Specify token in environment');
     process.exit(1);
 }
 
@@ -271,18 +271,18 @@ TaskDone = function(response,convo){
 		if(convo.status=='completed'){
 			var res = convo.extractResponses();
 			var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
-	                controller.storage.channels.get(response.channel, function(err, channel_data){
+	        controller.storage.channels.get(response.channel, function(err, channel_data){
 				channel_data['tasks'].forEach(function(value,index,array){
 					if(value.taskid == number){
 						value.status = "done";
 						console.log("changed to done");
 					}
 				});
-                	        controller.storage.channels.save(channel_data);
-        	        });
-	                bot.reply(response,"Ok, verwijderd van de lijst.");
-                }else{
-                        bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
-                }
-        });
+				controller.storage.channels.save(channel_data);
+			});
+	        bot.reply(response,"Ok, verwijderd van de lijst.");
+		}else{
+			bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+		}
+	});
 }

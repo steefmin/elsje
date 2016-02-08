@@ -1,2 +1,2 @@
 # elsje
-A node.js bot for slack, that maintains a tasklist per channel. Based on [https://github.com/howdyai/botkit|botkit]
+A node.js bot for slack, that maintains a tasklist per channel. Built with https://github.com/howdyai/botkit. Only in Dutch. 

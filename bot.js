@@ -129,12 +129,8 @@ function formatUptime(uptime) {
 	return uptime;
 }
 
-controller.hears(['takenlijst','lijst'],'mention,direct_mention,direct_message,ambient',function(bot,message){
-	if(message.event!="direct_message"){
+controller.hears(['takenlijst','lijst'],'mention,direct_mention,ambient',function(bot,message){
 		showTaskList(message);	
-	}else{
-		bot.reply(message,"Sorry, vraag dit in een kanaal.")
-	}
 });
 	
 controller.hears(['nieuwe taak','voeg toe','taak (.*)voegen'],'direct_mention,mention,direct_message,ambient',function(bot,message){
@@ -279,3 +275,25 @@ TaskDone = function(response,convo){
 		}
 	});
 }
+
+controller.hears(['sendreminder'],'direct_message',function(bot,message){
+	bot.api.channels.list({},function(err,response) {
+		var channels = response.channels;
+		channels.forEach(function(channelinfo){
+			controller.storage.channels.get(channelinfo.id,function(err,channel_tasks){
+				if(typeof channel_tasks!="undefined"){
+					channel_tasks.tasks.forEach(function(task){
+						if(task.status=="new"){
+							var user = task.user;
+							bot.api.im.open({user},function(err,response){
+								var channel = response.channel.id;
+								var text = task.task;
+								bot.api.chat.postMessage({channel,text,"username":"elsje"});
+							});
+						}
+					});
+				}
+			});
+		});
+	});
+});

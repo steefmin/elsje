@@ -292,7 +292,8 @@ controller.hears(['sendreminder'],'direct_message',function(bot,message){
 							var user = task.responsible;
 							bot.api.im.open({user},function(err,response){
 								var channel = response.channel.id;
-								var text = task.task;
+								var deadline = new Date(task.deadline);
+								var text = 'Herinnering: '+task.task+' | deadline: '+deadline.toUTCString().substr(5,11);
 								bot.api.chat.postMessage({channel,text,"username":"elsje"});
 							});
 						}

@@ -219,15 +219,12 @@ opslaanVanTaak = function(response,convo){
 }
 
 showTaskList = function(message){
-//	console.log(message);
 	controller.storage.channels.get(message.channel,function(err,channel_data){
-		console.log(channel_data);
 		var string = "\nTakenlijst van <#"+channel_data.id+">\n```";
 		channel_data['tasks'].forEach(function(value,index,array){
 			var addtostring ="";
 			var deadline = new Date(value.deadline);
 			if(value.status != "done"){
-				console.log(value.responsible);
 				addtostring = 	value.taskid+
 						addSpaces(4-value.taskid.toString().length)+
 						'<@'+value.responsible+'>'+

@@ -170,7 +170,6 @@ wanneerKlaar = function(response,convo){
 		datetext = datetext.replace("maa","mar");
 		datetext = datetext.replace("mei","may");
 		datetext = datetext.replace("okt","oct");
-		console.log(datetext);
 		var date = new Date(Date.parse(datetext));
 		date.setDate(date.getDate() + 1);
 		if(date != "Invalid Date" && date.getTime()>1420070400000){
@@ -199,7 +198,6 @@ opslaanVanTaak = function(response,convo){
 		if(convo.status=='completed'){
 			var res = convo.extractResponses();
 			if(res['In welke lijst zal ik dit zetten?']){
-					console.log(res['In welke lijst zal ik dit zetten?'].substr(2,9));
 					response.channel = res['In welke lijst zal ik dit zetten?'].substr(2,9);
 			}
 			controller.storage.channels.get(response.channel, function(err, channel_data){
@@ -255,14 +253,11 @@ addSpaces = function(numberOfSpaces){
 }
 
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message,ambient',function(bot,message){
-	console.log(message);
 	bot.startConversation(message,completeTask);
 });
 completeTask = function(response,convo){
 	showTaskList(convo.source_message);
 	convo.ask("Kan je mij het nummer geven van de taak die van de lijst af mag?",function(response,convo){
-		console.log(response.text);
-		console.log(parseInt(response.text));
 		if(!isNaN(parseInt(response.text))){
 			convo.say("BAM, weer wat gedaan. Goed werk <@"+response.user+">.\n");
 			TaskDone(response,convo);
@@ -279,7 +274,6 @@ TaskDone = function(response,convo){
 				channel_data['tasks'].forEach(function(value,index,array){
 					if(value.taskid == number){
 						value.status = "done";
-						console.log("changed to done");
 					}
 				});
 				controller.storage.channels.save(channel_data);

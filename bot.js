@@ -15,11 +15,6 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
-controller.on('rtm_close', function(bot,message){
-	bot.reply(message,"Ik ga slapen");
-	bot.startRTM();
-});
-
 controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct_mention,mention',function(bot, message) {
     bot.api.reactions.add({
         timestamp: message.ts,

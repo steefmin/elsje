@@ -144,10 +144,15 @@ voegTaakToe = function(response, convo){
 	});
 }
 voorWie = function(reponse,convo){
-	convo.ask("Wie gaat dit doen?", function(response,convo){
-		convo.say("Ha, gesjaakt!");
-		wanneerKlaar(response,convo);
-		convo.next();
+	convo.ask("Wie gaat dit doen? (@naam graag)", function(response,convo){
+		var patern = /<@.{9}>/;
+		var userid = patern.exec(response.text);
+		if(typeof userid[0] != "undefined"){
+			response.text = userid[0].substr(2,9);
+			convo.say("Ha, gesjaakt!");
+			wanneerKlaar(response,convo);
+			convo.next();
+		}
 	});
 }
 wanneerKlaar = function(response,convo){
@@ -222,7 +227,7 @@ showTaskList = function(message){
 			if(value.status != "done"){
 				addtostring = 	value.taskid+
 						addSpaces(4-value.taskid.toString().length)+
-						value.responsible+
+						'<@'+value.responsible+'>'+
 						addSpaces(15-value.responsible.length)+
 						deadline.toUTCString().substr(5,11)+
 						addSpaces(3)+
@@ -284,7 +289,7 @@ controller.hears(['sendreminder'],'direct_message',function(bot,message){
 				if(typeof channel_tasks!="undefined"){
 					channel_tasks.tasks.forEach(function(task){
 						if(task.status=="new"){
-							var user = task.user;
+							var user = task.responsible;
 							bot.api.im.open({user},function(err,response){
 								var channel = response.channel.id;
 								var text = task.task;

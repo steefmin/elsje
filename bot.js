@@ -7,7 +7,7 @@ var Botkit = require('./lib/Botkit.js');
 var os = require('os');
 
 var controller = Botkit.slackbot({
-	json_file_store: '/home/steef/botkit/storage',
+	json_file_store: '/media/usb/www/botkit/storage',
 	debug: true,
 });
 
@@ -202,7 +202,7 @@ opslaanVanTaak = function(response,convo){
 					taskid: list['tasks'].length+1,
 					user: response.user,
 					task: res['Wat moet er gedaan worden?'],
-					responsible: res['Wie gaat dit doen?'],
+					responsible: res['Wie gaat dit doen? (@naam graag)'],
 					deadline: res['Wanneer moet het klaar zijn?'],
 					status: "new",
 				});
@@ -219,16 +219,19 @@ opslaanVanTaak = function(response,convo){
 }
 
 showTaskList = function(message){
+//	console.log(message);
 	controller.storage.channels.get(message.channel,function(err,channel_data){
+		console.log(channel_data);
 		var string = "\nTakenlijst van <#"+channel_data.id+">\n```";
 		channel_data['tasks'].forEach(function(value,index,array){
 			var addtostring ="";
 			var deadline = new Date(value.deadline);
 			if(value.status != "done"){
+				console.log(value.responsible);
 				addtostring = 	value.taskid+
 						addSpaces(4-value.taskid.toString().length)+
 						'<@'+value.responsible+'>'+
-						addSpaces(15-value.responsible.length)+
+						addSpaces(8)+
 						deadline.toUTCString().substr(5,11)+
 						addSpaces(3)+
 						value.task+

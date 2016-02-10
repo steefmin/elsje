@@ -117,7 +117,7 @@ controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(b
 	});
 });
 
-controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime','identify yourself','who are you','what is your name'],'direct_message,direct_mention,mention,ambient',function(bot, message) {
+controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime','identify yourself','who are you','what is your name'],'direct_message,direct_mention,mention',function(bot, message) {
 	var hostname = os.hostname();
 	var uptime = formatUptime(process.uptime());
 	bot.reply(message,':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al  ' + uptime + ' op  ' + hostname + '.');

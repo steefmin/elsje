@@ -198,17 +198,21 @@ opslaanVanTaak = function(response,convo){
 			}
 			controller.storage.channels.get(response.channel, function(err, channel_data){
 				var list = channel_data;
-				list['tasks'].push({
-					taskid: list['tasks'].length+1,
-					user: response.user,
-					task: res['Wat moet er gedaan worden?'],
-					responsible: res['Wie gaat dit doen? (@naam graag)'],
-					deadline: res['Wanneer moet het klaar zijn?'],
-					status: "new",
-				});
-				controller.storage.channels.save({
-					id: response.channel, 
-					tasks: list['tasks'],
+				bot.api.users.info({"user":res['Wie gaat dit doen? (@naam graag)']},function(err,reply){
+					var name = reply.user.name;
+					list['tasks'].push({
+						taskid: list['tasks'].length+1,
+						user: response.user,
+						task: res['Wat moet er gedaan worden?'],
+						responsible: res['Wie gaat dit doen? (@naam graag)'],
+						responsible_name: name,
+						deadline: res['Wanneer moet het klaar zijn?'],
+						status: "new",
+					});
+					controller.storage.channels.save({
+						id: response.channel,
+						tasks: list['tasks'],
+					});
 				});
 			});
 			bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
@@ -228,9 +232,9 @@ showTaskList = function(message){
 				addtostring = 	value.taskid+
 						addSpaces(4-value.taskid.toString().length)+
 						'<@'+value.responsible+'>'+
-						addSpaces(8)+
+						addSpaces(16-value.responsible_name.length)+
 						deadline.toUTCString().substr(5,11)+
-						addSpaces(3)+
+						addSpaces(4)+
 						value.task+
 						"\n";
 			}

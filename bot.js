@@ -282,23 +282,29 @@ TaskDone = function(response,convo){
 }
 
 controller.hears(['sendreminder'],'direct_message',function(bot,message){
-	bot.api.channels.list({},function(err,response) {
-		var channels = response.channels;
-		channels.forEach(function(channelinfo){
-			controller.storage.channels.get(channelinfo.id,function(err,channel_tasks){
-				if(typeof channel_tasks!="undefined"){
-					channel_tasks.tasks.forEach(function(task){
-						if(task.status=="new"){
-							var user = task.responsible;
-							bot.api.im.open({user},function(err,response){
-								var channel = response.channel.id;
-								var deadline = new Date(task.deadline);
-								var text = 'Herinnering: '+task.task+' | deadline: '+deadline.toUTCString().substr(5,11);
-								bot.api.chat.postMessage({channel,text,"username":"elsje"});
+	bot.identifyBot(function(err,identity) {
+		var botid = identity.id;
+		bot.api.users.info({"user":botid},function(err,reply){
+			var image = reply.user.profile.image_original;
+			bot.api.channels.list({},function(err,response) {
+				var channels = response.channels;
+				channels.forEach(function(channelinfo){
+					controller.storage.channels.get(channelinfo.id,function(err,channel_tasks){
+						if(typeof channel_tasks!="undefined"){
+							channel_tasks.tasks.forEach(function(task){
+								if(task.status=="new"){
+									var user = task.responsible;
+									bot.api.im.open({user},function(err,response){
+										var channel = response.channel.id;
+										var deadline = new Date(task.deadline);
+										var text = 'Herinnering: '+task.task+' | deadline: '+deadline.toUTCString().substr(5,11);
+										bot.api.chat.postMessage({channel,text,"username":"elsje","icon_url":image});
+									});
+								}
 							});
 						}
 					});
-				}
+				});
 			});
 		});
 	});

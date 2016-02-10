@@ -260,8 +260,12 @@ addSpaces = function(numberOfSpaces){
 	return spaces;
 }
 
-controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,ambient',function(bot,message){
-	bot.startConversation(message,completeTask);
+controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,ambient,direct_message',function(bot,message){
+	if(message.event == "direct_message"){
+		bot.reply(message,"Je kan een taak alleen afronden in het kanaal van je taak");
+	}else{
+		bot.startConversation(message,completeTask);
+	}
 });
 completeTask = function(response,convo){
 	showTaskList(convo.source_message);

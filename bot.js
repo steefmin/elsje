@@ -15,6 +15,14 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
+controller.on('channel_joined',function(bot,message) {
+	controller.storage.channels.get(message.channel.id, function(err){
+		if(err){
+			controller.storage.channels.save({id: message.channel.id, tasks:[]});
+		}
+	});
+});
+
 controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct_mention,mention',function(bot, message) {
     bot.api.reactions.add({
         timestamp: message.ts,
@@ -252,7 +260,7 @@ addSpaces = function(numberOfSpaces){
 	return spaces;
 }
 
-controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message,ambient',function(bot,message){
+controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,ambient',function(bot,message){
 	bot.startConversation(message,completeTask);
 });
 completeTask = function(response,convo){
@@ -270,7 +278,7 @@ TaskDone = function(response,convo){
 		if(convo.status=='completed'){
 			var res = convo.extractResponses();
 			var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
-	        controller.storage.channels.get(response.channel, function(err, channel_data){
+		        controller.storage.channels.get(response.channel, function(err, channel_data){
 				channel_data['tasks'].forEach(function(value,index,array){
 					if(value.taskid == number){
 						value.status = "done";
@@ -301,7 +309,7 @@ controller.hears(['sendreminder'],'direct_message',function(bot,message){
 									bot.api.im.open({user},function(err,response){
 										var channel = response.channel.id;
 										var deadline = new Date(task.deadline);
-										var text = 'Herinnering: '+task.task+' | deadline: '+deadline.toUTCString().substr(5,11);
+										var text = 'Herinnering uit <#'+channelinfo.id+'>: '+task.task+' | deadline: '+deadline.toUTCString().substr(5,11);
 										bot.api.chat.postMessage({channel,text,"username":"elsje","icon_url":image});
 									});
 								}

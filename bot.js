@@ -322,6 +322,125 @@ controller.hears(['sendreminder'],'direct_message',function(bot,message){
 					});
 				});
 			});
+			bot.reply(response,"Ok, nieuwe deadline genoteerd.");
+		}
+	});
+}
+controller.hears(['newherinneringen','sendreminder'],'direct_message',function(bot,message){
+	NewSendReminders();
+});
+
+NewSendReminders = function(){
+	bot.api.users.list({},function(err,reply){
+		reply.members.forEach(function(value,index,array){
+			console.log(value);
+			if(value.deleted == false && value.is_bot == false ){
+				ShowList("all",value.id,value.id);
+			}
 		});
 	});
 });
+ShowList = function(channelName,userName,sendto){
+	bot.api.users.info({"user":bot.identity.id},function(err,reply){
+		var teamid = reply.user.team_id;
+		controller.storage.teams.get(teamid,function(err,team_data){
+			if(err){
+				return false;
+			}
+			var sortedtasks, formatted, userID, channelID;
+			var usertasks = filterTasks('status',filterTasks('channel',filterTasks('responsible',team_data.tasks,userName),channelName),'new');
+			
+			if(usertasks.length == 0){
+				console.log("empty tasks");
+				return false;
+			}
+			sortedtasks = sortTasks(usertasks,'channel');
+			formatted = formatTasks(sortedtasks);
+			userID = functions.verifyUserId(sendto);
+			if(userID){
+				sendTo(formatted,userID);
+				console.log('sending to user');
+			}
+			channelID = functions.verifyChannelId(sendto);
+			if(channelID){
+				sendTo(formatted,channelID);
+				console.log('sending to channel');
+			}
+		});
+	});
+}
+sendTo = function(formatted,sendToID){
+	bot.api.users.info({"user":bot.identity.id},function(err,reply){
+		var image = reply.user.profile.image_original;
+		if(functions.verifyUserId(sendToID)){
+			bot.api.im.open({"user":sendToID},function(err,response){
+				bot.api.chat.postMessage({"channel":response.channel.id,"text":formatted,"username":bot.identity.name,"icon_url":image});
+			});
+		}else if(functions.verifyChannelId(sendToID)){
+			bot.api.chat.postMessage({"channel":sendToID,"text":formatted,"username":bot.identity.name,"icon_url":image});
+		}else{
+			console.log('err, no valid sendToID');
+			return false;
+		}
+	});
+}
+filterTasks = function(filterOn,tasks,filterFor){
+	if(filterFor=="all"){
+		return tasks;
+	}else {
+		if(filterOn == 'channel' || filterOn ==	'responsible'){
+			var newtasks = [];
+			tasks.forEach(function(value,index,array){
+				if(value[filterOn].id==filterFor){
+					newtasks.push(value);
+				}
+				return newtasks;
+			});
+			return newtasks;
+		}else{
+            var newtasks = [];
+            tasks.forEach(function(value,index,array){
+                if(value[filterOn]==filterFor){
+                    newtasks.push(value);
+                }
+                return newtasks;
+            });
+            return newtasks;
+		}
+	}
+}
+sortTasks = function(tasks,sortBy){
+	var sorted = tasks.sort(function(taska, taskb){
+		if(taska[sortBy].id < taskb[sortBy].id){
+			return 1;
+		}
+		if(taska[sortBy].id > taskb[sortBy].id){
+			return -1;
+		}
+		return 0; 
+	});
+	return sorted;
+}
+formatTasks = function(tasks){
+	var formatted = "Takenlijst\n```";
+	tasks.forEach(function(task,index,array){
+		var addtostring ="";
+		var deadline = new Date(task.deadline);
+		if(task.status != "done"){
+			var addtostring = 
+					'<#'+task.channel.id+'>'+
+					functions.addSpaces(2)+
+					task.taskid+
+					functions.addSpaces(4-task.taskid.toString().length)+
+					'<@'+task.responsible.id+'>'+
+					functions.addSpaces(2)+
+					deadline.toUTCString().substr(5,11)+
+					functions.addSpaces(2)+
+					task.task+
+					"\n";
+			formatted+=addtostring;
+		}
+	});
+	formatted+="```";
+	return formatted; 
+}

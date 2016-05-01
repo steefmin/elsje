@@ -59,8 +59,6 @@ controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct
 
 
 controller.hears(['noem me (.*)'],'direct_message,direct_mention,mention',function(bot, message) {
-
-
     var name = message.match[1];
     controller.storage.users.get(message.user,function(err, user) {
         if (!user) {
@@ -227,7 +225,6 @@ wanneerKlaar = function(response,convo){
 }
 welkKanaal = function(response,convo){
 	convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
-
 		var channelid = functions.verifyChannelName(response.text);
 		if(channelid){
 			convo.say('Kijk in het kanaal voor de lijst.');
@@ -241,7 +238,6 @@ opslaanVanTaak = function(response,convo){
 		if(convo.status=='completed'){
 			var res = convo.extractResponses();
 			var channelid = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
-
 			if(channelid){
 					response.channel = channelid;
 			}
@@ -259,7 +255,6 @@ opslaanVanTaak = function(response,convo){
 								user: {id: response.user},
 								task: res['Wat moet er gedaan worden?'],
 								responsible: {id: res['Wie gaat dit doen? (@naam graag)']},
-
 								deadline: res['Wanneer moet het klaar zijn?'],
 								status: "new",
 							});
@@ -427,7 +422,6 @@ ShowList = function(channelName,userName,sendto){
 			}
 			var sortedtasks, formatted, userID, channelID;
 			var usertasks = filterTasks('status',filterTasks('channel',filterTasks('responsible',team_data.tasks,userName),channelName),'new');
-			
 			if(usertasks.length == 0){
 				console.log("empty tasks");
 				return false;

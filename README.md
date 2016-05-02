@@ -1,5 +1,6 @@
-# this version is deprecated
-I now include howdyai's botkit in the new repo: https://github.com/steefmin/elsje.
+
+# History
+A lot of work has been done on the fork of botkit on: https://github.com/steefmin/botkit. Restarted using this repo after using botkit as submodule in stead of hardcoding it in the repo. 
 
 # elsje
-A node.js bot for slack, that maintains a tasklist per channel. Built with https://github.com/howdyai/botkit. Only in Dutch. 
+A node.js bot for slack, that maintains a tasklist for all channels. Built with https://github.com/howdyai/botkit. Only in Dutch. 

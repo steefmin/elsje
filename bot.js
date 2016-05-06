@@ -499,7 +499,7 @@ formatTasks = function(tasks){
 		var addtostring ="";
 		var deadline = new Date(task.deadline);
 		if(task.status != "done"){
-			var addtostring = 
+			addtostring = 
 					'<#'+task.channel.id+'>'+
 					functions.addSpaces(2)+
 					task.taskid+

@@ -31,6 +31,7 @@ module.exports = {
 	verifyDate: function(text){
 		var date;
 		var current_date;
+		var split;
 		if (text == "vandaag" || text == "Vandaag"){
 			date = new Date();
 		}else if(text == "morgen" || text == "Morgen"){
@@ -44,14 +45,14 @@ module.exports = {
 			date.setDate(date.getDate() + 30);
 		}else{
 			text = text.replace(/-/g,"/");
-			var split = text.split('/');
+			split = text.split('/');
 			if(typeof split[1] != "undefined" && typeof split[2] != "undefined"){
 				text = split[1]+'/'+split[0]+'/'+split[2];
 			}
 			text = text.replace("maa","mar");
 			text = text.replace("mei","may");
 			text = text.replace("okt","oct");
-			var date = new Date(Date.parse(text));
+			date = new Date(Date.parse(text));
 			date.setDate(date.getDate() + 1);
 		}
 		current_date= new Date(Date.parse(current_date.toDateString()));

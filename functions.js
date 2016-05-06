@@ -29,16 +29,18 @@ module.exports = {
 		return uptime;
 	},
 	verifyDate: function(text){
+		var date;
+		var current_date;
 		if (text == "vandaag" || text == "Vandaag"){
-			var date = new Date();
+			date = new Date();
 		}else if(text == "morgen" || text == "Morgen"){
-			var date = new Date();
+			date = new Date();
 			date.setDate(date.getDate() + 1);
 		}else if(text == "Volgende week" || text == "volgende week" || text == "Week" || text == "week"){
-			var date = new Date();
+			date = new Date();
 			date.setDate(date.getDate() + 7);
 		}else if(text == "Over een maand" || text == "over een maand" || text == "Maand" || text == "maand"){
-			var date = new Date();
+			date = new Date();
 			date.setDate(date.getDate() + 30);
 		}else{
 			text = text.replace(/-/g,"/");
@@ -52,7 +54,6 @@ module.exports = {
 			var date = new Date(Date.parse(text));
 			date.setDate(date.getDate() + 1);
 		}
-		var current_date = new Date();
 		current_date= new Date(Date.parse(current_date.toDateString()));
 		if(date != "Invalid Date" && date.getTime()>=current_date.getTime()){
 			return date;

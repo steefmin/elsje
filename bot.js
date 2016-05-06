@@ -19,13 +19,13 @@ var bot = controller.spawn({
 }).startRTM();
 
 controller.on('rtm_open',function(bot,message){
-    var botid = bot.identity.id;
-	var botname = bot.identity.name
+	var botid = bot.identity.id;
+	var botname = bot.identity.name;
 	bot.api.users.info({"user":botid},function(err,reply){
 		var image = reply.user.profile.image_original;
 		var channel = "C0JTZBACD";
-        bot.api.chat.postMessage({channel,"text":"Hi, this is a debug message: I just reconnected","username":botname,"icon_url":image});
-		//enable next line to create fresh db
+		bot.api.chat.postMessage({channel,"text":"Hi, this is a debug message: I just reconnected","username":botname,"icon_url":image});
+//		enable next line to create fresh db
 //		controller.storage.teams.save({id:reply.user.team_id,tasks:[]});
 	});
 });
@@ -144,15 +144,15 @@ helpMe = function(response,convo){
 			convo.stop();
 		}
 	});
-}
+};
 helpWithTakenlijst = function(response,convo){
 	bot.reply(response,'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.');
 	convo.stop();
-}
+};
 helpWithNamen = function(response,convo){
 	bot.reply(response,"Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)");
 	convo.stop();
-}
+};
 
 controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(bot, message) {
 	bot.startConversation(message,function(err, convo) {
@@ -194,7 +194,7 @@ voegTaakToe = function(response, convo){
 		voorWie(response,convo);
 		convo.next();
 	});
-}
+};
 voorWie = function(reponse,convo){
 	convo.ask("Wie gaat dit doen? (@naam graag)", function(response,convo){
 
@@ -206,7 +206,7 @@ voorWie = function(reponse,convo){
 			convo.next();
 		}
 	});
-}
+};
 wanneerKlaar = function(response,convo){
 	convo.ask("Wanneer moet het klaar zijn?",function(response,convo){
 		date = functions.verifyDate(response.text);
@@ -222,7 +222,7 @@ wanneerKlaar = function(response,convo){
 			}
 		}
 	});
-}
+};
 welkKanaal = function(response,convo){
 	convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
 		var channelid = functions.verifyChannelName(response.text);
@@ -232,7 +232,7 @@ welkKanaal = function(response,convo){
 			convo.next();
 		}
 	});
-}
+};
 opslaanVanTaak = function(response,convo){
 	convo.on('end',function(convo){
 		if(convo.status=='completed'){
@@ -249,9 +249,9 @@ opslaanVanTaak = function(response,convo){
 					bot.api.users.info({"user":res['Wie gaat dit doen? (@naam graag)']},function(err,reply){
 						if(!err){
 							var name = reply.user.name;
-							list['tasks'].push({
+							list.tasks.push({
 								channel: {id: response.channel},
-								taskid: list['tasks'].length+1,
+								taskid: list.tasks.length+1,
 								user: {id: response.user},
 								task: res['Wat moet er gedaan worden?'],
 								responsible: {id: res['Wie gaat dit doen? (@naam graag)']},
@@ -260,7 +260,7 @@ opslaanVanTaak = function(response,convo){
 							});
 							controller.storage.teams.save({
 								id: response.team,
-								tasks: list['tasks'],
+								tasks: list.tasks,
 							});
 						}else{
 							return false;
@@ -276,7 +276,7 @@ opslaanVanTaak = function(response,convo){
 			bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
 		}
 	});
-}
+};
 
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){
 	bot.startConversation(message,completeTask);
@@ -298,7 +298,7 @@ completeTask = function(response,convo){
 			convo.next();
 		}
 	});
-}
+};
 TaskDone = function(response,convo){
 	convo.on('end',function(convo){
 		if(convo.status=='completed'){
@@ -306,7 +306,7 @@ TaskDone = function(response,convo){
 			var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
 			var id = response.team;
 		        controller.storage.teams.get(id, function(err, channel_data){
-				channel_data['tasks'].forEach(function(value,index,array){
+				channel_data.tasks.forEach(function(value,index,array){
 					if(value.taskid == number){
 						value.status = "done";
 					}
@@ -318,7 +318,7 @@ TaskDone = function(response,convo){
 			bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
 		}
 	});
-}
+};
 
 controller.hears(['update deadline','deadline veranderen','andere deadline'],'direct_mention,mention,direct_message',function(bot,message){
 	bot.startConversation(message,DeadlineNumber);
@@ -339,7 +339,7 @@ DeadlineNumber = function(response,convo){
 			convo.next();
 		}
 	});
-}
+};
 NewDeadline = function(response,convo){
 	convo.ask("Wat is de nieuwe deadline?",function(response,convo){
 		date = functions.verifyDate(response.text);
@@ -350,13 +350,13 @@ NewDeadline = function(response,convo){
 				convo.next();
 		}
 	});
-}
+};
 UpdateDeadline = function(response,convo){
 	convo.on('end',function(convo){
 		if(convo.status=='completed'){
 			var res = convo.extractResponses();
 			controller.storage.teams.get(response.team, function(err, channel_data){
-				channel_data['tasks'].forEach(function(value,index,array){
+				channel_data.tasks.forEach(function(value,index,array){
 					if(value.taskid==parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])){
 						value.deadline = res['Wat is de nieuwe deadline?'];
 					}
@@ -366,7 +366,7 @@ UpdateDeadline = function(response,convo){
 			bot.reply(response,"Ok, nieuwe deadline genoteerd.");
 		}
 	});
-}
+};
 controller.hears(['newherinneringen','sendreminder'],'direct_message',function(bot,message){
 	NewSendReminders();
 });
@@ -375,12 +375,12 @@ NewSendReminders = function(){
 	bot.api.users.list({},function(err,reply){
 		reply.members.forEach(function(value,index,array){
 			console.log(value);
-			if(value.deleted == false && value.is_bot == false ){
+			if(value.deleted === false && value.is_bot === false ){
 				ShowList("all",value.id,value.id);
 			}
 		});
 	});
-}
+};
 controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,direct_mention,mention',function(bot,message){
 	var send;
 	var type = message.match[1];
@@ -422,7 +422,7 @@ ShowList = function(channelName,userName,sendto){
 			}
 			var sortedtasks, formatted, userID, channelID;
 			var usertasks = filterTasks('status',filterTasks('channel',filterTasks('responsible',team_data.tasks,userName),channelName),'new');
-			if(usertasks.length == 0){
+			if(usertasks.length === 0){
 				console.log("empty tasks");
 				return false;
 			}
@@ -440,7 +440,7 @@ ShowList = function(channelName,userName,sendto){
 			}
 		});
 	});
-}
+};
 sendTo = function(formatted,sendToID){
 	bot.api.users.info({"user":bot.identity.id},function(err,reply){
 		var image = reply.user.profile.image_original;
@@ -455,13 +455,14 @@ sendTo = function(formatted,sendToID){
 			return false;
 		}
 	});
-}
+};
 filterTasks = function(filterOn,tasks,filterFor){
+	var newtasks;
 	if(filterFor=="all"){
 		return tasks;
 	}else {
+		newtasks = [];
 		if(filterOn == 'channel' || filterOn ==	'responsible'){
-			var newtasks = [];
 			tasks.forEach(function(value,index,array){
 				if(value[filterOn].id==filterFor){
 					newtasks.push(value);
@@ -470,7 +471,6 @@ filterTasks = function(filterOn,tasks,filterFor){
 			});
 			return newtasks;
 		}else{
-            var newtasks = [];
             tasks.forEach(function(value,index,array){
                 if(value[filterOn]==filterFor){
                     newtasks.push(value);
@@ -480,7 +480,7 @@ filterTasks = function(filterOn,tasks,filterFor){
             return newtasks;
 		}
 	}
-}
+};
 sortTasks = function(tasks,sortBy){
 	var sorted = tasks.sort(function(taska, taskb){
 		if(taska[sortBy].id < taskb[sortBy].id){
@@ -492,7 +492,7 @@ sortTasks = function(tasks,sortBy){
 		return 0; 
 	});
 	return sorted;
-}
+};
 formatTasks = function(tasks){
 	var formatted = "Takenlijst\n```";
 	tasks.forEach(function(task,index,array){
@@ -515,5 +515,5 @@ formatTasks = function(tasks){
 	});
 	formatted+="```";
 	return formatted; 
-}
+};
 

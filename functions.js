@@ -10,22 +10,23 @@ module.exports = {
 			if(uptime >= 1.5){
 			    unit = 'minuten';
 			}
-    		if(uptime > 60) {
-    			uptime = uptime / 60;
-    			unit = 'uur';
-    			if(uptime >= 1.5){
-    			    unit = 'uren';
-    			}
-        		if(uptime > 24) {
-        		    uptime = uptime / 24;
-        		    unit = 'dag';
-        		    if(uptime >= 1.5){
-        		        unit = unit + 'en';
-        		    }
-        		}
-    		}
+   		if(uptime > 60) {
+   			uptime = uptime / 60;
+   			unit = 'uur';
+     		if(uptime > 24) {
+     		    var days = uptime / 24;
+     		    unit = 'dag';
+     		    if(uptime >= 1.5){
+     		        unit = unit + 'en';
+     		    }
+     		}
+   		}
 		}
-		uptime = Math.round(uptime) + ' ' + unit;
+    if(days) {
+      uptime = Math.floor(days) + ' ' + unit + ' en ' + Math.round(uptime-Math.floor(days)*24) + ' uur';
+    }else{
+  		uptime = Math.round(uptime) + ' ' + unit;
+    }
 		return uptime;
 	},
 	verifyDate: function(text){

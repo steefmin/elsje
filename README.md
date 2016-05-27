@@ -11,10 +11,7 @@ Install dependencies `git` and `nodejs`.
 ```
   $ git clone https://github.com/steefmin/elsje
   $ cd elsje
-  $ git submodule init
-  $ git submodule update
-  $ cd botkit
-  $ sudo npm install
+  $ npm install
 ```
 
 # Config

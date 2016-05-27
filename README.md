@@ -1,4 +1,4 @@
-# Elsje
+# Elsje [![bitHound Overall Score](https://www.bithound.io/github/steefmin/elsje/badges/score.svg)](https://www.bithound.io/github/steefmin/elsje)
 A node.js bot for slack, that maintains a tasklist for all channels. Built with [Botkit](https://github.com/howdyai/botkit). Only in Dutch. 
 
 # History

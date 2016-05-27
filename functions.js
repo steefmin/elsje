@@ -32,12 +32,12 @@ var formatUptime = function(uptime){
 
 var verifyDate = function(text){
   var current_date = date = new Date();
-  if (text == "vandaag" || text == "Vandaag"){
-  }else if(text == "morgen" || text == "Morgen"){
+  if (regexp(/vandaag\s*/i,text)){
+  }else if(regexp(/morgen\s*/i,text)){
     date.setDate(date.getDate() + 1);
-  }else if(text == "Volgende week" || text == "volgende week" || text == "Week" || text == "week"){
+  }else if(regexp(/week\s*/i,text)){
     date.setDate(date.getDate() + 7);
-  }else if(text == "Over een maand" || text == "over een maand" || text == "Maand" || text == "maand"){
+  }else if(regexp(/maand\s*/i,text)){
     date.setDate(date.getDate() + 30);
   }else{
     date = parseDate(text);
@@ -108,6 +108,14 @@ var verifyChannelId = function(input){
     return false;
   }
 };
+
+var regexp = function(patern,string){
+  if(patern.exec(string)){
+    return true;
+  }else{
+    return false;
+  }
+}
 
 module.exports = {
   formatUptime: formatUptime,

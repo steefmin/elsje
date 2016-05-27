@@ -1,13 +1,3 @@
-module.exports = {
-  formatUptime: formatUptime,
-  verifyDate: verifyDate,
-  addSpaces: addSpaces,
-  verifyUserId: verifyUserId,
-  verifyChannelId: verifyChannelId,
-  verifyUserName: verifyUserName,
-  verifyChannelName: verifyChannelName
-};
-
 var formatUptime = function(uptime){
 	var unit = 'seconde';
   var days;
@@ -73,7 +63,7 @@ var verifyDate = function(text){
   }else{
     return false;
   }
-}
+};
 
 var addSpaces = function(numberOfSpaces){
   var spaces = "";
@@ -119,4 +109,14 @@ var verifyChannelId = function(input){
   }else{
     return false;
   }
+};
+
+module.exports = {
+  formatUptime: formatUptime,
+  verifyDate: verifyDate,
+  addSpaces: addSpaces,
+  verifyUserId: verifyUserId,
+  verifyChannelId: verifyChannelId,
+  verifyUserName: verifyUserName,
+  verifyChannelName: verifyChannelName
 };

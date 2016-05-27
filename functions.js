@@ -32,8 +32,6 @@ var formatUptime = function(uptime){
 
 var verifyDate = function(text){
   var date;
-  var current_date;
-  var split;
   if (text == "vandaag" || text == "Vandaag"){
     date = new Date();
   }else if(text == "morgen" || text == "Morgen"){
@@ -46,24 +44,29 @@ var verifyDate = function(text){
     date = new Date();
     date.setDate(date.getDate() + 30);
   }else{
-    text = text.replace(/-/g,"/");
-    split = text.split('/');
-    if(typeof split[1] != "undefined" && typeof split[2] != "undefined"){
-      text = split[1]+'/'+split[0]+'/'+split[2];
-    }
-    text = text.replace("maa","mar");
-    text = text.replace("mei","may");
-    text = text.replace("okt","oct");
-    date = new Date(Date.parse(text));
-    date.setDate(date.getDate() + 1);
+    date = parseDate(text);
   }
-  current_date= new Date(Date.parse(current_date.toDateString()));
+  var current_date= new Date();
   if(date != "Invalid Date" && date.getTime()>=current_date.getTime()){
     return date;
   }else{
     return false;
   }
 };
+
+var parseDate = function(text){
+  text = text.replace(/-/g,"/");
+  var split = text.split('/');
+  if(typeof split[1] != "undefined" && typeof split[2] != "undefined"){
+    text = split[1]+'/'+split[0]+'/'+split[2];
+  }
+  text = text.replace("maa","mar");
+  text = text.replace("mei","may");
+  text = text.replace("okt","oct");
+  var date = new Date(Date.parse(text));
+  date.setDate(date.getDate() + 1);
+  return date;
+}
 
 var addSpaces = function(numberOfSpaces){
   var spaces = "";

@@ -1,4 +1,7 @@
 module.exports = {
+  getGif: function(search) {
+    http://api.riffsy.com/v1/search?tag=<query>
+  },
 	formatUptime: function(uptime){
 		var unit = 'seconde';
 		if(uptime >= 1.5){

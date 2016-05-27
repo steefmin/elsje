@@ -31,22 +31,17 @@ var formatUptime = function(uptime){
 };
 
 var verifyDate = function(text){
-  var date;
+  var current_date = date = new Date();
   if (text == "vandaag" || text == "Vandaag"){
-    date = new Date();
   }else if(text == "morgen" || text == "Morgen"){
-    date = new Date();
     date.setDate(date.getDate() + 1);
   }else if(text == "Volgende week" || text == "volgende week" || text == "Week" || text == "week"){
-    date = new Date();
     date.setDate(date.getDate() + 7);
   }else if(text == "Over een maand" || text == "over een maand" || text == "Maand" || text == "maand"){
-    date = new Date();
     date.setDate(date.getDate() + 30);
   }else{
     date = parseDate(text);
   }
-  var current_date= new Date();
   if(date != "Invalid Date" && date.getTime()>=current_date.getTime()){
     return date;
   }else{

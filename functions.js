@@ -61,7 +61,7 @@ var parseDate = function(text){
   var date = new Date(Date.parse(text));
   date.setDate(date.getDate() + 1);
   return date;
-}
+};
 
 var addSpaces = function(numberOfSpaces){
   var spaces = "";

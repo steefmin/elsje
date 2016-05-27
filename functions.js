@@ -1,6 +1,7 @@
 module.exports = {
 	formatUptime: function(uptime){
 		var unit = 'seconde';
+    var days;
 		if(uptime >= 1.5){
 		    unit = unit + 'n';
 		}
@@ -14,7 +15,7 @@ module.exports = {
    			uptime = uptime / 60;
    			unit = 'uur';
      		if(uptime > 24) {
-     		    var days = uptime / 24;
+     		    days = uptime / 24;
      		    unit = 'dag';
      		    if(uptime >= 1.5){
      		        unit = unit + 'en';

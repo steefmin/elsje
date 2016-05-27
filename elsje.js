@@ -5,7 +5,7 @@ if (!process.env.TOKEN) {
     process.exit(1);
 }
 
-var Botkit = require('./botkit/lib/Botkit.js');
+var Botkit = require('botkit');
 var os = require('os');
 
 var controller = Botkit.slackbot({

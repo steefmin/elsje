@@ -1,0 +1,13 @@
+{
+  "ignore": [
+  ],
+  "test": [
+  ],
+  "critics": {
+	  "wc": { "limit": 5000 }
+  },
+  "dependencies": {
+	  "unused-ignores": [
+	  ]
+  }
+}

@@ -31,7 +31,8 @@ var formatUptime = function(uptime){
 };
 
 var verifyDate = function(text){
-  var current_date = date = new Date();
+  var date = new Date();
+  var current_date = date;
   if (regexp(/vandaag\s*/i,text)){
   }else if(regexp(/morgen\s*/i,text)){
     date.setDate(date.getDate() + 1);
@@ -115,7 +116,7 @@ var regexp = function(patern,string){
   }else{
     return false;
   }
-}
+};
 
 module.exports = {
   formatUptime: formatUptime,

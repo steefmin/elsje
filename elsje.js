@@ -1,16 +1,14 @@
 require('./env.js');
 var functions = require('./functions');
+var Botkit = require('botkit');
+var os = require('os');
+
 if (!process.env.TOKEN) {
 	console.log('Error: Specify token in environment');
   process.exit(1);
 }
 
-var Botkit = require('botkit');
-var os = require('os');
-
-process.argv.forEach(function(val, index, array){
-  var debug = (val !== "production");
-});
+var debug = (process.argv[2] !== "production");
 
 var controller = Botkit.slackbot({
 	"json_file_store": process.env.STORAGE_LOCATION,

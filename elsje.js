@@ -88,41 +88,43 @@ controller.hears(['what is my name','who am i','wie ben ik','hoe heet ik','wat i
         if (!err) {
           convo.say('Ik weet jouw naam nog niet!');
           convo.ask('Hoe zal ik je noemen?', function(response, convo) {
-          convo.ask('Je wilt dat ik je  `' + response.text + '` noem?', [{
-            pattern: 'yes',
-            callback: function(response, convo) {
-              convo.next();
-            }
+            convo.ask('Je wilt dat ik je  `' + response.text + '` noem?', [{
+              pattern: 'yes',
+              callback: function(response, convo) {
+                convo.next();
+              }
+            },{
+              pattern: 'no',
+              callback: function(response, convo) {
+                convo.stop();
+              }
+            },{
+              default: true,
+              callback: function(response, convo) {
+                convo.repeat();
+                convo.next();
+              }
+            }]);
+            convo.next();
           },{
-            pattern: 'no',
-            callback: function(response, convo) {
-              convo.stop();
+            'key': 'nickname'
+          }); // store the results in a field called nickname
+          convo.on('end', function(convo) {
+            if (convo.status == 'completed') {
+              bot.reply(message,'Ok! Dit ga ik even opschrijven...');
+              controller.storage.users.get(message.user,function(err, user) {
+                if (!user) {
+                  user = {id: message.user};
+                }
+                user.name = convo.extractResponse('nickname');
+                controller.storage.users.save(user,function(err, id) {
+                  bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
+                });
+              });
+            }else{
+              bot.reply(message, 'Ok, laat maar!');
             }
-          },{
-            default: true,
-            callback: function(response, convo) {
-              convo.repeat();
-              convo.next();
-            }
-          }]);
-          convo.next();
-        },{'key': 'nickname'}); // store the results in a field called nickname
-        convo.on('end', function(convo) {
-        if (convo.status == 'completed') {
-          bot.reply(message,'Ok! Dit ga ik even opschrijven...');
-          controller.storage.users.get(message.user,function(err, user) {
-            if (!user) {
-              user = {
-                id: message.user,
-              };
-            }
-            user.name = convo.extractResponse('nickname');
-            controller.storage.users.save(user,function(err, id) {
-              bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
-            });
           });
-        }else{
-          bot.reply(message, 'Ok, laat maar!');
         }
       });
     }

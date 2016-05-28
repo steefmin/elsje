@@ -367,6 +367,11 @@ UpdateDeadline = function(response,convo){
 		}
 	});
 };
+
+controller.hears(['TGIF'],'direct_message',function(bot,message){
+  SendTGIF();
+});
+
 controller.hears(['newherinneringen','sendreminder'],'direct_message',function(bot,message){
 	NewSendReminders();
 });

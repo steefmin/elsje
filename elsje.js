@@ -45,95 +45,88 @@ controller.on('channel_joined',function(bot,message) {
 });
 
 controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct_mention,mention',function(bot, message) {
-    bot.api.reactions.add({
-        timestamp: message.ts,
-        channel: message.channel,
-        name: 'robot_face',
-    },function(err,res) {
-        if (err) {
-            bot.botkit.log('Failed to add emoji reaction :(',err);
-        }
-    });
-    controller.storage.users.get(message.user,function(err,user) {
-        if (user && user.name) {
-            bot.reply(message,'Hoi ' + user.name + '!!');
-        } else {
-            bot.reply(message,'Hoi');
-        }
-    });
+  bot.api.reactions.add({
+    timestamp: message.ts,
+    channel: message.channel,
+    name: 'robot_face',
+  },function(err,res) {
+    if (err) {
+      bot.botkit.log('Failed to add emoji reaction :(',err);
+    }
+  });
+  controller.storage.users.get(message.user,function(err,user) {
+    if (user && user.name) {
+      bot.reply(message,'Hoi ' + user.name + '!!');
+    } else {
+      bot.reply(message,'Hoi');
+    }
+  });
 });
 
 
 controller.hears(['noem me (.*)'],'direct_message,direct_mention,mention',function(bot, message) {
-    var name = message.match[1];
-    controller.storage.users.get(message.user,function(err, user) {
-        if (!user) {
-            user = {
-                id: message.user,
-            };
-        }
-        user.name = name;
-        controller.storage.users.save(user,function(err, id) {
-            bot.reply(message,'Prima, vanaf nu zal ik je ' + user.name + ' noemen.');
-        });
+  var name = message.match[1];
+  controller.storage.users.get(message.user,function(err, user) {
+    if (!user) {
+      user = {
+        id: message.user,
+      };
+    }
+    user.name = name;
+    controller.storage.users.save(user,function(err, id) {
+      bot.reply(message,'Prima, vanaf nu zal ik je ' + user.name + ' noemen.');
     });
+  });
 });
 
 controller.hears(['what is my name','who am i','wie ben ik','hoe heet ik','wat is mijn naam'],'direct_message,direct_mention,mention',function(bot, message) {
-    controller.storage.users.get(message.user,function(err, user) {
-        if (user && user.name) {
-            bot.reply(message,'Jouw naam is ' + user.name);
-        } else {
-
-            bot.startConversation(message, function(err, convo) {
-                if (!err) {
-                    convo.say('Ik weet jouw naam nog niet!');
-                    convo.ask('Hoe zal ik je noemen?', function(response, convo) {
-                        convo.ask('Je wilt dat ik je  `' + response.text + '` noem?', [
-                            {
-                                pattern: 'yes',
-                                callback: function(response, convo) {
-                                    convo.next();
-                                }
-                            },
-                            {
-                                pattern: 'no',
-                                callback: function(response, convo) {
-                                    convo.stop();
-                                }
-                            },
-                            {
-                                default: true,
-                                callback: function(response, convo) {
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }
-                        ]);
-                        convo.next();
-                    },{'key': 'nickname'}); // store the results in a field called nickname
-                    convo.on('end', function(convo) {
-                        if (convo.status == 'completed') {
-                            bot.reply(message,'Ok! Dit ga ik even opschrijven...');
-                            controller.storage.users.get(message.user,function(err, user) {
-                                if (!user) {
-                                    user = {
-                                        id: message.user,
-                                    };
-                                }
-                                user.name = convo.extractResponse('nickname');
-                                controller.storage.users.save(user,function(err, id) {
-                                    bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
-                                });
-                            });
-                        } else {
-                            bot.reply(message, 'Ok, laat maar!');
-                        }
-                    });
-                }
+  controller.storage.users.get(message.user,function(err, user) {
+    if (user && user.name) {
+      bot.reply(message,'Jouw naam is ' + user.name);
+    } else {
+      bot.startConversation(message, function(err, convo) {
+        if (!err) {
+          convo.say('Ik weet jouw naam nog niet!');
+          convo.ask('Hoe zal ik je noemen?', function(response, convo) {
+          convo.ask('Je wilt dat ik je  `' + response.text + '` noem?', [{
+            pattern: 'yes',
+            callback: function(response, convo) {
+              convo.next();
+            }
+          },{
+            pattern: 'no',
+            callback: function(response, convo) {
+              convo.stop();
+            }
+          },{
+            default: true,
+            callback: function(response, convo) {
+              convo.repeat();
+              convo.next();
+            }
+          }]);
+          convo.next();
+        },{'key': 'nickname'}); // store the results in a field called nickname
+        convo.on('end', function(convo) {
+        if (convo.status == 'completed') {
+          bot.reply(message,'Ok! Dit ga ik even opschrijven...');
+          controller.storage.users.get(message.user,function(err, user) {
+            if (!user) {
+              user = {
+                id: message.user,
+              };
+            }
+            user.name = convo.extractResponse('nickname');
+            controller.storage.users.save(user,function(err, id) {
+              bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
             });
+          });
+        }else{
+          bot.reply(message, 'Ok, laat maar!');
         }
-    });
+      });
+    }
+  });
 });
 
 controller.hears(['help'],'direct_message,direct_mention',function(bot, message){
@@ -161,28 +154,25 @@ helpWithNamen = function(response,convo){
 };
 
 controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(bot, message) {
-	bot.startConversation(message,function(err, convo) {
-		convo.ask('Are you sure you want me to shutdown?',[
-			{
-				pattern: bot.utterances.yes,
-				callback: function(response, convo) {
-					convo.say('Bye!');
-					convo.next();
-					setTimeout(function() {
-						process.exit();
-					},3000);
-				}
-			},
-			{
-				pattern: bot.utterances.no,
-				default: true,
-				callback: function(response, convo) {
-					convo.say('*Phew!*');
-					convo.next();
-				}
-			}
-		]);
-	});
+  bot.startConversation(message,function(err, convo) {
+    convo.ask('Are you sure you want me to shutdown?',[{
+      pattern: bot.utterances.yes,
+      callback: function(response, convo) {
+        convo.say('Bye!');
+        convo.next();
+        setTimeout(function() {
+          process.exit();
+        },3000);
+      }
+    },{
+      pattern: bot.utterances.no,
+      default: true,
+      callback: function(response, convo) {
+        convo.say('*Phew!*');
+        convo.next();
+      }
+    }]);
+  });
 });
 
 controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime','identify yourself','who are you','what is your name'],'direct_message,direct_mention,mention',function(bot, message) {
@@ -202,337 +192,334 @@ voegTaakToe = function(response, convo){
 	});
 };
 voorWie = function(reponse,convo){
-	convo.ask("Wie gaat dit doen? (@naam graag)", function(response,convo){
-
-		var userid = functions.verifyUserName(response.text);
-		if(userid){
-			response.text = userid;
-			convo.say("Ha, gesjaakt!");
-			wanneerKlaar(response,convo);
-			convo.next();
-		}
-	});
+  convo.ask("Wie gaat dit doen? (@naam graag)", function(response,convo){
+    var userid = functions.verifyUserName(response.text);
+    if(userid){
+      response.text = userid;
+      convo.say("Ha, gesjaakt!");
+      wanneerKlaar(response,convo);
+      convo.next();
+    }
+  });
 };
 wanneerKlaar = function(response,convo){
-	convo.ask("Wanneer moet het klaar zijn?",function(response,convo){
-		date = functions.verifyDate(response.text);
-		if(date){
-			response.text = date;
-			convo.say("Ik zal het onthouden.");
-			if(convo.task.source_message.event=="direct_message"){
-				welkKanaal(response,convo);
-				convo.next();
-			}else{
-				opslaanVanTaak(response,convo);
-				convo.next();
-			}
-		}
-	});
+  convo.ask("Wanneer moet het klaar zijn?",function(response,convo){
+    var date = functions.verifyDate(response.text);
+    if(date){
+      response.text = date;
+      convo.say("Ik zal het onthouden.");
+      if(convo.task.source_message.event=="direct_message"){
+        welkKanaal(response,convo);
+        convo.next();
+      }else{
+        opslaanVanTaak(response,convo);
+        convo.next();
+      }
+    }
+  });
 };
 welkKanaal = function(response,convo){
-	convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
-		var channelid = functions.verifyChannelName(response.text);
-		if(channelid){
-			convo.say('Kijk in het kanaal voor de lijst.');
-			opslaanVanTaak(response,convo);
-			convo.next();
-		}
-	});
+  convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
+    var channelid = functions.verifyChannelName(response.text);
+    if(channelid){
+      convo.say('Kijk in het kanaal voor de lijst.');
+      opslaanVanTaak(response,convo);
+      convo.next();
+    }
+  });
 };
 opslaanVanTaak = function(response,convo){
-	convo.on('end',function(convo){
-		if(convo.status=='completed'){
-			var res = convo.extractResponses();
-			var channelid = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
-			if(channelid){
-					response.channel = channelid;
-			}
-			var id = response.team;
-			console.log(response);
-			controller.storage.teams.get(id, function(err, team_data){
-				if(!err){
-					var list = team_data;
-					bot.api.users.info({"user":res['Wie gaat dit doen? (@naam graag)']},function(err,reply){
-						if(!err){
-							var name = reply.user.name;
-							list.tasks.push({
-								channel: {id: response.channel},
-								taskid: list.tasks.length+1,
-								user: {id: response.user},
-								task: res['Wat moet er gedaan worden?'],
-								responsible: {id: res['Wie gaat dit doen? (@naam graag)']},
-								deadline: res['Wanneer moet het klaar zijn?'],
-								status: "new",
-							});
-							controller.storage.teams.save({
-								id: response.team,
-								tasks: list.tasks,
-							});
-						}else{
-							return false;
-						}
-					});
-
-				}else{
-					return false;
-				}
-			});
-			bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
-		}else{
-			bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
-		}
-	});
+  convo.on('end',function(convo){
+    if(convo.status=='completed'){
+      var res = convo.extractResponses();
+      var channelid = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
+      if(channelid){
+        response.channel = channelid;
+      }
+      var id = response.team;
+      console.log(response);
+      controller.storage.teams.get(id, function(err, team_data){
+        if(!err){
+          var list = team_data;
+          bot.api.users.info({"user":res['Wie gaat dit doen? (@naam graag)']},function(err,reply){
+            if(!err){
+              var name = reply.user.name;
+              list.tasks.push({
+                channel: {id: response.channel},
+                taskid: list.tasks.length+1,
+                user: {id: response.user},
+                task: res['Wat moet er gedaan worden?'],
+                responsible: {id: res['Wie gaat dit doen? (@naam graag)']},
+                deadline: res['Wanneer moet het klaar zijn?'],
+                status: "new",
+              });
+              controller.storage.teams.save({
+                id: response.team,
+                tasks: list.tasks,
+              });
+            }else{
+              return false;
+            }
+          });
+        }else{
+          return false;
+        }
+      });
+      bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
+    }else{
+      bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+    }
+  });
 };
 
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){
-	bot.startConversation(message,completeTask);
+  bot.startConversation(message,completeTask);
 });
 completeTask = function(response,convo){
-    var channel,send;
-    if(functions.verifyChannelId(convo.source_message.channel)){
-        channel = convo.source_message.channel;
-        send = channel;
-    }else{
-        channel = "all";
-        send = convo.source_message.user;
+  var channel,send;
+  if(functions.verifyChannelId(convo.source_message.channel)){
+    channel = convo.source_message.channel;
+    send = channel;
+  }else{
+    channel = "all";
+    send = convo.source_message.user;
+  }
+  ShowList(channel,"all",send);
+  convo.ask("Kan je mij het nummer geven van de taak die van de lijst af mag?",function(response,convo){
+    if(!isNaN(parseInt(response.text))){
+      convo.say("BAM, weer wat gedaan. Goed werk <@"+response.user+">.\n");
+      TaskDone(response,convo);
+      convo.next();
     }
-	ShowList(channel,"all",send);
-	convo.ask("Kan je mij het nummer geven van de taak die van de lijst af mag?",function(response,convo){
-		if(!isNaN(parseInt(response.text))){
-			convo.say("BAM, weer wat gedaan. Goed werk <@"+response.user+">.\n");
-			TaskDone(response,convo);
-			convo.next();
-		}
-	});
+  });
 };
 TaskDone = function(response,convo){
-	convo.on('end',function(convo){
-		if(convo.status=='completed'){
-			var res = convo.extractResponses();
-			var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
-			var id = response.team;
-		        controller.storage.teams.get(id, function(err, channel_data){
-				channel_data.tasks.forEach(function(value,index,array){
-					if(value.taskid == number){
-						value.status = "done";
-					}
-				});
-				controller.storage.teams.save(channel_data);
-			});
-	        bot.reply(response,"Ok, verwijderd van de lijst.");
-		}else{
-			bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
-		}
-	});
+  convo.on('end',function(convo){
+    if(convo.status=='completed'){
+      var res = convo.extractResponses();
+      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
+      var id = response.team;
+		    controller.storage.teams.get(id, function(err, channel_data){
+          channel_data.tasks.forEach(function(value,index,array){
+            if(value.taskid == number){
+              value.status = "done";
+            }
+          });
+          controller.storage.teams.save(channel_data);
+        });
+        bot.reply(response,"Ok, verwijderd van de lijst.");
+    }else{
+      bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+    }
+  });
 };
 
 controller.hears(['update deadline','deadline veranderen','andere deadline'],'direct_mention,mention,direct_message',function(bot,message){
-	bot.startConversation(message,DeadlineNumber);
+  bot.startConversation(message,DeadlineNumber);
 });
 DeadlineNumber = function(response,convo){
-    var channel,send;
-    if(functions.verifyChannelId(convo.source_message.channel)){
-        channel = convo.source_message.channel;
-		send = channel;
-    }else{
-        channel = "all";
-		send = convo.source_message.user;
+  var channel,send;
+  if(functions.verifyChannelId(convo.source_message.channel)){
+    channel = convo.source_message.channel;
+    send = channel;
+  }else{
+    channel = "all";
+    send = convo.source_message.user;
+  }
+  ShowList(channel,"all",send);
+  convo.ask("Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?",function(response,convo){
+    if(!isNaN(parseInt(response.text))){
+      NewDeadline(response,convo);
+      convo.next();
     }
-    ShowList(channel,"all",send);
-	convo.ask("Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?",function(response,convo){
-		if(!isNaN(parseInt(response.text))){
-			NewDeadline(response,convo);
-			convo.next();
-		}
-	});
+  });
 };
 NewDeadline = function(response,convo){
-	convo.ask("Wat is de nieuwe deadline?",function(response,convo){
-		date = functions.verifyDate(response.text);
-		if(date){
-			response.text = date;
-			convo.say("Ik zal het onthouden.");
-				UpdateDeadline(response,convo);
-				convo.next();
-		}
-	});
+  convo.ask("Wat is de nieuwe deadline?",function(response,convo){
+    date = functions.verifyDate(response.text);
+    if(date){
+      response.text = date;
+      convo.say("Ik zal het onthouden.");
+      UpdateDeadline(response,convo);
+      convo.next();
+    }
+  });
 };
 UpdateDeadline = function(response,convo){
-	convo.on('end',function(convo){
-		if(convo.status=='completed'){
-			var res = convo.extractResponses();
-			controller.storage.teams.get(response.team, function(err, channel_data){
-				channel_data.tasks.forEach(function(value,index,array){
-					if(value.taskid==parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])){
-						value.deadline = res['Wat is de nieuwe deadline?'];
-					}
-				});
-				controller.storage.teams.save(channel_data);
-			});
-			bot.reply(response,"Ok, nieuwe deadline genoteerd.");
-		}
-	});
+  convo.on('end',function(convo){
+    if(convo.status=='completed'){
+      var res = convo.extractResponses();
+      controller.storage.teams.get(response.team, function(err, channel_data){
+        channel_data.tasks.forEach(function(value,index,array){
+          if(value.taskid==parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])){
+            value.deadline = res['Wat is de nieuwe deadline?'];
+          }
+        });
+        controller.storage.teams.save(channel_data);
+      });
+      bot.reply(response,"Ok, nieuwe deadline genoteerd.");
+    }
+  });
 };
 
 controller.hears(['newherinneringen','sendreminder'],'direct_message',function(bot,message){
-	NewSendReminders();
+  NewSendReminders();
 });
 
 NewSendReminders = function(){
-	bot.api.users.list({},function(err,reply){
-		reply.members.forEach(function(value,index,array){
-			console.log(value);
-			if(value.deleted === false && value.is_bot === false ){
-				ShowList("all",value.id,value.id);
-			}
-		});
-	});
+  bot.api.users.list({},function(err,reply){
+    reply.members.forEach(function(value,index,array){
+      console.log(value);
+      if(value.deleted === false && value.is_bot === false ){
+        ShowList("all",value.id,value.id);
+      }
+    });
+  });
 };
 controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,direct_mention,mention',function(bot,message){
-	var send;
-	var type = message.match[1];
-	var userid = functions.verifyUserName(type);
-	var channelid = functions.verifyChannelName(type);
-	if(functions.verifyChannelId(message.channel)){
-		send = message.channel;
-	}else{
-		send = message.user;
-	}
-	console.log(message);
-	if(userid && channelid){
-		console.log("beide");
-		ShowList(channelid,userid,send);
-	}else{
-		if(userid){
-			console.log("user");
-			ShowList("all",userid,send);
-			return true;
-		}else if(channelid){
-			console.log("channel");
-			ShowList(channelid,"all",send);
-			return true;
-		}else if(functions.verifyChannelId(message.channel)){
-			console.log("none -> channel");
-			ShowList(send,"all",send);
-		}else{
-			console.log("none -> dm");
-			ShowList("all","all",send);
-		}
-	}
+  var send;
+  var type = message.match[1];
+  var userid = functions.verifyUserName(type);
+  var channelid = functions.verifyChannelName(type);
+  if(functions.verifyChannelId(message.channel)){
+    send = message.channel;
+  }else{
+    send = message.user;
+  }
+  console.log(message);
+  if(userid && channelid){
+    console.log("beide");
+    ShowList(channelid,userid,send);
+  }else{
+    if(userid){
+      console.log("user");
+      ShowList("all",userid,send);
+      return true;
+    }else if(channelid){
+      console.log("channel");
+      ShowList(channelid,"all",send);
+      return true;
+    }else if(functions.verifyChannelId(message.channel)){
+      console.log("none -> channel");
+      ShowList(send,"all",send);
+    }else{
+      console.log("none -> dm");
+      ShowList("all","all",send);
+    }
+  }
 });
 ShowList = function(channelName,userName,sendto){
-	bot.api.users.info({"user":bot.identity.id},function(err,reply){
-		var teamid = reply.user.team_id;
-		controller.storage.teams.get(teamid,function(err,team_data){
-			if(err){
-				return false;
-			}
-			var sortedtasks, formatted, userID, channelID;
-			var usertasks = filterTasks('status',filterTasks('channel',filterTasks('responsible',team_data.tasks,userName),channelName),'new');
-			if(usertasks.length === 0){
-				console.log("empty tasks");
-				return false;
-			}
-			sortedtasks = sortTasks(usertasks,'channel');
-			formatted = formatTasks(sortedtasks);
-			userID = functions.verifyUserId(sendto);
-			if(userID){
-				sendTo(formatted,userID);
-				console.log('sending to user');
-			}
-			channelID = functions.verifyChannelId(sendto);
-			if(channelID){
-				sendTo(formatted,channelID);
-				console.log('sending to channel');
-			}
-		});
-	});
+  bot.api.users.info({"user":bot.identity.id},function(err,reply){
+    var teamid = reply.user.team_id;
+    controller.storage.teams.get(teamid,function(err,team_data){
+      if(err){
+        return false;
+      }
+      var sortedtasks, formatted, userID, channelID;
+      var usertasks = filterTasks('status',filterTasks('channel',filterTasks('responsible',team_data.tasks,userName),channelName),'new');
+      if(usertasks.length === 0){
+        console.log("empty tasks");
+        return false;
+      }
+      sortedtasks = sortTasks(usertasks,'channel');
+      formatted = formatTasks(sortedtasks);
+      userID = functions.verifyUserId(sendto);
+      if(userID){
+        sendTo(formatted,userID);
+        console.log('sending to user');
+      }
+      channelID = functions.verifyChannelId(sendto);
+      if(channelID){
+        sendTo(formatted,channelID);
+        console.log('sending to channel');
+      }
+    });
+  });
 };
 sendTo = function(formatted,sendToID){
-	bot.api.users.info({"user":bot.identity.id},function(err,reply){
-		var image = reply.user.profile.image_original;
-		if(functions.verifyUserId(sendToID)){
-			bot.api.im.open({"user":sendToID},function(err,response){
-				bot.api.chat.postMessage({"channel":response.channel.id,"text":formatted,"username":bot.identity.name,"icon_url":image});
-			});
-		}else if(functions.verifyChannelId(sendToID)){
-			bot.api.chat.postMessage({
+  bot.api.users.info({"user":bot.identity.id},function(err,reply){
+    var image = reply.user.profile.image_original;
+    if(functions.verifyUserId(sendToID)){
+      bot.api.im.open({"user":sendToID},function(err,response){
+        bot.api.chat.postMessage({"channel":response.channel.id,"text":formatted,"username":bot.identity.name,"icon_url":image});
+      });
+    }else if(functions.verifyChannelId(sendToID)){
+      bot.api.chat.postMessage({
         "channel": sendToID,
         "text": formatted,
         "username": bot.identity.name,
         "icon_url": image
       });
-		}else{
-			console.log('err, no valid sendToID');
-			return false;
-		}
-	});
+    }else{
+      console.log('err, no valid sendToID');
+      return false;
+    }
+  });
 };
 filterTasks = function(filterOn,tasks,filterFor){
-	var newtasks;
-	if(filterFor=="all"){
-		return tasks;
-	}else {
-		newtasks = [];
-		if(filterOn == 'channel' || filterOn ==	'responsible'){
-			tasks.forEach(function(value,index,array){
-				if(value[filterOn].id==filterFor){
-					newtasks.push(value);
-				}
-				return newtasks;
-			});
-			return newtasks;
-		}else{
-            tasks.forEach(function(value,index,array){
-                if(value[filterOn]==filterFor){
-                    newtasks.push(value);
-                }
-                return newtasks;
-            });
-            return newtasks;
-		}
-	}
+  var newtasks;
+  if(filterFor=="all"){
+    return tasks;
+  }else {
+    newtasks = [];
+    if(filterOn == 'channel' || filterOn ==	'responsible'){
+      tasks.forEach(function(value,index,array){
+        if(value[filterOn].id==filterFor){
+          newtasks.push(value);
+        }
+        return newtasks;
+      });
+      return newtasks;
+    }else{
+      tasks.forEach(function(value,index,array){
+        if(value[filterOn]==filterFor){
+          newtasks.push(value);
+        }
+        return newtasks;
+      });
+      return newtasks;
+    }
+  }
 };
 sortTasks = function(tasks,sortBy){
-	var sorted = tasks.sort(function(taska, taskb){
-		if(taska[sortBy].id < taskb[sortBy].id){
-			return 1;
-		}
-		if(taska[sortBy].id > taskb[sortBy].id){
-			return -1;
-		}
-		return 0; 
-	});
-	return sorted;
+  var sorted = tasks.sort(function(taska, taskb){
+    if(taska[sortBy].id < taskb[sortBy].id){
+      return 1;
+    }
+    if(taska[sortBy].id > taskb[sortBy].id){
+      return -1;
+    }
+    return 0; 
+  });
+  return sorted;
 };
 formatTasks = function(tasks){
-	var formatted = "Takenlijst\n```";
-	tasks.forEach(function(task,index,array){
-		var addtostring ="";
-		var deadline = new Date(task.deadline);
-		if(task.status != "done"){
-			addtostring = 
-					'<#'+task.channel.id+'>'+
-					functions.addSpaces(2)+
-					task.taskid+
-					functions.addSpaces(4-task.taskid.toString().length)+
-					'<@'+task.responsible.id+'>'+
-					functions.addSpaces(2)+
-					deadline.toUTCString().substr(5,11)+
-					functions.addSpaces(2)+
-					task.task+
-					"\n";
-			formatted+=addtostring;
-		}
-	});
-	formatted+="```";
-	return formatted; 
+  var formatted = "Takenlijst\n```";
+  tasks.forEach(function(task,index,array){
+    var addtostring ="";
+    var deadline = new Date(task.deadline);
+    if(task.status != "done"){
+      addtostring = 
+        '<#'+task.channel.id+'>'+
+        functions.addSpaces(2)+
+        task.taskid+
+        functions.addSpaces(4-task.taskid.toString().length)+
+        '<@'+task.responsible.id+'>'+
+        functions.addSpaces(2)+
+        deadline.toUTCString().substr(5,11)+
+        functions.addSpaces(2)+
+        task.task+
+        "\n";
+      formatted+=addtostring;
+    }
+  });
+  formatted+="```";
+  return formatted; 
 };
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){
   sendTGIF();
 });
-
 
 var sendTGIF = function(){
   bot.api.users.info({"user":bot.identity.id},function(err,reply){

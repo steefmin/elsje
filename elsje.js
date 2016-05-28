@@ -2,32 +2,38 @@ require('./env.js');
 var functions = require('./functions');
 if (!process.env.TOKEN) {
 	console.log('Error: Specify token in environment');
-    process.exit(1);
+  process.exit(1);
 }
 
 var Botkit = require('botkit');
 var os = require('os');
 
+process.argv.forEach(function(val, index, array){
+  var debug = (val !== "production");
+});
+
 var controller = Botkit.slackbot({
-	json_file_store: process.env.STORAGE_LOCATION,
-	debug: false,
+	"json_file_store": process.env.STORAGE_LOCATION,
+	"debug": debug,
 });
 
 var bot = controller.spawn({
-    token: process.env.TOKEN,
-    retry: Infinity
+  token: process.env.TOKEN,
+  retry: Infinity
 }).startRTM();
 
 controller.on('rtm_open',function(bot,message){
-	var botid = bot.identity.id;
-	var botname = bot.identity.name;
-	bot.api.users.info({"user":botid},function(err,reply){
-		var image = reply.user.profile.image_original;
-		var channel = "C0JTZBACD";
-		bot.api.chat.postMessage({channel,"text":"Hi, this is a debug message: I just reconnected","username":botname,"icon_url":image});
-//		enable next line to create fresh db
-//		controller.storage.teams.save({id:reply.user.team_id,tasks:[]});
-	});
+  if(!debug){
+	  var botid = bot.identity.id;
+	  var botname = bot.identity.name;
+	  bot.api.users.info({"user":botid},function(err,reply){
+		  var image = reply.user.profile.image_original;
+		  var channel = "C0JTZBACD";
+		  bot.api.chat.postMessage({channel,"text":"Hi, this is a debug message: I just reconnected","username":botname,"icon_url":image});
+//	  	enable next line to create fresh db
+//  		controller.storage.teams.save({id:reply.user.team_id,tasks:[]});
+  	});
+  }
 });
 
 controller.on('channel_joined',function(bot,message) {
@@ -368,10 +374,6 @@ UpdateDeadline = function(response,convo){
 	});
 };
 
-controller.hears(['TGIF'],'direct_message',function(bot,message){
-  SendTGIF();
-});
-
 controller.hears(['newherinneringen','sendreminder'],'direct_message',function(bot,message){
 	NewSendReminders();
 });
@@ -454,7 +456,12 @@ sendTo = function(formatted,sendToID){
 				bot.api.chat.postMessage({"channel":response.channel.id,"text":formatted,"username":bot.identity.name,"icon_url":image});
 			});
 		}else if(functions.verifyChannelId(sendToID)){
-			bot.api.chat.postMessage({"channel":sendToID,"text":formatted,"username":bot.identity.name,"icon_url":image});
+			bot.api.chat.postMessage({
+        "channel": sendToID,
+        "text": formatted,
+        "username": bot.identity.name,
+        "icon_url": image
+      });
 		}else{
 			console.log('err, no valid sendToID');
 			return false;
@@ -522,3 +529,21 @@ formatTasks = function(tasks){
 	return formatted; 
 };
 
+controller.hears(['TGIF'],'direct_message',function(bot,message){
+  sendTGIF();
+});
+
+
+var sendTGIF = function(){
+  bot.api.users.info({"user":bot.identity.id},function(err,reply){
+    var image = reply.user.profile.image_original;
+    var channel = "C0LQPD97A";
+    var message = "TGIF!!";
+    bot.api.chat.postMessage({
+      "channel": channel,
+      "text": message,
+      "username": bot.identity.name,
+      "icon_url": image
+    });
+  });
+};

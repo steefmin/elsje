@@ -118,6 +118,13 @@ var regexp = function(patern,string){
   }
 };
 
+var getBotImg = function(bot,callback){
+  bot.api.users.info({"user":bot.identity.id},function(err,reply){
+    var img = reply.user.profile.image_original;
+    callback(img);
+  };
+};
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -125,5 +132,6 @@ module.exports = {
   verifyUserId: verifyUserId,
   verifyChannelId: verifyChannelId,
   verifyUserName: verifyUserName,
-  verifyChannelName: verifyChannelName
+  verifyChannelName: verifyChannelName,
+  getBotImg: getBotImg
 };

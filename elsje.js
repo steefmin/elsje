@@ -24,8 +24,7 @@ controller.on('rtm_open',function(bot,message){
   if(!debug){
 	  var botid = bot.identity.id;
 	  var botname = bot.identity.name;
-	  bot.api.users.info({"user":botid},function(err,reply){
-		  var image = reply.user.profile.image_original;
+	  functions.getBotImg(bot,function(image){
 		  var channel = "C0JTZBACD";
 		  bot.api.chat.postMessage({channel,"text":"Hi, this is a debug message: I just reconnected","username":botname,"icon_url":image});
 //	  	enable next line to create fresh db
@@ -437,8 +436,7 @@ ShowList = function(channelName,userName,sendto){
   });
 };
 sendTo = function(formatted,sendToID){
-  bot.api.users.info({"user":bot.identity.id},function(err,reply){
-    var image = reply.user.profile.image_original;
+  functions.getBotImg(bot,function(image){
     if(functions.verifyUserId(sendToID)){
       bot.api.im.open({"user":sendToID},function(err,response){
         bot.api.chat.postMessage({"channel":response.channel.id,"text":formatted,"username":bot.identity.name,"icon_url":image});
@@ -518,19 +516,16 @@ formatTasks = function(tasks){
 };
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){
-  sendTGIF();
+  functions.getBotImg(bot,sendTGIF(img));
 });
 
-var sendTGIF = function(){
-  bot.api.users.info({"user":bot.identity.id},function(err,reply){
-    var image = reply.user.profile.image_original;
-    var channel = "C0LQPD97A";
-    var message = "TGIF!!";
-    bot.api.chat.postMessage({
-      "channel": channel,
-      "text": message,
-      "username": bot.identity.name,
-      "icon_url": image
-    });
+var sendTGIF = function(img){
+  var channel = "C0LQPD97A";
+  var message = "TGIF!!";
+  bot.api.chat.postMessage({
+    "channel": channel,
+    "text": message,
+    "username": bot.identity.name,
+    "icon_url": img
   });
 };

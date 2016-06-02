@@ -444,7 +444,7 @@ var sendTo = function(formatted,sendToID){
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){
   sendTGIF();
-}
+});
 
 var sendTGIF = function(){
   functions.getTeamId(bot,function(teamid){
@@ -470,4 +470,4 @@ controller.hears(['setTGIF(.*)'],'direct_message',function(bot,message){
       });
     });
   }
-}
+});

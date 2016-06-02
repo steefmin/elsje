@@ -460,6 +460,7 @@ controller.hears(['setTGIF(.*)'],'direct_mention, mention',function(bot,message)
       if(!err){
         channel_data.tgif[message.channel] = message.match[1];
         controller.storage.teams.save(channel_data);
+        bot.reply(message,"Is goed! Ik heb zin in het weekend."
       }
     });
   });

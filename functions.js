@@ -125,6 +125,13 @@ var getBotImg = function(bot,callback){
   };
 };
 
+var getTeamId = function(bot,callback){
+  bot.api.users.info({"user":bot.identity.id},function(err,reply){
+    var teamId = reply.user.team_id;
+    callback(teamId);
+  };
+};
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,

@@ -408,8 +408,7 @@ controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,d
   }
 });
 ShowList = function(channelName,userName,sendto){
-  bot.api.users.info({"user":bot.identity.id},function(err,reply){
-    var teamid = reply.user.team_id;
+  functions.getTeamId(bot,function(teamid){
     controller.storage.teams.get(teamid,function(err,team_data){
       if(err){
         return false;

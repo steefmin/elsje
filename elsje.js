@@ -515,7 +515,7 @@ formatTasks = function(tasks){
 };
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){
-  functions.getBotImg(bot,sendTGIF(img));
+  functions.getBotImg(bot,sendTGIF);
 });
 
 var sendTGIF = function(img){

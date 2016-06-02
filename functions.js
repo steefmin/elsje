@@ -122,14 +122,14 @@ var getBotImg = function(bot,callback){
   bot.api.users.info({"user":bot.identity.id},function(err,reply){
     var img = reply.user.profile.image_original;
     callback(img);
-  };
+  });
 };
 
 var getTeamId = function(bot,callback){
   bot.api.users.info({"user":bot.identity.id},function(err,reply){
     var teamId = reply.user.team_id;
     callback(teamId);
-  };
+  });
 };
 
 module.exports = {

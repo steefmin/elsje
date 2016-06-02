@@ -197,6 +197,17 @@ var formatTasks = function(tasks){
   return formatted; 
 };
 
+var postMessage = function(bot,message,channel){
+  getBotImg(bot,function(image){
+    bot.api.chat.postMessage({
+          "channel": channel,
+          "text": message,
+          "username": bot.identity.name,
+          "icon_url": image
+        });
+  };
+};
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -209,5 +220,6 @@ module.exports = {
   getTeamId: getTeamId,
   formatTasks: formatTasks,
   sortTasks: sortTasks,
-  filterTasks: filterTasks
+  filterTasks: filterTasks,
+  postMessage: postMessage
 };

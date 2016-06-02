@@ -22,11 +22,7 @@ var bot = controller.spawn({
 
 controller.on('rtm_open',function(bot,message){
   if(!debug){
-	  var botid = bot.identity.id;
-	  var botname = bot.identity.name;
-	  functions.getBotImg(bot,function(image){
-		  var channel = "C0JTZBACD";
-		  bot.api.chat.postMessage({channel,"text":"Hi, this is a debug message: I just reconnected","username":botname,"icon_url":image});
+	  functions.postMessage(bot,"Hi, this is a debug message: I just reconnected","C0JTZBACD");
 //	  	enable next line to create fresh db
 //  		controller.storage.teams.save({id:reply.user.team_id,tasks:[]});
   	});
@@ -435,42 +431,30 @@ var ShowList = function(channelName,userName,sendto){
   });
 };
 var sendTo = function(formatted,sendToID){
-  functions.getBotImg(bot,function(image){
-    if(functions.verifyUserId(sendToID)){
-      bot.api.im.open({"user":sendToID},function(err,response){
-        bot.api.chat.postMessage({"channel":response.channel.id,"text":formatted,"username":bot.identity.name,"icon_url":image});
-      });
-    }else if(functions.verifyChannelId(sendToID)){
-      bot.api.chat.postMessage({
-        "channel": sendToID,
-        "text": formatted,
-        "username": bot.identity.name,
-        "icon_url": image
-      });
-    }else{
-      console.log('err, no valid sendToID');
-      return false;
-    }
-  });
+  if(functions.verifyUserId(sendToID)){
+    bot.api.im.open({"user":sendToID},function(err,response){
+      functions.postMessage(bot,formatted,response.channel.id);
+    });
+  }else if(functions.verifyChannelId(sendToID)){
+    functions.postMessage(bot,formatted,sendToID);
+  }else{
+    console.log('err, no valid sendToID');
+    return false;
+  }
 };
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){
-  functions.getBotImg(bot,sendTGIF);
+  sendTGIF();
 }
 
-var sendTGIF = function(image){
+var sendTGIF = function(){
   functions.getTeamId(bot,function(teamid){
     controller.storage.teams.get(teamid, function(err, data) {
       var channel = "C0LQPD97A";
       var message = "TGIF!!";
       data.tgif.channels.forEach(value,index,array){
-        bot.api.chat.postMessage({
-          "channel": value.channel,
-          "text": value.message,
-          "username": bot.identity.name,
-          "icon_url": image
-        });
-      }
+        functions.postMessage(bot,value.message,value.channel);
+      };
     });
   });
 };

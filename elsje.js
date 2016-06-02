@@ -477,3 +477,11 @@ controller.hears(['setTGIF(.*)'],'direct_mention, mention',function(bot,message)
     });
   });
 });
+
+controller.hears(['<#.{9}>'], 'ambient', function(bot,message){
+  isChannel = functions.verifyChannelId(message.match[0]);
+  if(isChannel){
+    var message = "Dit kanaal is zojuist genoemd in <#" + message.channel + ">.";
+    functions.postMessage(bot,message,isChannel);
+  }
+});

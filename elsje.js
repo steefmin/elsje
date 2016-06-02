@@ -372,15 +372,13 @@ var NewSendReminders = function(){
 };
 controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,direct_mention,mention',function(bot,message){
   var send;
-  var type = message.match[1];
-  var userid = functions.verifyUserName(type);
-  var channelid = functions.verifyChannelName(type);
+  var userid = functions.verifyUserName(message.match[1]);
+  var channelid = functions.verifyChannelName(message.match[1]);
   if(functions.verifyChannelId(message.channel)){
     send = message.channel;
   }else{
     send = message.user;
   }
-  console.log(message);
   if(userid && channelid){
     console.log("beide");
     ShowList(channelid,userid,send);
@@ -449,25 +447,20 @@ controller.hears(['TGIF'],'direct_message',function(bot,message){
 var sendTGIF = function(){
   functions.getTeamId(bot,function(teamid){
     controller.storage.teams.get(teamid, function(err, data) {
-      console.log(data);
-      for (var channel in data){
-        
-        console.log(channel);
-        //functions.postMessage(bot,key,channel);
+      for (var channel in data.tgif){
+        functions.postMessage(bot,data.tgif[channel],channel);
       };
     });
   });
 };
 
-controller.hears(['setTGIF(.*)'],'direct_message',function(bot,message){
-  var text = message.match[1];
-  var isChannel = functions.verifyChannelName(text);
-  if(isChannel){
-    functions.getTeamId(bot,function(teamId){
-      controller.storage.teams.get(teamId, function(err, channel_data){
-        channel_data.tgif[isChannel] = text.replace(isChannel,'');
+controller.hears(['setTGIF(.*)'],'direct_mention, mention',function(bot,message){
+  functions.getTeamId(bot,function(teamId){
+    controller.storage.teams.get(teamId, function(err, channel_data){
+      if(!err){
+        channel_data.tgif[message.channel] = message.match[1];
         controller.storage.teams.save(channel_data);
-      });
+      }
     });
-  }
+  });
 });

@@ -36,7 +36,7 @@ controller.on('channel_joined',function(bot,message) {
 	});
 });
 
-controller.hears(['hello','hi','hoi','hallo','dag','hey'],'direct_message,direct_mention,mention',function(bot, message) {
+controller.hears(['hello','hi','hoi','hallo','hey'],'direct_message,direct_mention,mention',function(bot, message) {
   bot.api.reactions.add({
     timestamp: message.ts,
     channel: message.channel,

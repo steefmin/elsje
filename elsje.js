@@ -456,15 +456,21 @@ var sendTo = function(formatted,sendToID){
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){
   functions.getBotImg(bot,sendTGIF);
-});
+}
 
-var sendTGIF = function(img){
-  var channel = "C0LQPD97A";
-  var message = "TGIF!!";
-  bot.api.chat.postMessage({
-    "channel": channel,
-    "text": message,
-    "username": bot.identity.name,
-    "icon_url": img
+var sendTGIF = function(image){
+  functions.getTeamId(bot,function(teamid){
+    controller.storage.teams.get(teamid, function(err, data) {
+      var channel = "C0LQPD97A";
+      var message = "TGIF!!";
+      data.tgif.channels.forEach(value,index,array){
+        bot.api.chat.postMessage({
+          "channel": value.channel,
+          "text": value.message,
+          "username": bot.identity.name,
+          "icon_url": image
+        });
+      }
+    });
   });
 };

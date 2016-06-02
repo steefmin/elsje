@@ -104,13 +104,17 @@ controller.hears(['what is my name','who am i','wie ben ik','hoe heet ik','wat i
               if (convo.status == 'completed') {
                 bot.reply(message,'Ok! Dit ga ik even opschrijven...');
                 controller.storage.users.get(message.user,function(err, user) {
-                  if (!user) {
-                    user = {id: message.user};
+                  if(!err){
+                    if (!user) {
+                      user = {id: message.user};
+                    }
+                    user.name = convo.extractResponse('nickname');
+                    controller.storage.users.save(user,function(err, id) {
+                      if(!err){
+                        bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
+                      }
+                    });
                   }
-                  user.name = convo.extractResponse('nickname');
-                  controller.storage.users.save(user,function(err, id) {
-                    bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
-                  });
                 });
               }else{
                 bot.reply(message, 'Ok, laat maar!');
@@ -230,10 +234,10 @@ var opslaanVanTaak = function(response,convo){
       var res = convo.extractResponses();
       var channelId = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
       if(!channelId){
-        var channelId = response.channel;
+        channelId = response.channel;
       }
       var userId = response.user;
-      var task = res['Wat moet er gedaan worden?']
+      var task = res['Wat moet er gedaan worden?'];
       var responsibleId = res['Wie gaat dit doen? (@naam graag)'];
       var deadline = res['Wanneer moet het klaar zijn?'];
       
@@ -248,7 +252,7 @@ var opslaanVanTaak = function(response,convo){
 };
 
 controller.hears(['instanttaak (.*)'],'direct_message', function(bot,message){
-  if(message.match[1]==""){
+  if(message.match[1]===""){
     bot.reply(message,"Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal");
   }
   var parts = message.match[1].split('|');

@@ -24,7 +24,7 @@ controller.on('rtm_open',function(bot,message){
   if(!debug){
 	  functions.postMessage(bot,"Hi, this is a debug message: I just reconnected","C0JTZBACD");
 //	  	enable next line to create fresh db
-//  		controller.storage.teams.save({id:reply.user.team_id,tasks:[]});
+//  		controller.storage.teams.save({id:message.user.team_id,tasks:[],tgif:{}});
   	});
   }
 });
@@ -450,11 +450,25 @@ controller.hears(['TGIF'],'direct_message',function(bot,message){
 var sendTGIF = function(){
   functions.getTeamId(bot,function(teamid){
     controller.storage.teams.get(teamid, function(err, data) {
-      var channel = "C0LQPD97A";
-      var message = "TGIF!!";
-      data.tgif.channels.forEach(value,index,array){
-        functions.postMessage(bot,value.message,value.channel);
+      console.log(data);
+      for (var channel in data){
+        
+        console.log(channel);
+        //functions.postMessage(bot,key,channel);
       };
     });
   });
 };
+
+controller.hears(['setTGIF(.*)'],'direct_message',function(bot,message){
+  var text = message.match[1];
+  var isChannel = functions.verifyChannelName(text);
+  if(isChannel){
+    functions.getTeamId(bot,function(teamId){
+      controller.storage.teams.get(teamId, function(err, channel_data){
+        channel_data.tgif[isChannel] = text.replace(isChannel,'');
+        controller.storage.teams.save(channel_data);
+      });
+    });
+  }
+}

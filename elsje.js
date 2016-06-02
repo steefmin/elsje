@@ -39,10 +39,12 @@ controller.hears(['hello','hi','hoi','hallo','hey'],'direct_message,direct_menti
     }
   });
   controller.storage.users.get(message.user,function(err,user) {
-    if (user && user.name) {
-      bot.reply(message,'Hoi ' + user.name + '!!');
-    } else {
-      bot.reply(message,'Hoi');
+    if(!err){
+      if (user && user.name) {
+        bot.reply(message,'Hoi ' + user.name + '!!');
+      } else {
+        bot.reply(message,'Hoi');
+      }
     }
   });
 });
@@ -51,15 +53,17 @@ controller.hears(['hello','hi','hoi','hallo','hey'],'direct_message,direct_menti
 controller.hears(['noem me (.*)'],'direct_message,direct_mention,mention',function(bot, message) {
   var name = message.match[1];
   controller.storage.users.get(message.user,function(err, user) {
-    if (!user) {
-      user = {
-        id: message.user,
-      };
+    if (!err){
+      if (!user) {
+        user = {
+          id: message.user,
+        };
+      }
+      user.name = name;
+      controller.storage.users.save(user,function(err, id) {
+        bot.reply(message,'Prima, vanaf nu zal ik je ' + user.name + ' noemen.');
+      });
     }
-    user.name = name;
-    controller.storage.users.save(user,function(err, id) {
-      bot.reply(message,'Prima, vanaf nu zal ik je ' + user.name + ' noemen.');
-    });
   });
 });
 
@@ -141,23 +145,25 @@ var helpWithNamen = function(response,convo){
 
 controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(bot, message) {
   bot.startConversation(message,function(err, convo) {
-    convo.ask('Are you sure you want me to shutdown?',[{
-      pattern: bot.utterances.yes,
-      callback: function(response, convo) {
-        convo.say('Bye!');
-        convo.next();
-        setTimeout(function() {
-          process.exit();
-        },3000);
-      }
-    },{
-      pattern: bot.utterances.no,
-      default: true,
-      callback: function(response, convo) {
-        convo.say('*Phew!*');
-        convo.next();
-      }
-    }]);
+    if(!err){
+      convo.ask('Are you sure you want me to shutdown?',[{
+        pattern: bot.utterances.yes,
+        callback: function(response, convo) {
+          convo.say('Bye!');
+          convo.next();
+          setTimeout(function() {
+            process.exit();
+          },3000);
+        }
+      },{
+        pattern: bot.utterances.no,
+        default: true,
+        callback: function(response, convo) {
+          convo.say('*Phew!*');
+          convo.next();
+        }
+      }]);
+    }
   });
 });
 
@@ -286,12 +292,14 @@ var TaskDone = function(response,convo){
       var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
       var id = response.team;
 		    controller.storage.teams.get(id, function(err, channel_data){
-          channel_data.tasks.forEach(function(value,index,array){
-            if(value.taskid == number){
-              value.status = "done";
-            }
-          });
-          controller.storage.teams.save(channel_data);
+          if(!err){
+            channel_data.tasks.forEach(function(value,index,array){
+              if(value.taskid == number){
+                value.status = "done";
+              }
+            });
+            controller.storage.teams.save(channel_data);
+          }
         });
         bot.reply(response,"Ok, verwijderd van de lijst.");
     }else{
@@ -336,12 +344,14 @@ var UpdateDeadline = function(response,convo){
     if(convo.status=='completed'){
       var res = convo.extractResponses();
       controller.storage.teams.get(response.team, function(err, channel_data){
-        channel_data.tasks.forEach(function(value,index,array){
-          if(value.taskid==parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])){
-            value.deadline = res['Wat is de nieuwe deadline?'];
-          }
-        });
-        controller.storage.teams.save(channel_data);
+        if(!err){
+          channel_data.tasks.forEach(function(value,index,array){
+            if(value.taskid==parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])){
+              value.deadline = res['Wat is de nieuwe deadline?'];
+            }
+          });
+          controller.storage.teams.save(channel_data);
+        }
       });
       bot.reply(response,"Ok, nieuwe deadline genoteerd.");
     }
@@ -354,12 +364,14 @@ controller.hears(['newherinneringen','sendreminder'],'direct_message',function(b
 
 var NewSendReminders = function(){
   bot.api.users.list({},function(err,reply){
-    reply.members.forEach(function(value,index,array){
-      console.log(value);
-      if(value.deleted === false && value.is_bot === false ){
-        ShowList("all",value.id,value.id);
-      }
-    });
+    if(!err){
+      reply.members.forEach(function(value,index,array){
+        console.log(value);
+        if(value.deleted === false && value.is_bot === false ){
+          ShowList("all",value.id,value.id);
+        }
+      });
+    }
   });
 };
 controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,direct_mention,mention',function(bot,message){
@@ -422,7 +434,9 @@ var ShowList = function(channelName,userName,sendto){
 var sendTo = function(formatted,sendToID){
   if(functions.verifyUserId(sendToID)){
     bot.api.im.open({"user":sendToID},function(err,response){
-      functions.postMessage(bot,formatted,response.channel.id);
+      if(!err){
+        functions.postMessage(bot,formatted,response.channel.id);
+      }
     });
   }else if(functions.verifyChannelId(sendToID)){
     functions.postMessage(bot,formatted,sendToID);
@@ -439,8 +453,10 @@ controller.hears(['TGIF'],'direct_message',function(bot,message){
 var sendTGIF = function(){
   functions.getTeamId(bot,function(teamid){
     controller.storage.teams.get(teamid, function(err, data) {
-      for (var channel in data.tgif){
-        functions.postMessage(bot,data.tgif[channel],channel);
+      if(!err){
+        for (var channel in data.tgif){
+          functions.postMessage(bot,data.tgif[channel],channel);
+        }
       }
     });
   });

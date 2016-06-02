@@ -228,44 +228,70 @@ var opslaanVanTaak = function(response,convo){
   convo.on('end',function(convo){
     if(convo.status=='completed'){
       var res = convo.extractResponses();
-      var channelid = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
-      if(channelid){
-        response.channel = channelid;
+      var channelId = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
+      if(!channelId){
+        var channelId = response.channel;
       }
-      var id = response.team;
-      console.log(response);
-      controller.storage.teams.get(id, function(err, team_data){
-        if(!err){
-          var list = team_data;
-          bot.api.users.info({"user":res['Wie gaat dit doen? (@naam graag)']},function(err,reply){
-            if(!err){
-              var name = reply.user.name;
-              list.tasks.push({
-                channel: {id: response.channel},
-                taskid: list.tasks.length+1,
-                user: {id: response.user},
-                task: res['Wat moet er gedaan worden?'],
-                responsible: {id: res['Wie gaat dit doen? (@naam graag)']},
-                deadline: res['Wanneer moet het klaar zijn?'],
-                status: "new",
-              });
-              controller.storage.teams.save({
-                id: response.team,
-                tasks: list.tasks,
-              });
-            }else{
-              return false;
-            }
-          });
-        }else{
-          return false;
-        }
-      });
-      bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
-    }else{
-      bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+      var userId = response.user;
+      var task = res['Wat moet er gedaan worden?']
+      var responsibleId = res['Wie gaat dit doen? (@naam graag)'];
+      var deadline = res['Wanneer moet het klaar zijn?'];
+      
+      var isStored = storeNewTask(userId,channelId,task,responsibleId,deadline);
+      if(isStored){
+        bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
+      }else{
+        bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+      }
     }
   });
+};
+
+controller.hears(['instanttaak (.*)'],'direct_message', function(bot,message){
+  if(message.match[1]==""){
+    bot.reply(message,"Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal");
+  }
+  var parts = message.match[1].split('|');
+  var task = parts[0];
+  var userId = message.user;
+  var responsibleId = functions.verifyUserName(parts[1]);
+  var channelId = functions.verifyChannelName(parts[3]);
+  var deadline = functions.verifyDate(parts[2]);
+  
+  if(channelId && responsibleId && deadline){
+    var isStored = storeNewTask(userId,channelId,task,responsibleId,deadline);
+    if(isStored){
+      bot.reply(message,"Ok, taak toegevoegd aan de lijst.");
+    }else{
+      bot.reply(message,"Sorry, er is iets misgegaan bij het opslaan.");
+    }
+  }else{
+    bot.reply(message,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+  }
+});
+
+var storeNewTask = function(userId, channelId, task, responsibleId, deadline){
+  functions.getTeamId(bot,function(teamId){
+    controller.storage.teams.get(teamId, function(err, list){
+      if(!err){
+        list.tasks.push({
+          channel: {id: channelId},
+          taskid: list.tasks.length+1,
+          user: {id: userId},
+          task: task,
+          responsible: {id: responsibleId},
+          deadline: deadline,
+          status: "new",
+        });
+        controller.storage.teams.save(list, function(err){
+          if(!err){
+            return true;
+          }
+        });
+      }
+    });
+  });
+  return false;
 };
 
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){

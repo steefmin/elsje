@@ -140,5 +140,6 @@ module.exports = {
   verifyChannelId: verifyChannelId,
   verifyUserName: verifyUserName,
   verifyChannelName: verifyChannelName,
-  getBotImg: getBotImg
+  getBotImg: getBotImg,
+  getTeamId: getTeamId
 };

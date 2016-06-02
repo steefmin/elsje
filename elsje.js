@@ -131,7 +131,7 @@ controller.hears(['what is my name','who am i','wie ben ik','hoe heet ik','wat i
 controller.hears(['help'],'direct_message,direct_mention',function(bot, message){
 	bot.startConversation(message,helpMe);	
 });
-helpMe = function(response,convo){
+var helpMe = function(response,convo){
 	convo.ask('Ik kan helpen met de "takenlijst" en onthouden van "namen"',function(response,convo){
 		if(response.text == "Takenlijst" || response.text == "takenlijst"){
 			helpWithTakenlijst(response,convo);
@@ -143,11 +143,11 @@ helpMe = function(response,convo){
 		}
 	});
 };
-helpWithTakenlijst = function(response,convo){
+var helpWithTakenlijst = function(response,convo){
 	bot.reply(response,'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.');
 	convo.stop();
 };
-helpWithNamen = function(response,convo){
+var helpWithNamen = function(response,convo){
 	bot.reply(response,"Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)");
 	convo.stop();
 };
@@ -183,14 +183,14 @@ controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime
 controller.hears(['nieuwe taak','voeg toe','taak (.*)voegen'],'direct_mention,mention,direct_message',function(bot,message){
 	bot.startConversation(message,voegTaakToe);
 });
-voegTaakToe = function(response, convo){
+var voegTaakToe = function(response, convo){
 	convo.ask("Wat moet er gedaan worden?",function(response,convo){
 		convo.say("Ja, dat moet nodig gebeuren.");
 		voorWie(response,convo);
 		convo.next();
 	});
 };
-voorWie = function(reponse,convo){
+var voorWie = function(reponse,convo){
   convo.ask("Wie gaat dit doen? (@naam graag)", function(response,convo){
     var userid = functions.verifyUserName(response.text);
     if(userid){
@@ -201,7 +201,7 @@ voorWie = function(reponse,convo){
     }
   });
 };
-wanneerKlaar = function(response,convo){
+var wanneerKlaar = function(response,convo){
   convo.ask("Wanneer moet het klaar zijn?",function(response,convo){
     var date = functions.verifyDate(response.text);
     if(date){
@@ -217,7 +217,7 @@ wanneerKlaar = function(response,convo){
     }
   });
 };
-welkKanaal = function(response,convo){
+var welkKanaal = function(response,convo){
   convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
     var channelid = functions.verifyChannelName(response.text);
     if(channelid){
@@ -227,7 +227,7 @@ welkKanaal = function(response,convo){
     }
   });
 };
-opslaanVanTaak = function(response,convo){
+var opslaanVanTaak = function(response,convo){
   convo.on('end',function(convo){
     if(convo.status=='completed'){
       var res = convo.extractResponses();
@@ -274,7 +274,7 @@ opslaanVanTaak = function(response,convo){
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){
   bot.startConversation(message,completeTask);
 });
-completeTask = function(response,convo){
+var completeTask = function(response,convo){
   var channel,send;
   if(functions.verifyChannelId(convo.source_message.channel)){
     channel = convo.source_message.channel;
@@ -292,7 +292,7 @@ completeTask = function(response,convo){
     }
   });
 };
-TaskDone = function(response,convo){
+var TaskDone = function(response,convo){
   convo.on('end',function(convo){
     if(convo.status=='completed'){
       var res = convo.extractResponses();
@@ -316,7 +316,7 @@ TaskDone = function(response,convo){
 controller.hears(['update deadline','deadline veranderen','andere deadline'],'direct_mention,mention,direct_message',function(bot,message){
   bot.startConversation(message,DeadlineNumber);
 });
-DeadlineNumber = function(response,convo){
+var DeadlineNumber = function(response,convo){
   var channel,send;
   if(functions.verifyChannelId(convo.source_message.channel)){
     channel = convo.source_message.channel;
@@ -333,7 +333,7 @@ DeadlineNumber = function(response,convo){
     }
   });
 };
-NewDeadline = function(response,convo){
+var NewDeadline = function(response,convo){
   convo.ask("Wat is de nieuwe deadline?",function(response,convo){
     date = functions.verifyDate(response.text);
     if(date){
@@ -344,7 +344,7 @@ NewDeadline = function(response,convo){
     }
   });
 };
-UpdateDeadline = function(response,convo){
+var UpdateDeadline = function(response,convo){
   convo.on('end',function(convo){
     if(convo.status=='completed'){
       var res = convo.extractResponses();
@@ -365,7 +365,7 @@ controller.hears(['newherinneringen','sendreminder'],'direct_message',function(b
   NewSendReminders();
 });
 
-NewSendReminders = function(){
+var NewSendReminders = function(){
   bot.api.users.list({},function(err,reply){
     reply.members.forEach(function(value,index,array){
       console.log(value);
@@ -407,7 +407,7 @@ controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,d
     }
   }
 });
-ShowList = function(channelName,userName,sendto){
+var ShowList = function(channelName,userName,sendto){
   functions.getTeamId(bot,function(teamid){
     controller.storage.teams.get(teamid,function(err,team_data){
       if(err){
@@ -434,7 +434,7 @@ ShowList = function(channelName,userName,sendto){
     });
   });
 };
-sendTo = function(formatted,sendToID){
+var sendTo = function(formatted,sendToID){
   functions.getBotImg(bot,function(image){
     if(functions.verifyUserId(sendToID)){
       bot.api.im.open({"user":sendToID},function(err,response){

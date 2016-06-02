@@ -205,7 +205,7 @@ var postMessage = function(bot,message,channel){
           "username": bot.identity.name,
           "icon_url": image
         });
-  };
+  });
 };
 
 module.exports = {

@@ -414,13 +414,13 @@ ShowList = function(channelName,userName,sendto){
         return false;
       }
       var sortedtasks, formatted, userID, channelID;
-      var usertasks = filterTasks('status',filterTasks('channel',filterTasks('responsible',team_data.tasks,userName),channelName),'new');
+      var usertasks = functions.filterTasks('status',functions.filterTasks('channel',functions.filterTasks('responsible',team_data.tasks,userName),channelName),'new');
       if(usertasks.length === 0){
         console.log("empty tasks");
         return false;
       }
-      sortedtasks = sortTasks(usertasks,'channel');
-      formatted = formatTasks(sortedtasks);
+      sortedtasks = functions.sortTasks(usertasks,'channel');
+      formatted = functions.formatTasks(sortedtasks);
       userID = functions.verifyUserId(sendto);
       if(userID){
         sendTo(formatted,userID);
@@ -452,66 +452,6 @@ sendTo = function(formatted,sendToID){
       return false;
     }
   });
-};
-filterTasks = function(filterOn,tasks,filterFor){
-  var newtasks;
-  if(filterFor=="all"){
-    return tasks;
-  }else {
-    newtasks = [];
-    if(filterOn == 'channel' || filterOn ==	'responsible'){
-      tasks.forEach(function(value,index,array){
-        if(value[filterOn].id==filterFor){
-          newtasks.push(value);
-        }
-        return newtasks;
-      });
-      return newtasks;
-    }else{
-      tasks.forEach(function(value,index,array){
-        if(value[filterOn]==filterFor){
-          newtasks.push(value);
-        }
-        return newtasks;
-      });
-      return newtasks;
-    }
-  }
-};
-sortTasks = function(tasks,sortBy){
-  var sorted = tasks.sort(function(taska, taskb){
-    if(taska[sortBy].id < taskb[sortBy].id){
-      return 1;
-    }
-    if(taska[sortBy].id > taskb[sortBy].id){
-      return -1;
-    }
-    return 0; 
-  });
-  return sorted;
-};
-formatTasks = function(tasks){
-  var formatted = "Takenlijst\n```";
-  tasks.forEach(function(task,index,array){
-    var addtostring ="";
-    var deadline = new Date(task.deadline);
-    if(task.status != "done"){
-      addtostring = 
-        '<#'+task.channel.id+'>'+
-        functions.addSpaces(2)+
-        task.taskid+
-        functions.addSpaces(4-task.taskid.toString().length)+
-        '<@'+task.responsible.id+'>'+
-        functions.addSpaces(2)+
-        deadline.toUTCString().substr(5,11)+
-        functions.addSpaces(2)+
-        task.task+
-        "\n";
-      formatted+=addtostring;
-    }
-  });
-  formatted+="```";
-  return formatted; 
 };
 
 controller.hears(['TGIF'],'direct_message',function(bot,message){

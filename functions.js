@@ -134,6 +134,69 @@ var getTeamId = function(bot,callback){
   });
 };
 
+var filterTasks = function(filterOn,tasks,filterFor){
+  var newtasks;
+  if(filterFor=="all"){
+    return tasks;
+  }else {
+    newtasks = [];
+    if(filterOn == 'channel' || filterOn ==	'responsible'){
+      tasks.forEach(function(value,index,array){
+        if(value[filterOn].id==filterFor){
+          newtasks.push(value);
+        }
+        return newtasks;
+      });
+      return newtasks;
+    }else{
+      tasks.forEach(function(value,index,array){
+        if(value[filterOn]==filterFor){
+          newtasks.push(value);
+        }
+        return newtasks;
+      });
+      return newtasks;
+    }
+  }
+};
+
+var sortTasks = function(tasks,sortBy){
+  var sorted = tasks.sort(function(taska, taskb){
+    if(taska[sortBy].id < taskb[sortBy].id){
+      return 1;
+    }
+    if(taska[sortBy].id > taskb[sortBy].id){
+      return -1;
+    }
+    return 0; 
+  });
+  return sorted;
+};
+
+var formatTasks = function(tasks){
+  var formatted = "Takenlijst\n```";
+  tasks.forEach(function(task,index,array){
+    var addtostring ="";
+    var deadline = new Date(task.deadline);
+    if(task.status != "done"){
+      addtostring = 
+        '<#'+task.channel.id+'>'+
+        functions.addSpaces(2)+
+        task.taskid+
+        functions.addSpaces(4-task.taskid.toString().length)+
+        '<@'+task.responsible.id+'>'+
+        functions.addSpaces(2)+
+        deadline.toUTCString().substr(5,11)+
+        functions.addSpaces(2)+
+        task.task+
+        "\n";
+      formatted+=addtostring;
+    }
+  });
+  formatted+="```";
+  return formatted; 
+};
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -143,5 +206,8 @@ module.exports = {
   verifyUserName: verifyUserName,
   verifyChannelName: verifyChannelName,
   getBotImg: getBotImg,
-  getTeamId: getTeamId
+  getTeamId: getTeamId,
+  formatTasks: formatTasks,
+  sortTasks: sortTasks,
+  filterTasks: filterTasks
 };

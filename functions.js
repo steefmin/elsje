@@ -120,15 +120,17 @@ var regexp = function(patern,string){
 
 var getBotImg = function(bot,callback){
   bot.api.users.info({"user":bot.identity.id},function(err,reply){
-    var img = reply.user.profile.image_original;
-    callback(img);
+    if(!err){
+      callback(reply.user.profile.image_original);
+    }
   });
 };
 
 var getTeamId = function(bot,callback){
   bot.api.users.info({"user":bot.identity.id},function(err,reply){
-    var teamId = reply.user.team_id;
-    callback(teamId);
+    if(!err){
+      callback(reply.user.team_id);
+    }
   });
 };
 

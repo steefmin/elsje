@@ -28,14 +28,6 @@ controller.on('rtm_open',function(bot,message){
   }
 });
 
-controller.on('channel_joined',function(bot,message) {
-	controller.storage.channels.get(message.channel.id, function(err){
-		if(err){
-			controller.storage.channels.save({id: message.channel.id, tasks:[]});
-		}
-	});
-});
-
 controller.hears(['hello','hi','hoi','hallo','hey'],'direct_message,direct_mention,mention',function(bot, message) {
   bot.api.reactions.add({
     timestamp: message.ts,
@@ -449,7 +441,7 @@ var sendTGIF = function(){
     controller.storage.teams.get(teamid, function(err, data) {
       for (var channel in data.tgif){
         functions.postMessage(bot,data.tgif[channel],channel);
-      };
+      }
     });
   });
 };

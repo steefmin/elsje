@@ -25,7 +25,6 @@ controller.on('rtm_open',function(bot,message){
 	  functions.postMessage(bot,"Hi, this is a debug message: I just reconnected","C0JTZBACD");
 //	  	enable next line to create fresh db
 //  		controller.storage.teams.save({id:message.user.team_id,tasks:[],tgif:{}});
-  	});
   }
 });
 

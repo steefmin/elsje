@@ -181,13 +181,13 @@ var formatTasks = function(tasks){
     if(task.status != "done"){
       addtostring = 
         '<#'+task.channel.id+'>'+
-        functions.addSpaces(2)+
+        addSpaces(2)+
         task.taskid+
-        functions.addSpaces(4-task.taskid.toString().length)+
+        addSpaces(4-task.taskid.toString().length)+
         '<@'+task.responsible.id+'>'+
-        functions.addSpaces(2)+
+        addSpaces(2)+
         deadline.toUTCString().substr(5,11)+
-        functions.addSpaces(2)+
+        addSpaces(2)+
         task.task+
         "\n";
       formatted+=addtostring;

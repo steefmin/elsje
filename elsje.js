@@ -252,6 +252,10 @@ controller.hears(['instanttaak (.*)'],'direct_message', function(bot,message){
     bot.reply(message,"Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal");
   }
   var parts = message.match[1].split('|');
+  if(parts.length !== 4){
+    bot.reply(message,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+    return false;
+  }
   var task = parts[0];
   var userId = message.user;
   var responsibleId = functions.verifyUserName(parts[1]);

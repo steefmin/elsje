@@ -295,6 +295,7 @@ var storeNewTask = function(userId, channelId, task, responsibleId, deadline){
       }
     });
   });
+  return true;
 };
 
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){

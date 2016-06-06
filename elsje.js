@@ -291,15 +291,10 @@ var storeNewTask = function(userId, channelId, task, responsibleId, deadline){
           deadline: deadline,
           status: "new",
         });
-        controller.storage.teams.save(list, function(err){
-          if(!err){
-            return true;
-          }
-        });
+        controller.storage.teams.save(list);
       }
     });
   });
-  return false;
 };
 
 controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){

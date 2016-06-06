@@ -252,13 +252,9 @@ var opslaanVanTaak = function(response,convo){
 };
 
 controller.hears(['instanttaak (.*)'],'direct_message', function(bot,message){
-  if(message.match[1]==="help"){
-    bot.reply(message,"Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal");
-    return false;
-  }
   var parts = message.match[1].split('|');
   if(parts.length !== 4){
-    bot.reply(message,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+    bot.reply(message,"Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal");
     return false;
   }
   var task = parts[0];

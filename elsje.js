@@ -22,7 +22,12 @@ var bot = controller.spawn({
 
 controller.on('rtm_open',function(bot,message){
   if(!debug){
-	  functions.postMessage(bot,"Hi, this is a debug message: I just reconnected","C0JTZBACD");
+    var attachment = [{
+      "fallback": "Hi, this is a debug message: I just reconnected",
+      "color": "danger",
+      "text": "Hi, this is a debug message: I just reconnected"
+    }];
+    functions.postAttachment(bot, attachment, "C0JTZBACD");
 //	  	enable next line to create fresh db
 //  		controller.storage.teams.save({id:message.user.team_id,tasks:[],tgif:{}});
   }
@@ -292,6 +297,29 @@ var storeNewTask = function(userId, channelId, task, responsibleId, deadline){
       }
     });
   });
+  var attachArray = [{
+    "fallback": "Nieuwe taak voor <@" + responsibleId + "> toegevoegd: " + task,
+    "color": "#3090C7",
+    "pretext": "Er is een nieuwe taak toegevoegd.",
+    "fields": [
+      {
+        "title": "Taak",
+        "value": task,
+        "short": false
+      },
+      {
+        "title": "Verantwoordelijke",
+        "value": "<@"+responsibleId+">",
+        "short": true
+      },
+      {
+        "title": "Deadline",
+        "value": deadline.toUTCString().substr(5,11),
+        "short": true
+      }
+    ]
+  }];
+  functions.postAttachment(bot, attachArray, channelId);
   return true;
 };
 

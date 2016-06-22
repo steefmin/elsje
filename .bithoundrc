@@ -1,0 +1,14 @@
+{
+  "ignore": [
+  ],
+  "test": [
+  ],
+  "critics": {
+    "lint": {"engine": "standard"},
+    "wc": { "limit": 10000 }
+  },
+  "dependencies": {
+	  "unused-ignores": [
+	  ]
+  }
+}

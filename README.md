@@ -1,4 +1,4 @@
-# Elsje
+# Elsje [![bitHound Overall Score](https://www.bithound.io/github/steefmin/elsje/badges/score.svg)](https://www.bithound.io/github/steefmin/elsje)
 A node.js bot for slack, that maintains a tasklist for all channels. Built with [Botkit](https://github.com/howdyai/botkit). Only in Dutch. 
 
 # History
@@ -11,10 +11,7 @@ Install dependencies `git` and `nodejs`.
 ```
   $ git clone https://github.com/steefmin/elsje
   $ cd elsje
-  $ git submodule init
-  $ git submodule update
-  $ cd botkit
-  $ sudo npm install
+  $ npm install
 ```
 
 # Config

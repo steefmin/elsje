@@ -1,0 +1,28 @@
+{
+  "name": "elsje",
+  "version": "0.0.1",
+  "description": "Slack bot that manages a task list",
+  "main": "elsje.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steefmin/elsje.git"
+  },
+  "keywords": [
+    "slack",
+    "bot",
+    "botkit",
+    "tasklist"
+  ],
+  "author": "Steef Min",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/steefmin/elsje/issues"
+  },
+  "homepage": "https://github.com/steefmin/elsje#readme",
+  "dependencies": {
+    "botkit": "^0.2.2"
+  }
+}

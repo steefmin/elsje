@@ -208,6 +208,18 @@ var postMessage = function(bot,message,channel){
   });
 };
 
+var postAttachment = function(bot,attachment,channel){
+  getBotImg(bot,function(image){
+    bot.api.chat.postMessage({
+          "channel": channel,
+          "attachments": [attachment],
+          "username": bot.identity.name,
+          "icon_url": image
+        });
+  });
+};
+
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -221,5 +233,6 @@ module.exports = {
   formatTasks: formatTasks,
   sortTasks: sortTasks,
   filterTasks: filterTasks,
-  postMessage: postMessage
+  postMessage: postMessage,
+  postAttachment: postAttachment
 };

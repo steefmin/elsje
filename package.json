@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/steefmin/elsje#readme",
   "dependencies": {
-    "botkit": "^0.2.0"
+    "botkit": "^0.2.2"
   }
 }

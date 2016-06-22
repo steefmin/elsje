@@ -324,7 +324,7 @@ controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taa
   bot.startConversation(message, completeTask)
 })
 var completeTask = function (response, convo) {
-  if (!isNaN(parseInt(convo.source_message.match[1]))) {
+  if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
     // TODO: new function to set task done that can be called from here and from TaskDone
   } else {
     var channel, send
@@ -337,7 +337,7 @@ var completeTask = function (response, convo) {
     }
     ShowList(channel, 'all', send)
     convo.ask('Kan je mij het nummer geven van de taak die van de lijst af mag?', function (response, convo) {
-      if (!isNaN(parseInt(response.text))) {
+      if (!isNaN(parseInt(response.text, 10))) {
         convo.say('BAM, weer wat gedaan. Goed werk <@' + response.user + '>.\n')
         TaskDone(response, convo)
         convo.next()
@@ -349,7 +349,7 @@ var TaskDone = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'])
+      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
       var id = response.team
       controller.storage.teams.get(id, function (err, channelData) {
         if (!err) {

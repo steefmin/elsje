@@ -327,22 +327,26 @@ controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (
   bot.startConversation(message,completeTask);
 });
 var completeTask = function(response,convo){
-  var channel,send;
-  if(functions.verifyChannelId(convo.source_message.channel)){
-    channel = convo.source_message.channel;
-    send = channel;
+  if !isNAN(parseInt(source_message.match[1])){
+    // TODO: new function to set task done that can be called from here and from TaskDone
   }else{
-    channel = "all";
-    send = convo.source_message.user;
-  }
-  ShowList(channel,"all",send);
-  convo.ask("Kan je mij het nummer geven van de taak die van de lijst af mag?",function(response,convo){
-    if(!isNaN(parseInt(response.text))){
-      convo.say("BAM, weer wat gedaan. Goed werk <@"+response.user+">.\n");
-      TaskDone(response,convo);
-      convo.next();
+    var channel,send;
+    if(functions.verifyChannelId(convo.source_message.channel)){
+      channel = convo.source_message.channel;
+      send = channel;
+    }else{
+      channel = "all";
+      send = convo.source_message.user;
     }
-  });
+    ShowList(channel,"all",send);
+    convo.ask("Kan je mij het nummer geven van de taak die van de lijst af mag?",function(response,convo){
+      if(!isNaN(parseInt(response.text))){
+        convo.say("BAM, weer wat gedaan. Goed werk <@"+response.user+">.\n");
+        TaskDone(response,convo);
+        convo.next();
+      }
+    });
+  }
 };
 var TaskDone = function(response,convo){
   convo.on('end',function(convo){

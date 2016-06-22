@@ -1,546 +1,543 @@
-require('./env.js');
-var functions = require('./functions');
-var Botkit = require('botkit');
-var os = require('os');
+require('./env.js')
+var functions = require('./functions')
+var Botkit = require('botkit')
+var os = require('os')
 
 if (!process.env.TOKEN) {
-	console.log('Error: Specify token in environment');
-  process.exit(1);
+  console.log('Error: Specify token in environment')
+  process.exit(1)
 }
 
-var debug = (process.argv[2] !== "production");
+var debug = (process.argv[2] !== 'production')
 
 var controller = Botkit.slackbot({
-	"json_file_store": process.env.STORAGE_LOCATION,
-	"debug": debug,
-});
+  'json_file_store': process.env.STORAGE_LOCATION,
+  'debug': debug
+})
 
 var bot = controller.spawn({
   token: process.env.TOKEN,
   retry: Infinity
-}).startRTM();
+}).startRTM()
 
-controller.on('rtm_open',function(bot,message){
-  if(!debug){
+controller.on('rtm_open', function (bot, message) {
+  if (!debug) {
     var attachment = [{
-      "fallback": "Hi, this is a debug message: I just reconnected",
-      "color": "danger",
-      "text": "Hi, this is a debug message: I just reconnected"
-    }];
-    functions.postAttachment(bot, attachment, "C0JTZBACD");
+      'fallback': 'Hi, this is a debug message: I just reconnected',
+      'color': 'danger',
+      'text': 'Hi, this is a debug message: I just reconnected'
+    }]
+    functions.postAttachment(bot, attachment, 'C0JTZBACD')
 //	  	enable next line to create fresh db
-//  		controller.storage.teams.save({id:message.user.team_id,tasks:[],tgif:{}});
+//  		controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
   }
-});
+})
 
-controller.hears(['hello','hi','hoi','hallo','hey'],'direct_message,direct_mention,mention',function(bot, message) {
+controller.hears(['hello', 'hi', 'hoi', 'hallo', 'hey'], 'direct_message,direct_mention,mention', function (bot, message) {
   bot.api.reactions.add({
     timestamp: message.ts,
     channel: message.channel,
-    name: 'robot_face',
-  },function(err,res) {
+    name: 'robot_face'
+  }, function (err, res) {
     if (err) {
-      bot.botkit.log('Failed to add emoji reaction :(',err);
+      bot.botkit.log('Failed to add emoji reaction :(', err)
     }
-  });
-  controller.storage.users.get(message.user,function(err,user) {
-    if(!err){
+  })
+  controller.storage.users.get(message.user, function (err, user) {
+    if (!err) {
       if (user && user.name) {
-        bot.reply(message,'Hoi ' + user.name + '!!');
+        bot.reply(message, 'Hoi ' + user.name + '!!')
       } else {
-        bot.reply(message,'Hoi');
+        bot.reply(message, 'Hoi')
       }
     }
-  });
-});
+  })
+})
 
-
-controller.hears(['noem me (.*)'],'direct_message,direct_mention,mention',function(bot, message) {
-  var name = message.match[1];
-  controller.storage.users.get(message.user,function(err, user) {
-    if (!err){
+controller.hears(['noem me (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
+  var name = message.match[1]
+  controller.storage.users.get(message.user, function (err, user) {
+    if (!err) {
       if (!user) {
         user = {
-          id: message.user,
-        };
-      }
-      user.name = name;
-      controller.storage.users.save(user,function(err, id) {
-        if(!err){
-          bot.reply(message,'Prima, vanaf nu zal ik je ' + user.name + ' noemen.');
+          'id': message.user
         }
-      });
+      }
+      user.name = name
+      controller.storage.users.save(user, function (err, id) {
+        if (!err) {
+          bot.reply(message, 'Prima, vanaf nu zal ik je ' + user.name + ' noemen.')
+        }
+      })
     }
-  });
-});
+  })
+})
 
-controller.hears(['what is my name','who am i','wie ben ik','hoe heet ik','wat is mijn naam'],'direct_message,direct_mention,mention',function(bot, message) {
-  controller.storage.users.get(message.user,function(err, user) {
-    if(!err){
+controller.hears(['what is my name', 'who am i', 'wie ben ik', 'hoe heet ik', 'wat is mijn naam'], 'direct_message,direct_mention,mention', function (bot, message) {
+  controller.storage.users.get(message.user, function (err, user) {
+    if (!err) {
       if (user && user.name) {
-        bot.reply(message,'Jouw naam is ' + user.name);
+        bot.reply(message, 'Jouw naam is ' + user.name)
       } else {
-        bot.startConversation(message, function(err, convo) {
+        bot.startConversation(message, function (err, convo) {
           if (!err) {
-            convo.say('Ik weet jouw naam nog niet!');
-            convo.ask('Hoe zal ik je noemen?', function(response, convo) {
+            convo.say('Ik weet jouw naam nog niet!')
+            convo.ask('Hoe zal ik je noemen?', function (response, convo) {
               convo.ask('Je wilt dat ik je  `' + response.text + '` noem?', [{
                 pattern: 'yes',
-                callback: function(response, convo) {
-                  convo.next();
+                callback: function (response, convo) {
+                  convo.next()
                 }
-              },{
+              }, {
                 pattern: 'no',
-                callback: function(response, convo) {
-                  convo.stop();
+                callback: function (response, convo) {
+                  convo.stop()
                 }
-              },{
+              }, {
                 default: true,
-                callback: function(response, convo) {
-                  convo.repeat();
-                  convo.next();
+                callback: function (response, convo) {
+                  convo.repeat()
+                  convo.next()
                 }
-              }]);
-              convo.next();
-            },{
+              }])
+              convo.next()
+            }, {
               'key': 'nickname'
-            }); // store the results in a field called nickname
-            convo.on('end', function(convo) {
-              if (convo.status == 'completed') {
-                bot.reply(message,'Ok! Dit ga ik even opschrijven...');
-                controller.storage.users.get(message.user,function(err, user) {
-                  if(!err){
+            }) // store the results in a field called nickname
+            convo.on('end', function (convo) {
+              if (convo.status === 'completed') {
+                bot.reply(message, 'Ok! Dit ga ik even opschrijven...')
+                controller.storage.users.get(message.user, function (err, user) {
+                  if (!err) {
                     if (!user) {
-                      user = {id: message.user};
+                      user = {id: message.user}
                     }
-                    user.name = convo.extractResponse('nickname');
-                    controller.storage.users.save(user,function(err, id) {
-                      if(!err){
-                        bot.reply(message,'Prima, vanaf nu noem ik je ' + user.name + '.');
+                    user.name = convo.extractResponse('nickname')
+                    controller.storage.users.save(user, function (err, id) {
+                      if (!err) {
+                        bot.reply(message, 'Prima, vanaf nu noem ik je ' + user.name + '.')
                       }
-                    });
+                    })
                   }
-                });
-              }else{
-                bot.reply(message, 'Ok, laat maar!');
+                })
+              } else {
+                bot.reply(message, 'Ok, laat maar!')
               }
-            });
+            })
           }
-        });
+        })
       }
     }
-  });
-});
+  })
+})
 
-controller.hears(['help'],'direct_message,direct_mention',function(bot, message){
-	bot.startConversation(message,helpMe);	
-});
-var helpMe = function(response,convo){
-	convo.ask('Ik kan helpen met de "takenlijst" en onthouden van "namen"',function(response,convo){
-		if(response.text == "Takenlijst" || response.text == "takenlijst"){
-			helpWithTakenlijst(response,convo);
-		}else if (response.text == "Namen" || response.text == "namen"){
-			helpWithNamen(response,convo);
-		}else{
-			bot.reply(response,"Sorry, daar kan ik je niet mee helpen");
-			convo.stop();
-		}
-	});
-};
-var helpWithTakenlijst = function(response,convo){
-	bot.reply(response,'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.');
-	convo.stop();
-};
-var helpWithNamen = function(response,convo){
-	bot.reply(response,"Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)");
-	convo.stop();
-};
+controller.hears(['help'], 'direct_message,direct_mention', function (bot, message) {
+  bot.startConversation(message, helpMe)
+})
+var helpMe = function (response, convo) {
+  convo.ask('Ik kan helpen met de "takenlijst" en onthouden van "namen"', function (response, convo) {
+    if (response.text === 'Takenlijst' || response.text === 'takenlijst') {
+      helpWithTakenlijst(response, convo)
+    } else if (response.text === 'Namen' || response.text === 'namen') {
+      helpWithNamen(response, convo)
+    } else {
+      bot.reply(response, 'Sorry, daar kan ik je niet mee helpen')
+      convo.stop()
+    }
+  })
+}
+var helpWithTakenlijst = function (response, convo) {
+  bot.reply(response, 'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.')
+  convo.stop()
+}
+var helpWithNamen = function (response, convo) {
+  bot.reply(response, 'Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)')
+  convo.stop()
+}
 
-controller.hears(['shutdown'],'direct_message,direct_mention,mention',function(bot, message) {
-  bot.startConversation(message,function(err, convo) {
-    if(!err){
-      convo.ask('Are you sure you want me to shutdown?',[{
+controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function (bot, message) {
+  bot.startConversation(message, function (err, convo) {
+    if (!err) {
+      convo.ask('Are you sure you want me to shutdown?', [{
         pattern: bot.utterances.yes,
-        callback: function(response, convo) {
-          convo.say('Bye!');
-          convo.next();
-          setTimeout(function() {
-            process.exit();
-          },3000);
+        callback: function (response, convo) {
+          convo.say('Bye!')
+          convo.next()
+          setTimeout(function () {
+            process.exit()
+          }, 3000)
         }
-      },{
+      }, {
         pattern: bot.utterances.no,
         default: true,
-        callback: function(response, convo) {
-          convo.say('*Phew!*');
-          convo.next();
+        callback: function (response, convo) {
+          convo.say('*Phew!*')
+          convo.next()
         }
-      }]);
+      }])
     }
-  });
-});
+  })
+})
 
-controller.hears(['ken ik jou','wie ben jij','hoe lang ben je al wakker','uptime','identify yourself','who are you','what is your name'],'direct_message,direct_mention,mention',function(bot, message) {
-	var hostname = os.hostname();
-	var uptime = functions.formatUptime(process.uptime());
-	bot.reply(message,':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.');
-});
+controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', function (bot, message) {
+  var hostname = os.hostname()
+  var uptime = functions.formatUptime(process.uptime())
+  bot.reply(message, ':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.')
+})
 
-controller.hears(['nieuwe taak','voeg toe','taak (.*)voegen'],'direct_mention,mention,direct_message',function(bot,message){
-	bot.startConversation(message,voegTaakToe);
-});
-var voegTaakToe = function(response, convo){
-	convo.ask("Wat moet er gedaan worden?",function(response,convo){
-		convo.say("Ja, dat moet nodig gebeuren.");
-		voorWie(response,convo);
-		convo.next();
-	});
-};
-var voorWie = function(reponse,convo){
-  convo.ask("Wie gaat dit doen? (@naam graag)", function(response,convo){
-    var userid = functions.verifyUserName(response.text);
-    if(userid){
-      response.text = userid;
-      convo.say("Ha, gesjaakt!");
-      wanneerKlaar(response,convo);
-      convo.next();
+controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
+  bot.startConversation(message, voegTaakToe)
+})
+var voegTaakToe = function (response, convo) {
+  convo.ask('Wat moet er gedaan worden?', function (response, convo) {
+    convo.say('Ja, dat moet nodig gebeuren.')
+    voorWie(response, convo)
+    convo.next()
+  })
+}
+var voorWie = function (reponse, convo) {
+  convo.ask('Wie gaat dit doen? (@naam graag)', function (response, convo) {
+    var userid = functions.verifyUserName(response.text)
+    if (userid) {
+      response.text = userid
+      convo.say('Ha, gesjaakt!')
+      wanneerKlaar(response, convo)
+      convo.next()
     }
-  });
-};
-var wanneerKlaar = function(response,convo){
-  convo.ask("Wanneer moet het klaar zijn?",function(response,convo){
-    var date = functions.verifyDate(response.text);
-    if(date){
-      response.text = date;
-      convo.say("Ik zal het onthouden.");
-      if(convo.task.source_message.event=="direct_message"){
-        welkKanaal(response,convo);
-        convo.next();
-      }else{
-        opslaanVanTaak(response,convo);
-        convo.next();
+  })
+}
+var wanneerKlaar = function (response, convo) {
+  convo.ask('Wanneer moet het klaar zijn?', function (response, convo) {
+    var date = functions.verifyDate(response.text)
+    if (date) {
+      response.text = date
+      convo.say('Ik zal het onthouden.')
+      if (convo.task.source_message.event === 'direct_message') {
+        welkKanaal(response, convo)
+        convo.next()
+      } else {
+        opslaanVanTaak(response, convo)
+        convo.next()
       }
     }
-  });
-};
-var welkKanaal = function(response,convo){
-  convo.ask("In welke lijst zal ik dit zetten?",function(response,convo){
-    var channelid = functions.verifyChannelName(response.text);
-    if(channelid){
-      convo.say('Kijk in het kanaal voor de lijst.');
-      opslaanVanTaak(response,convo);
-      convo.next();
+  })
+}
+var welkKanaal = function (response, convo) {
+  convo.ask('In welke lijst zal ik dit zetten?', function (response, convo) {
+    var channelid = functions.verifyChannelName(response.text)
+    if (channelid) {
+      convo.say('Kijk in het kanaal voor de lijst.')
+      opslaanVanTaak(response, convo)
+      convo.next()
     }
-  });
-};
-var opslaanVanTaak = function(response,convo){
-  convo.on('end',function(convo){
-    if(convo.status=='completed'){
-      var res = convo.extractResponses();
-      var channelId = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?']);
-      if(!channelId){
-        channelId = response.channel;
+  })
+}
+var opslaanVanTaak = function (response, convo) {
+  convo.on('end', function (convo) {
+    if (convo.status === 'completed') {
+      var res = convo.extractResponses()
+      var channelId = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?'])
+      if (!channelId) {
+        channelId = response.channel
       }
-      var userId = response.user;
-      var task = res['Wat moet er gedaan worden?'];
-      var responsibleId = res['Wie gaat dit doen? (@naam graag)'];
-      var deadline = res['Wanneer moet het klaar zijn?'];
-      
-      var isStored = storeNewTask(userId,channelId,task,responsibleId,deadline);
-      if(isStored){
-        bot.reply(response,"Ok, taak toegevoegd aan de lijst.");
-      }else{
-        bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+      var userId = response.user
+      var task = res['Wat moet er gedaan worden?']
+      var responsibleId = res['Wie gaat dit doen? (@naam graag)']
+      var deadline = res['Wanneer moet het klaar zijn?']
+      var isStored = storeNewTask(userId, channelId, task, responsibleId, deadline)
+      if (isStored) {
+        bot.reply(response, 'Ok, taak toegevoegd aan de lijst.')
+      } else {
+        bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
       }
     }
-  });
-};
+  })
+}
 
-controller.hears(['instanttaak (.*)'],'direct_message', function(bot,message){
-  var parts = message.match[1].split('|');
-  if(parts.length !== 4){
-    bot.reply(message,"Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal");
-    return false;
+controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
+  var parts = message.match[1].split('|')
+  if (parts.length !== 4) {
+    bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
+    return false
   }
-  var task = parts[0];
-  var userId = message.user;
-  var responsibleId = functions.verifyUserName(parts[1]);
-  var channelId = functions.verifyChannelName(parts[3]);
-  var deadline = functions.verifyDate(parts[2]);
-  
-  if(channelId && responsibleId && deadline){
-    var isStored = storeNewTask(userId,channelId,task,responsibleId,deadline);
-    if(isStored){
-      bot.reply(message,"Ok, taak toegevoegd aan de lijst.");
-    }else{
-      bot.reply(message,"Sorry, er is iets misgegaan bij het opslaan.");
+  var task = parts[0]
+  var userId = message.user
+  var responsibleId = functions.verifyUserName(parts[1])
+  var channelId = functions.verifyChannelName(parts[3])
+  var deadline = functions.verifyDate(parts[2])
+  if (channelId && responsibleId && deadline) {
+    var isStored = storeNewTask(userId, channelId, task, responsibleId, deadline)
+    if (isStored) {
+      bot.reply(message, 'Ok, taak toegevoegd aan de lijst.')
+    } else {
+      bot.reply(message, 'Sorry, er is iets misgegaan bij het opslaan.')
     }
-  }else{
-    bot.reply(message,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
+  } else {
+    bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
   }
-});
+})
 
-var storeNewTask = function(userId, channelId, task, responsibleId, deadline){
-  functions.getTeamId(bot,function(teamId){
-    controller.storage.teams.get(teamId, function(err, list){
-      if(!err){
+var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
+  functions.getTeamId(bot, function (teamId) {
+    controller.storage.teams.get(teamId, function (err, list) {
+      if (!err) {
         list.tasks.push({
-          channel: {id: channelId},
-          taskid: list.tasks.length+1,
-          user: {id: userId},
-          task: task,
-          responsible: {id: responsibleId},
-          deadline: deadline,
-          status: "new",
-        });
-        controller.storage.teams.save(list);
+          'channel': {'id': channelId},
+          'taskid': list.tasks.length + 1,
+          'user': {'id': userId},
+          'task': task,
+          'responsible': {'id': responsibleId},
+          'deadline': deadline,
+          'status': 'new'
+        })
+        controller.storage.teams.save(list)
       }
-    });
-  });
+    })
+  })
   var attachArray = [{
-    "fallback": "Nieuwe taak voor <@" + responsibleId + "> toegevoegd: " + task,
-    "color": "#3090C7",
-    "pretext": "Er is een nieuwe taak toegevoegd.",
-    "fields": [
+    'fallback': 'Nieuwe taak voor <@' + responsibleId + '> toegevoegd: ' + task,
+    'color': '#3090C7',
+    'pretext': 'Er is een nieuwe taak toegevoegd.',
+    'fields': [
       {
-        "title": "Taak",
-        "value": task,
-        "short": false
+        'title': 'Taak',
+        'value': task,
+        'short': false
       },
       {
-        "title": "Verantwoordelijke",
-        "value": "<@"+responsibleId+">",
-        "short": true
+        'title': 'Verantwoordelijke',
+        'value': '<@' + responsibleId + '>',
+        'short': true
       },
       {
-        "title": "Deadline",
-        "value": deadline.toUTCString().substr(5,11),
-        "short": true
+        'title': 'Deadline',
+        'value': deadline.toUTCString().substr(5, 11),
+        'short': true
       }
     ]
-  }];
-  functions.postAttachment(bot, attachArray, channelId);
-  return true;
-};
+  }]
+  functions.postAttachment(bot, attachArray, channelId)
+  return true
+}
 
-controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (.*)gedaan'],'direct_mention,mention,direct_message',function(bot,message){
-  bot.startConversation(message,completeTask);
-});
-var completeTask = function(response,convo){
-  if (!isNaN(parseInt(convo.source_message.match[1]))){
+controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {
+  bot.startConversation(message, completeTask)
+})
+var completeTask = function (response, convo) {
+  if (!isNaN(parseInt(convo.source_message.match[1]))) {
     // TODO: new function to set task done that can be called from here and from TaskDone
-  }else{
-    var channel,send;
-    if(functions.verifyChannelId(convo.source_message.channel)){
-      channel = convo.source_message.channel;
-      send = channel;
-    }else{
-      channel = "all";
-      send = convo.source_message.user;
+  } else {
+    var channel, send
+    if (functions.verifyChannelId(convo.source_message.channel)) {
+      channel = convo.source_message.channel
+      send = channel
+    } else {
+      channel = 'all'
+      send = convo.source_message.user
     }
-    ShowList(channel,"all",send);
-    convo.ask("Kan je mij het nummer geven van de taak die van de lijst af mag?",function(response,convo){
-      if(!isNaN(parseInt(response.text))){
-        convo.say("BAM, weer wat gedaan. Goed werk <@"+response.user+">.\n");
-        TaskDone(response,convo);
-        convo.next();
+    ShowList(channel, 'all', send)
+    convo.ask('Kan je mij het nummer geven van de taak die van de lijst af mag?', function (response, convo) {
+      if (!isNaN(parseInt(response.text))) {
+        convo.say('BAM, weer wat gedaan. Goed werk <@' + response.user + '>.\n')
+        TaskDone(response, convo)
+        convo.next()
       }
-    });
+    })
   }
-};
-var TaskDone = function(response,convo){
-  convo.on('end',function(convo){
-    if(convo.status=='completed'){
-      var res = convo.extractResponses();
-      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?']);
-      var id = response.team;
-		    controller.storage.teams.get(id, function(err, channel_data){
-          if(!err){
-            channel_data.tasks.forEach(function(value,index,array){
-              if(value.taskid == number){
-                value.status = "done";
-              }
-            });
-            controller.storage.teams.save(channel_data);
-          }
-        });
-        bot.reply(response,"Ok, verwijderd van de lijst.");
-    }else{
-      bot.reply(response,"Sorry, ik heb iets niet begrepen, probeer het nog een keer.");
-    }
-  });
-};
-
-controller.hears(['update deadline','deadline veranderen','andere deadline'],'direct_mention,mention,direct_message',function(bot,message){
-  bot.startConversation(message,DeadlineNumber);
-});
-var DeadlineNumber = function(response,convo){
-  var channel,send;
-  if(functions.verifyChannelId(convo.source_message.channel)){
-    channel = convo.source_message.channel;
-    send = channel;
-  }else{
-    channel = "all";
-    send = convo.source_message.user;
-  }
-  ShowList(channel,"all",send);
-  convo.ask("Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?",function(response,convo){
-    if(!isNaN(parseInt(response.text))){
-      NewDeadline(response,convo);
-      convo.next();
-    }
-  });
-};
-var NewDeadline = function(response,convo){
-  convo.ask("Wat is de nieuwe deadline?",function(response,convo){
-    date = functions.verifyDate(response.text);
-    if(date){
-      response.text = date;
-      convo.say("Ik zal het onthouden.");
-      UpdateDeadline(response,convo);
-      convo.next();
-    }
-  });
-};
-var UpdateDeadline = function(response,convo){
-  convo.on('end',function(convo){
-    if(convo.status=='completed'){
-      var res = convo.extractResponses();
-      controller.storage.teams.get(response.team, function(err, channel_data){
-        if(!err){
-          channel_data.tasks.forEach(function(value,index,array){
-            if(value.taskid==parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])){
-              value.deadline = res['Wat is de nieuwe deadline?'];
+}
+var TaskDone = function (response, convo) {
+  convo.on('end', function (convo) {
+    if (convo.status === 'completed') {
+      var res = convo.extractResponses()
+      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'])
+      var id = response.team
+      controller.storage.teams.get(id, function (err, channelData) {
+        if (!err) {
+          channelData.tasks.forEach(function (value, index, array) {
+            if (value.taskid === number) {
+              value.status = 'done'
             }
-          });
-          controller.storage.teams.save(channel_data);
+          })
+          controller.storage.teams.save(channelData)
         }
-      });
-      bot.reply(response,"Ok, nieuwe deadline genoteerd.");
+      })
+      bot.reply(response, 'Ok, verwijderd van de lijst.')
+    } else {
+      bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
     }
-  });
-};
+  })
+}
 
-controller.hears(['newherinneringen','sendreminder'],'direct_message',function(bot,message){
-  NewSendReminders();
-});
-
-var NewSendReminders = function(){
-  bot.api.users.list({},function(err,reply){
-    if(!err){
-      reply.members.forEach(function(value,index,array){
-        console.log(value);
-        if(value.deleted === false && value.is_bot === false ){
-          ShowList("all",value.id,value.id);
+controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {
+  bot.startConversation(message, DeadlineNumber)
+})
+var DeadlineNumber = function (response, convo) {
+  var channel, send
+  if (functions.verifyChannelId(convo.source_message.channel)) {
+    channel = convo.source_message.channel
+    send = channel
+  } else {
+    channel = 'all'
+    send = convo.source_message.user
+  }
+  ShowList(channel, 'all', send)
+  convo.ask('Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?', function (response, convo) {
+    if (!isNaN(parseInt(response.text))) {
+      NewDeadline(response, convo)
+      convo.next()
+    }
+  })
+}
+var NewDeadline = function (response, convo) {
+  convo.ask('Wat is de nieuwe deadline?', function (response, convo) {
+    var date = functions.verifyDate(response.text)
+    if (date) {
+      response.text = date
+      convo.say('Ik zal het onthouden.')
+      UpdateDeadline(response, convo)
+      convo.next()
+    }
+  })
+}
+var UpdateDeadline = function (response, convo) {
+  convo.on('end', function (convo) {
+    if (convo.status === 'completed') {
+      var res = convo.extractResponses()
+      controller.storage.teams.get(response.team, function (err, channelData) {
+        if (!err) {
+          channelData.tasks.forEach(function (value, index, array) {
+            if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])) {
+              value.deadline = res['Wat is de nieuwe deadline?']
+            }
+          })
+          controller.storage.teams.save(channelData)
         }
-      });
+      })
+      bot.reply(response, 'Ok, nieuwe deadline genoteerd.')
     }
-  });
-};
-controller.hears(['takenlijst(.*)','testlist(.*)','lijst(.*)'],'direct_message,direct_mention,mention',function(bot,message){
-  var send;
-  var userid = functions.verifyUserName(message.match[1]);
-  var channelid = functions.verifyChannelName(message.match[1]);
-  if(functions.verifyChannelId(message.channel)){
-    send = message.channel;
-  }else{
-    send = message.user;
+  })
+}
+
+controller.hears(['newherinneringen', 'sendreminder'], 'direct_message', function (bot, message) {
+  NewSendReminders()
+})
+
+var NewSendReminders = function () {
+  bot.api.users.list({}, function (err, reply) {
+    if (!err) {
+      reply.members.forEach(function (value, index, array) {
+        console.log(value)
+        if (value.deleted === false && value.is_bot === false) {
+          ShowList('all', value.id, value.id)
+        }
+      })
+    }
+  })
+}
+controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
+  var send
+  var userid = functions.verifyUserName(message.match[1])
+  var channelid = functions.verifyChannelName(message.match[1])
+  if (functions.verifyChannelId(message.channel)) {
+    send = message.channel
+  } else {
+    send = message.user
   }
-  if(userid && channelid){
-    console.log("beide");
-    ShowList(channelid,userid,send);
-  }else{
-    if(userid){
-      console.log("user");
-      ShowList("all",userid,send);
-      return true;
-    }else if(channelid){
-      console.log("channel");
-      ShowList(channelid,"all",send);
-      return true;
-    }else if(functions.verifyChannelId(message.channel)){
-      console.log("none -> channel");
-      ShowList(send,"all",send);
-    }else{
-      console.log("none -> dm");
-      ShowList("all","all",send);
+  if (userid && channelid) {
+    console.log('beide')
+    ShowList(channelid, userid, send)
+  } else {
+    if (userid) {
+      console.log('user')
+      ShowList('all', userid, send)
+      return true
+    } else if (channelid) {
+      console.log('channel')
+      ShowList(channelid, 'all', send)
+      return true
+    } else if (functions.verifyChannelId(message.channel)) {
+      console.log('none -> channel')
+      ShowList(send, 'all', send)
+    } else {
+      console.log('none -> dm')
+      ShowList('all', 'all', send)
     }
   }
-});
-var ShowList = function(channelName,userName,sendto){
-  functions.getTeamId(bot,function(teamid){
-    controller.storage.teams.get(teamid,function(err,team_data){
-      if(err){
-        return false;
+})
+var ShowList = function (channelName, userName, sendto) {
+  functions.getTeamId(bot, function (teamid) {
+    controller.storage.teams.get(teamid, function (err, teamData) {
+      if (err) {
+        return false
       }
-      var sortedtasks, formatted, userID, channelID;
-      var usertasks = functions.filterTasks('status',functions.filterTasks('channel',functions.filterTasks('responsible',team_data.tasks,userName),channelName),'new');
-      if(usertasks.length === 0){
-        console.log("empty tasks");
-        return false;
+      var sortedtasks, formatted, userID, channelID
+      var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', teamData.tasks, userName), channelName), 'new')
+      if (usertasks.length === 0) {
+        console.log('empty tasks')
+        return false
       }
-      sortedtasks = functions.sortTasks(usertasks,'channel');
-      formatted = functions.formatTasks(sortedtasks);
-      userID = functions.verifyUserId(sendto);
-      if(userID){
-        sendTo(formatted,userID);
-        console.log('sending to user');
+      sortedtasks = functions.sortTasks(usertasks, 'channel')
+      formatted = functions.formatTasks(sortedtasks)
+      userID = functions.verifyUserId(sendto)
+      if (userID) {
+        sendTo(formatted, userID)
+        console.log('sending to user')
       }
-      channelID = functions.verifyChannelId(sendto);
-      if(channelID){
-        sendTo(formatted,channelID);
-        console.log('sending to channel');
+      channelID = functions.verifyChannelId(sendto)
+      if (channelID) {
+        sendTo(formatted, channelID)
+        console.log('sending to channel')
       }
-    });
-  });
-};
-var sendTo = function(formatted,sendToID){
-  if(functions.verifyUserId(sendToID)){
-    bot.api.im.open({"user":sendToID},function(err,response){
-      if(!err){
-        functions.postMessage(bot,formatted,response.channel.id);
+    })
+  })
+}
+var sendTo = function (formatted, sendToID) {
+  if (functions.verifyUserId(sendToID)) {
+    bot.api.im.open({'user': sendToID}, function (err, response) {
+      if (!err) {
+        functions.postMessage(bot, formatted, response.channel.id)
       }
-    });
-  }else if(functions.verifyChannelId(sendToID)){
-    functions.postMessage(bot,formatted,sendToID);
-  }else{
-    console.log('err, no valid sendToID');
-    return false;
+    })
+  } else if (functions.verifyChannelId(sendToID)) {
+    functions.postMessage(bot, formatted, sendToID)
+  } else {
+    console.log('err, no valid sendToID')
+    return false
   }
-};
+}
 
-controller.hears(['TGIF'],'direct_message',function(bot,message){
-  sendTGIF();
-});
+controller.hears(['TGIF'], 'direct_message', function (bot, message) {
+  sendTGIF()
+})
 
-var sendTGIF = function(){
-  functions.getTeamId(bot,function(teamid){
-    controller.storage.teams.get(teamid, function(err, data) {
-      if(!err){
-        for (var channel in data.tgif){
-          functions.postMessage(bot,data.tgif[channel],channel);
+var sendTGIF = function () {
+  functions.getTeamId(bot, function (teamid) {
+    controller.storage.teams.get(teamid, function (err, data) {
+      if (!err) {
+        for (var channel in data.tgif) {
+          functions.postMessage(bot, data.tgif[channel], channel)
         }
       }
-    });
-  });
-};
+    })
+  })
+}
 
-controller.hears(['setTGIF(.*)'],'direct_mention, mention',function(bot,message){
-  functions.getTeamId(bot,function(teamId){
-    controller.storage.teams.get(teamId, function(err, channel_data){
-      if(!err){
-        channel_data.tgif[message.channel] = message.match[1];
-        controller.storage.teams.save(channel_data);
-        bot.reply(message,"Is goed! Ik heb zin in het weekend.");
+controller.hears(['setTGIF(.*)'], 'direct_mention, mention', function (bot, message) {
+  functions.getTeamId(bot, function (teamId) {
+    controller.storage.teams.get(teamId, function (err, channelData) {
+      if (!err) {
+        channelData.tgif[message.channel] = message.match[1]
+        controller.storage.teams.save(channelData)
+        bot.reply(message, 'Is goed! Ik heb zin in het weekend.')
       }
-    });
-  });
-});
+    })
+  })
+})
 
-controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function(bot,message){
-  isChannel = functions.verifyChannelId(message.match[1]);
-  if(isChannel){
-    var send = "Er is een bericht geplaatst in <#" + message.channel + "> wat jullie misschien ook interessant vinden.";
-    functions.postMessage(bot,send,isChannel);
+controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
+  var isChannel = functions.verifyChannelId(message.match[1])
+  if (isChannel) {
+    var send = 'Er is een bericht geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
+    functions.postMessage(bot, send, isChannel)
   }
-});
+})

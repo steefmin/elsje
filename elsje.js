@@ -327,7 +327,7 @@ controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (
   bot.startConversation(message,completeTask);
 });
 var completeTask = function(response,convo){
-  if !isNAN(parseInt(source_message.match[1])){
+  if (!isNAN(parseInt(source_message.match[1]))){
     // TODO: new function to set task done that can be called from here and from TaskDone
   }else{
     var channel,send;

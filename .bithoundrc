@@ -4,7 +4,7 @@
   "test": [
   ],
   "critics": {
-	  "wc": { "limit": 5000 }
+	  "wc": { "limit": 10000 }
   },
   "dependencies": {
 	  "unused-ignores": [

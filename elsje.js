@@ -327,7 +327,7 @@ controller.hears(['taak (.*)afronden','taak (.*)afvinken','ik ben klaar','taak (
   bot.startConversation(message,completeTask);
 });
 var completeTask = function(response,convo){
-  if (!isNaN(parseInt(source_message.match[1]))){
+  if (!isNaN(parseInt(convo.source_message.match[1]))){
     // TODO: new function to set task done that can be called from here and from TaskDone
   }else{
     var channel,send;
@@ -540,7 +540,7 @@ controller.hears(['setTGIF(.*)'],'direct_mention, mention',function(bot,message)
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function(bot,message){
   isChannel = functions.verifyChannelId(message.match[1]);
   if(isChannel){
-    var message = "Er is een bericht geplaatst in <#" + message.channel + "> wat jullie misschien ook interessant vinden.";
-    functions.postMessage(bot,message,isChannel);
+    var send = "Er is een bericht geplaatst in <#" + message.channel + "> wat jullie misschien ook interessant vinden.";
+    functions.postMessage(bot,send,isChannel);
   }
 });

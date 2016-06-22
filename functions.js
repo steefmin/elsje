@@ -1,5 +1,5 @@
 var getGif = function (search) {
-  http://api.riffsy.com/v1/search?tag=<query>
+//  var url = 'http://api.riffsy.com/v1/search?tag=<query>'
 }
 
 var formatUptime = function (uptime) {
@@ -160,7 +160,6 @@ var filterTasks = function (filterOn, tasks, filterFor) {
         return newtasks
       })
       return newtasks
->>>>>>> master
     }
   }
 }
@@ -225,19 +224,19 @@ var postAttachment = function (bot, attachmentArray, channel) {
 }
 
 module.exports = {
-  getGif : getGif,
-  formatUptime: formatUptime,
-  verifyDate: verifyDate,
-  addSpaces: addSpaces,
-  verifyUserId: verifyUserId,
-  verifyChannelId: verifyChannelId,
-  verifyUserName: verifyUserName,
-  verifyChannelName: verifyChannelName,
-  getBotImg: getBotImg,
-  getTeamId: getTeamId,
-  formatTasks: formatTasks,
-  sortTasks: sortTasks,
-  filterTasks: filterTasks,
-  postMessage: postMessage,
-  postAttachment: postAttachment
+  'getGif': getGif,
+  'formatUptime': formatUptime,
+  'verifyDate': verifyDate,
+  'addSpaces': addSpaces,
+  'verifyUserId': verifyUserId,
+  'verifyChannelId': verifyChannelId,
+  'verifyUserName': verifyUserName,
+  'verifyChannelName': verifyChannelName,
+  'getBotImg': getBotImg,
+  'getTeamId': getTeamId,
+  'formatTasks': formatTasks,
+  'sortTasks': sortTasks,
+  'filterTasks': filterTasks,
+  'postMessage': postMessage,
+  'postAttachment': postAttachment
 }

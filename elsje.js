@@ -504,3 +504,11 @@ controller.hears(['setTGIF(.*)'],'direct_mention, mention',function(bot,message)
     });
   });
 });
+
+controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function(bot,message){
+  isChannel = functions.verifyChannelId(message.match[1]);
+  if(isChannel){
+    var message = "Er is een bericht geplaatst in <#" + message.channel + "> wat jullie misschien ook interessant vinden.";
+    functions.postMessage(bot,message,isChannel);
+  }
+});

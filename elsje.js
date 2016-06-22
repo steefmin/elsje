@@ -382,7 +382,7 @@ var DeadlineNumber = function (response, convo) {
   }
   ShowList(channel, 'all', send)
   convo.ask('Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?', function (response, convo) {
-    if (!isNaN(parseInt(response.text))) {
+    if (!isNaN(parseInt(response.text, 10))) {
       NewDeadline(response, convo)
       convo.next()
     }
@@ -406,7 +406,7 @@ var UpdateDeadline = function (response, convo) {
       controller.storage.teams.get(response.team, function (err, channelData) {
         if (!err) {
           channelData.tasks.forEach(function (value, index, array) {
-            if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'])) {
+            if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)) {
               value.deadline = res['Wat is de nieuwe deadline?']
             }
           })

@@ -4,8 +4,8 @@
   "test": [
   ],
   "critics": {
-    "lint": {"engine": "standard"}
-	  "wc": { "limit": 10000 }
+    "lint": {"engine": "standard"},
+    "wc": { "limit": 10000 }
   },
   "dependencies": {
 	  "unused-ignores": [

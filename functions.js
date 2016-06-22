@@ -208,11 +208,11 @@ var postMessage = function(bot,message,channel){
   });
 };
 
-var postAttachment = function(bot,attachment,channel){
+var postAttachment = function(bot,attachmentArray,channel){
   getBotImg(bot,function(image){
     bot.api.chat.postMessage({
           "channel": channel,
-          "attachments": [attachment],
+          "attachments": attachmentArray,
           "username": bot.identity.name,
           "icon_url": image
         });

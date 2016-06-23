@@ -308,7 +308,7 @@ controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taa
 })
 var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
-    // TODO: new function to set task done that can be called from here and from TaskDone
+    finishtask(convo, parseInt(convo.source_message.match[1], 10))
   } else {
     var channel, send
     if (functions.verifyChannelId(convo.source_message.channel)) {
@@ -333,27 +333,27 @@ var TaskDone = function (response, convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
       var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
-      var id = response.team
-      controller.storage.teams.get(id, function (err, channelData) {
-        if (!err) {
-          channelData.tasks.forEach(function (value, index, array) {
-            if (value.taskid === number) {
-              value.status = 'done'
-              var message = {
-                'fallback': '<@' + value.responsible.id + '> heeft afgerond: ' + value.task,
-                'pretext': 'Deze taak is afgerond.'
-              }
-              functions.postSingleTask(bot, value, message)
-            }
-          })
-          controller.storage.teams.save(channelData)
-        }
-      })
-      bot.reply(response, 'Ok, verwijderd van de lijst.')
+      finishtask(convo, number)
     } else {
       bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
     }
   })
+}
+var finishtask = function (convo, taskNumber) {
+  var teamId = convo.source_message.team
+  var channelId = convo.source_message.channel
+  controller.storage.teams.get(teamId, function (err, channelData) {
+    if (!err) {
+      channelData.tasks.forEach(function (value, index, array) {
+        if (value.taskid === taskNumber) {
+          value.status = 'done'
+        }
+      })
+      controller.storage.teams.save(channelData)
+    }
+  })
+  functions.postMessage(bot, 'Ok, verwijderd van de lijst.', channelId)
+  convo.stop()
 }
 
 controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {

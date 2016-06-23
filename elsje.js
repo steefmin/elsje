@@ -281,7 +281,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
   functions.getTeamId(bot, function (teamId) {
     controller.storage.teams.get(teamId, function (err, list) {
       if (!err) {
-        list.tasks.push({
+        var newTask = {
           'channel': {'id': channelId},
           'taskid': list.tasks.length + 1,
           'user': {'id': userId},
@@ -289,34 +289,17 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'responsible': {'id': responsibleId},
           'deadline': deadline,
           'status': 'new'
-        })
+        }
+        list.tasks.push(newTask)
         controller.storage.teams.save(list)
+        var message = {
+          'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
+          'pretext': 'Nieuwe taak aangemaakt.'
+        }
+        functions.postSingleTask(bot, newTask, message)
       }
     })
   })
-  var attachArray = [{
-    'fallback': 'Nieuwe taak voor <@' + responsibleId + '> toegevoegd: ' + task,
-    'color': '#3090C7',
-    'pretext': 'Er is een nieuwe taak toegevoegd.',
-    'fields': [
-      {
-        'title': 'Taak',
-        'value': task,
-        'short': false
-      },
-      {
-        'title': 'Verantwoordelijke',
-        'value': '<@' + responsibleId + '>',
-        'short': true
-      },
-      {
-        'title': 'Deadline',
-        'value': deadline.toUTCString().substr(5, 11),
-        'short': true
-      }
-    ]
-  }]
-  functions.postAttachment(bot, attachArray, channelId)
   return true
 }
 
@@ -325,7 +308,7 @@ controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taa
 })
 var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
-    // TODO: new function to set task done that can be called from here and from TaskDone
+    finishtask(convo, parseInt(convo.source_message.match[1], 10))
   } else {
     var channel, send
     if (functions.verifyChannelId(convo.source_message.channel)) {
@@ -350,22 +333,34 @@ var TaskDone = function (response, convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
       var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
-      var id = response.team
-      controller.storage.teams.get(id, function (err, channelData) {
-        if (!err) {
-          channelData.tasks.forEach(function (value, index, array) {
-            if (value.taskid === number) {
-              value.status = 'done'
-            }
-          })
-          controller.storage.teams.save(channelData)
-        }
-      })
-      bot.reply(response, 'Ok, verwijderd van de lijst.')
+      finishtask(convo, number)
     } else {
       bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
     }
   })
+}
+var finishtask = function (convo, taskNumber) {
+  var teamId = convo.source_message.team
+  var channelId = convo.source_message.channel
+  controller.storage.teams.get(teamId, function (err, channelData) {
+    if (!err) {
+      channelData.tasks.forEach(function (value, index, array) {
+        if (value.taskid === taskNumber) {
+          value.status = 'done'
+          var message = {
+            // TODO: set text
+            'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,
+            'color': 'good',
+            'pretext': 'Taak afgerond.'
+          }
+          functions.postSingleTask(bot, value, message)
+        }
+      })
+      controller.storage.teams.save(channelData)
+    }
+  })
+  functions.postMessage(bot, 'Ok, verwijderd van de lijst.', channelId)
+  convo.stop()
 }
 
 controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {
@@ -408,6 +403,11 @@ var UpdateDeadline = function (response, convo) {
           channelData.tasks.forEach(function (value, index, array) {
             if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)) {
               value.deadline = res['Wat is de nieuwe deadline?']
+              var message = {
+                'fallback': 'Taak van <@' + value.responsible.id + '> heeft nieuwe deadline: ' + value.deadline,
+                'pretext': 'Deze taak heeft een nieuwe deadline.'
+              }
+              functions.postSingleTask(bot, value, message)
             }
           })
           controller.storage.teams.save(channelData)

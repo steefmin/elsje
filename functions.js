@@ -224,6 +224,50 @@ var postAttachment = function (bot, attachmentArray, channel) {
   })
 }
 
+var postSingleTask = function (bot, taskStructure, message) {
+  console.log(taskStructure)
+  if (typeof message.color === 'undefined') {
+    message.color = '#3090C7'
+  }
+  if (typeof message.fallback === 'undefined') {
+    message.fallback = message.pretext
+  }
+  var deadline = new Date(taskStructure.deadline)
+  var attachmentArray = [{
+    'fallback': message.fallback,
+    'color': message.color,
+    'pretext': message.pretext,
+    'fields': [
+      {
+        'title': 'Taak',
+        'value': taskStructure.task,
+        'short': false
+      },
+      {
+        'title': 'Verantwoordelijke',
+        'value': '<@' + taskStructure.responsible.id + '>',
+        'short': true
+      },
+      {
+        'title': 'Status',
+        'value': taskStructure.status,
+        'short': true
+      },
+      {
+        'title': 'Deadline',
+        'value': deadline.toUTCString().substr(5, 11),
+        'short': true
+      },
+      {
+        'title': 'Taaknummer',
+        'value': taskStructure.taskid,
+        'short': true
+      }
+    ]
+  }]
+  postAttachment(bot, attachmentArray, taskStructure.channel.id)
+}
+
 module.exports = {
   'getGif': getGif,
   'formatUptime': formatUptime,
@@ -239,5 +283,6 @@ module.exports = {
   'sortTasks': sortTasks,
   'filterTasks': filterTasks,
   'postMessage': postMessage,
-  'postAttachment': postAttachment
+  'postAttachment': postAttachment,
+  'postSingleTask': postSingleTask
 }

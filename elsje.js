@@ -348,7 +348,6 @@ var finishtask = function (convo, taskNumber) {
         if (value.taskid === taskNumber) {
           value.status = 'done'
           var message = {
-            // TODO: set text
             'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,
             'color': 'good',
             'pretext': 'Taak afgerond.'

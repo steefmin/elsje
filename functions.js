@@ -1,5 +1,6 @@
 var getGif = function (search) {
-//  var url = 'http://api.riffsy.com/v1/search?tag=<query>'
+  // TODO: build gif feature
+  //  var url = 'http://api.riffsy.com/v1/search?tag=<query>'
 }
 
 var formatUptime = function (uptime) {

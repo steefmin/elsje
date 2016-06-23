@@ -281,7 +281,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
   functions.getTeamId(bot, function (teamId) {
     controller.storage.teams.get(teamId, function (err, list) {
       if (!err) {
-        list.tasks.push({
+        var newTask = {
           'channel': {'id': channelId},
           'taskid': list.tasks.length + 1,
           'user': {'id': userId},
@@ -289,13 +289,14 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'responsible': {'id': responsibleId},
           'deadline': deadline,
           'status': 'new'
-        })
+        }
+        list.tasks.push(newTask)
         controller.storage.teams.save(list)
         var message = {
           'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
           'pretext': 'Nieuwe taak aangemaakt.'
         }
-        functions.postSingleTask(bot, list.tasks[list.tasks.length], message)
+        functions.postSingleTask(bot, newTask, message)
       }
     })
   })

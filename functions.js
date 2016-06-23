@@ -220,6 +220,7 @@ var postAttachment = function (bot, attachmentArray, channel) {
 }
 
 var postSingleTask = function (bot, taskStructure, message) {
+  console.log(taskStructure)
   if (typeof message.color === 'undefined') {
     message.color = '#3090C7'
   }

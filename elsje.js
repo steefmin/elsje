@@ -291,32 +291,14 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'status': 'new'
         })
         controller.storage.teams.save(list)
+        var message = {
+          'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
+          'pretext': 'Nieuwe taak aangemaakt.'
+        }
+        functions.postSingleTask(bot, list.tasks[list.tasks.length], message)
       }
     })
   })
-  var attachArray = [{
-    'fallback': 'Nieuwe taak voor <@' + responsibleId + '> toegevoegd: ' + task,
-    'color': '#3090C7',
-    'pretext': 'Er is een nieuwe taak toegevoegd.',
-    'fields': [
-      {
-        'title': 'Taak',
-        'value': task,
-        'short': false
-      },
-      {
-        'title': 'Verantwoordelijke',
-        'value': '<@' + responsibleId + '>',
-        'short': true
-      },
-      {
-        'title': 'Deadline',
-        'value': deadline.toUTCString().substr(5, 11),
-        'short': true
-      }
-    ]
-  }]
-  functions.postAttachment(bot, attachArray, channelId)
   return true
 }
 
@@ -356,6 +338,11 @@ var TaskDone = function (response, convo) {
           channelData.tasks.forEach(function (value, index, array) {
             if (value.taskid === number) {
               value.status = 'done'
+              var message = {
+                'fallback': '<@' + value.responsible.id + '> heeft afgerond: ' + value.task,
+                'pretext': 'Deze taak is afgerond.'
+              }
+              functions.postSingleTask(bot, value, message)
             }
           })
           controller.storage.teams.save(channelData)
@@ -408,6 +395,11 @@ var UpdateDeadline = function (response, convo) {
           channelData.tasks.forEach(function (value, index, array) {
             if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)) {
               value.deadline = res['Wat is de nieuwe deadline?']
+              var message = {
+                'fallback': 'Taak van <@' + value.responsible.id + '> heeft nieuwe deadline: ' + value.deadline,
+                'pretext': 'Deze taak heeft een nieuwe deadline.'
+              }
+              functions.postSingleTask(bot, value, message)
             }
           })
           controller.storage.teams.save(channelData)

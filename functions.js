@@ -227,6 +227,7 @@ var postSingleTask = function (bot, taskStructure, message) {
   if (typeof message.fallback === 'undefined') {
     message.fallback = message.pretext
   }
+  var deadline = new Date(taskStructure.deadline)
   var attachmentArray = [{
     'fallback': message.fallback,
     'color': message.color,
@@ -249,7 +250,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       },
       {
         'title': 'Deadline',
-        'value': taskStructure.deadline.toUTCString().substr(5, 11),
+        'value': deadline.toUTCString().substr(5, 11),
         'short': true
       },
       {

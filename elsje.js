@@ -347,6 +347,13 @@ var finishtask = function (convo, taskNumber) {
       channelData.tasks.forEach(function (value, index, array) {
         if (value.taskid === taskNumber) {
           value.status = 'done'
+          var message = {
+            // TODO: set text
+            'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,
+            'color': 'good',
+            'pretext': 'Taak afgerond.'
+          }
+          functions.postSingleTask(bot, value, message)
         }
       })
       controller.storage.teams.save(channelData)

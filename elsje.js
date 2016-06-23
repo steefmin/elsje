@@ -326,6 +326,7 @@ controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taa
 var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
     // TODO: new function to set task done that can be called from here and from TaskDone
+    finishtask(response, convo.source_message.match[1])
   } else {
     var channel, send
     if (functions.verifyChannelId(convo.source_message.channel)) {
@@ -350,23 +351,26 @@ var TaskDone = function (response, convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
       var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
-      var id = response.team
-      controller.storage.teams.get(id, function (err, channelData) {
-        if (!err) {
-          channelData.tasks.forEach(function (value, index, array) {
-            if (value.taskid === number) {
-              value.status = 'done'
-            }
-          })
-          controller.storage.teams.save(channelData)
-        }
-      })
-      bot.reply(response, 'Ok, verwijderd van de lijst.')
+      finishtask(response, number)
     } else {
       bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
     }
   })
 }
+var finishtask = function (response, taskNumber) {
+  controller.storage.teams.get(response.team, function (err, channelData) {
+    if (!err) {
+      channelData.tasks.forEach(function (value, index, array) {
+        if (value.taskid === taskNumber) {
+          value.status = 'done'
+        }
+      })
+      controller.storage.teams.save(channelData)
+    }
+  })
+  bot.reply(response, 'Ok, verwijderd van de lijst.')
+}
+
 
 controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.startConversation(message, DeadlineNumber)

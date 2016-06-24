@@ -33,25 +33,27 @@ controller.on('rtm_open', function (bot, message) {
   }
 })
 
-controller.hears(['hello', 'hi', 'hoi', 'hallo', 'hey'], 'direct_message,direct_mention,mention', function (bot, message) {
-  bot.api.reactions.add({
-    timestamp: message.ts,
-    channel: message.channel,
-    name: 'robot_face'
-  }, function (err, res) {
-    if (err) {
-      bot.botkit.log('Failed to add emoji reaction :(', err)
-    }
-  })
-  controller.storage.users.get(message.user, function (err, user) {
-    if (!err) {
-      if (user && user.name) {
-        bot.reply(message, 'Hoi ' + user.name + '!!')
-      } else {
-        bot.reply(message, 'Hoi')
+controller.hears(['hello(.*)', 'hi(.*)', 'hoi(.*)', 'hallo(.*)', 'hey(.*)'], 'ambient', function (bot, message) {
+  if (message.match[1] === '') {
+    bot.api.reactions.add({
+      timestamp: message.ts,
+      channel: message.channel,
+      name: 'robot_face'
+    }, function (err, res) {
+      if (err) {
+        bot.botkit.log('Failed to add emoji reaction :(', err)
       }
-    }
-  })
+    })
+    controller.storage.users.get(message.user, function (err, user) {
+      if (!err) {
+        if (user && user.name) {
+          bot.reply(message, 'Hoi ' + user.name + '!!')
+        } else {
+          bot.reply(message, 'Hoi')
+        }
+      }
+    })
+  }
 })
 
 controller.hears(['noem me (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {

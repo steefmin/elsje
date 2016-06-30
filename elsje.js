@@ -537,8 +537,20 @@ controller.hears(['setTGIF(.*)'], 'direct_mention, mention', function (bot, mess
 
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
   var isChannel = functions.verifyChannelId(message.match[1])
+  var originalChannel = message.channel
+  var timestamp = message.ts
   if (isChannel) {
-    var send = 'Er is een bericht geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
-    functions.postMessage(bot, send, isChannel)
+    bot.api.team.info({}, function (err, response) {
+      if (!err) {
+        var domain = response.team.domain
+        bot.api.channels.info({'channel': originalChannel}, function (err, response) {
+          if (!err) {
+            var channelName = response.channel.name
+            var send = 'Er is een <http://' + domain + '.slack.com/archives/' + channelName + '/p' + timestamp.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
+            functions.postMessage(bot, send, isChannel)
+          }
+        })
+      }
+    })
   }
 })

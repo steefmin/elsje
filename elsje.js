@@ -529,7 +529,7 @@ controller.hears(['setTGIF(.*)'], 'direct_mention, mention', function (bot, mess
       if (!err) {
         channelData.tgif[message.channel] = message.match[1]
         controller.storage.teams.save(channelData)
-        bot.reply(message, 'Is goed! Ik heb zin in het weekend.')
+        bot.reply(message, 'Ik heb zin in het weekend!')
       }
     })
   })

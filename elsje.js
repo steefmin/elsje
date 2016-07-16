@@ -27,9 +27,23 @@ controller.on('rtm_open', function (bot, message) {
       'color': 'danger',
       'text': 'Hi, this is a debug message: I just reconnected'
     }]
-    functions.postAttachment(bot, attachment, 'C0JTZBACD')
+    functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
 //	  	enable next line to create fresh db
 //  		controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
+  }
+})
+
+controller.on('presence_change', function (bot, message) {
+  var weerwolvenChannel = process.env.WEERWOLVEN_CHANNEL
+  var werewolfbotId = process.env.WEERWOLVEN_BOT_ID
+  var attachment = [{
+    'fallback': 'Sorry, werewolf-bot is herstart en is alles vergeten, start een nieuw spel met !new',
+    'color': 'warning',
+    'text': 'Sorry, werewolf-bot is herstart en is alles vergeten, start een nieuw spel met !new'
+  }]
+  if (message.user === werewolfbotId && message.presence === 'active') {
+    functions.postAttachment(bot, attachment, weerwolvenChannel)
+    functions.postMessage(bot, '!new', weerwolvenChannel)
   }
 })
 

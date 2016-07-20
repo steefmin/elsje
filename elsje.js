@@ -568,3 +568,21 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
     })
   }
 })
+
+controller.on('reaction_added', function (bot, message) {
+  if (message.reaction === 'thumbsup') {
+    functions.changeScore(bot, controller, message.item_user, 1, message.channel)
+  }
+  if (message.reaction === 'thumbsdown') {
+    functions.changeScore(bot, controller, message.item_user, -1, message.channel)
+  }
+})
+
+controller.on('reaction_removed', function (bot, message) {
+  if (message.reaction === 'thumbsup') {
+    functions.changeScore(bot, controller, message.item_user, -1, message.channel)
+  }
+  if (message.reaction === 'thumbsdown') {
+    functions.changeScore(bot, controller, message.item_user, 1, message.channel)
+  }
+})

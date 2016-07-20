@@ -263,6 +263,32 @@ var postSingleTask = function (bot, taskStructure, message) {
   postAttachment(bot, attachmentArray, taskStructure.channel.id)
 }
 
+var changeScore = function (bot, controller, userId, change, channel) {
+  controller.storage.users.get(userId, function (err, user) {
+    if (!err) {
+      if (!user || !user.score) {
+        user = {'id': userId, 'name': '', 'score': 0}
+      }
+      user.score = user.score + change
+      controller.storage.users.save(user, function (err, id) {
+        if (!err) {
+          var attachment = {
+            'fallback': '<@' + userId + '> heeft ' + user.score + 'punten.',
+            'text': '<@' + userId + '> heeft ' + user.score + 'punten.'
+          }
+          if (user.score > 0) {
+            attachment.color = 'good'
+          }
+          if (user.score < 0) {
+            attachment.color = 'danger'
+          }
+          postAttachment(bot, attachment, channel)
+        }
+      })
+    }
+  })
+}
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -278,5 +304,6 @@ module.exports = {
   filterTasks: filterTasks,
   postMessage: postMessage,
   postAttachment: postAttachment,
-  postSingleTask: postSingleTask
+  postSingleTask: postSingleTask,
+  changeScore: changeScore
 }

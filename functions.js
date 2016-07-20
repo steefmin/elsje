@@ -265,27 +265,33 @@ var postSingleTask = function (bot, taskStructure, message) {
 
 var changeScore = function (bot, controller, userId, change, channel) {
   controller.storage.users.get(userId, function (err, user) {
-    if (!err) {
-      if (!user || !user.score) {
-        user = {'id': userId, 'name': '', 'score': 0}
-      }
-      user.score = user.score + change
-      controller.storage.users.save(user, function (err, id) {
-        if (!err) {
-          var attachment = {
-            'fallback': '<@' + userId + '> heeft ' + user.score + 'punten.',
-            'text': '<@' + userId + '> heeft ' + user.score + 'punten.'
-          }
-          if (user.score > 0) {
-            attachment.color = 'good'
-          }
-          if (user.score < 0) {
-            attachment.color = 'danger'
-          }
-          postAttachment(bot, attachment, channel)
-        }
-      })
+    if (!user) {
+      user = {'id': userId}
     }
+    if (!user.score) {
+      user.score = 0
+    }
+    user.score = user.score + change
+    controller.storage.users.save(user, function (err, id) {
+      console.log(err)
+      if (!err) {
+        var plural = 'en'
+        if (user.score === -1 || user.score === 1) {
+           plural = ''
+        }
+        var attachment = [{
+          'fallback': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.',
+          'text': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.'
+        }]
+        if (user.score > 0) {
+          attachment.color = 'good'
+        }
+        if (user.score < 0) {
+          attachment.color = 'danger'
+        }
+        postAttachment(bot, attachment, channel)
+      }
+    })
   })
 }
 

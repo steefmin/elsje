@@ -570,19 +570,23 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
 })
 
 controller.on('reaction_added', function (bot, message) {
-  if (message.reaction === 'thumbsup') {
-    functions.changeScore(bot, controller, message.item_user, 1, message.channel)
-  }
-  if (message.reaction === 'thumbsdown') {
-    functions.changeScore(bot, controller, message.item_user, -1, message.channel)
+  if (message.item_user !== message.user) {
+    if (message.reaction === '+1') {
+      functions.changeScore(bot, controller, message.item_user, 1, message.item.channel)
+    }
+    if (message.reaction === '-1') {
+      functions.changeScore(bot, controller, message.item_user, -1, message.item.channel)
+    }
   }
 })
 
 controller.on('reaction_removed', function (bot, message) {
-  if (message.reaction === 'thumbsup') {
-    functions.changeScore(bot, controller, message.item_user, -1, message.channel)
-  }
-  if (message.reaction === 'thumbsdown') {
-    functions.changeScore(bot, controller, message.item_user, 1, message.channel)
+  if (message.item_user !== message.user) {
+    if (message.reaction === '+1') {
+      functions.changeScore(bot, controller, message.item_user, -1, message.item.channel)
+    }
+    if (message.reaction === '-1') {
+      functions.changeScore(bot, controller, message.item_user, 1, message.item.channel)
+    }
   }
 })

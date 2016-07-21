@@ -369,6 +369,7 @@ var finishtask = function (convo, taskNumber) {
             'pretext': 'Taak afgerond.'
           }
           functions.postSingleTask(bot, value, message)
+          functions.changeScore(bot, controller, value.responsible.id, 1, channelId)
         }
       })
       controller.storage.teams.save(channelData)

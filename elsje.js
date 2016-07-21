@@ -617,9 +617,10 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     if (!err) {
       var attachment = []
       data.forEach(function (value) {
+        var smiley = functions.getScoreSmiley(value.score)
         var item = {
-          'text': '<@' + value.id + '>: ' + value.score,
-          'fallback': '<@' + value.id + '>: ' + value.score,
+          'text': smiley + '<@' + value.id + '>: ' + value.score,
+          'fallback': smiley + '<@' + value.id + '>: ' + value.score,
           'score': value.score
         }
         if (value.score < 0) {

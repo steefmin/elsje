@@ -290,9 +290,10 @@ var sendScore = function (bot, controller, userId, channel) {
       if (user.score === -1 || user.score === 1) {
         plural = ''
       }
+      var smiley = getScoreSmiley(user.score)
       var attachment = [{
-        'fallback': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.',
-        'text': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.'
+        'fallback': smiley + '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.',
+        'text': smiley + '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.'
       }]
       if (user.score > 0) {
         attachment.color = 'good'
@@ -305,6 +306,38 @@ var sendScore = function (bot, controller, userId, channel) {
       postMessage(bot, '<@' + userId + '> doet nog niet mee aan de puntentelling :scream:', channel)
     }
   })
+}
+
+var getScoreSmiley = function (score) {
+  var high = 20
+  var low = -20
+  var positiveSmileys = [
+    ':heart_eyes:',
+    ':the_horns:',
+    ':dizzy_face:',
+    ':grinning:',
+    ':slightly_smiling_face:'
+  ]
+  var negativeSmileys = [
+    ':slightly_frowning_face:',
+    ':cry:',
+    ':sob:',
+    ':confounded:',
+    ':scream:',
+    ':ghost:'
+  ]
+  var relativeScore
+  if (score > 1) {
+    // do calc here
+    relativeScore = (positiveSmileys.length - 1) / (high - 1) * (score - 1)
+    return positiveSmileys[relativeScore]
+  } else if (score < 1) {
+    // and here
+    relativeScore = (negativeSmileys.length - 1) / (-low - 1) * (-score - 1)
+    return negativeSmileys[relativeScore]
+  } else {
+    return ':no_mouth:'
+  }
 }
 
 module.exports = {

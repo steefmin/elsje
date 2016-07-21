@@ -441,7 +441,6 @@ var NewSendReminders = function () {
   bot.api.users.list({}, function (err, reply) {
     if (!err) {
       reply.members.forEach(function (value, index, array) {
-        console.log(value)
         if (value.deleted === false && value.is_bot === false) {
           ShowList('all', value.id, value.id)
         }
@@ -537,7 +536,7 @@ var sendTGIF = function () {
   })
 }
 
-controller.hears(['setTGIF(.*)'], 'direct_mention, mention', function (bot, message) {
+controller.hears(['setTGIF(.*)'], 'direct_mention,mention', function (bot, message) {
   functions.getTeamId(bot, function (teamId) {
     controller.storage.teams.get(teamId, function (err, channelData) {
       if (!err) {
@@ -589,4 +588,51 @@ controller.on('reaction_removed', function (bot, message) {
       functions.changeScore(bot, controller, message.item_user, 1, message.item.channel)
     }
   }
+})
+
+controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message) {
+  var userId = functions.verifyUserName(message.match[1])
+  var input = message.match[0].replace(':', '').replace(' ', '')
+  var modifier = input.substring(12, 14)
+  if (userId && userId !== message.user) {
+    if (modifier === '++') {
+      functions.changeScore(bot, controller, userId, 1, message.channel)
+    }
+    if (modifier === '--') {
+      functions.changeScore(bot, controller, userId, -1, message.channel)
+    }
+  }
+})
+
+controller.hears(['check(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
+  var userId = functions.verifyUserName(message.match[1])
+  if (userId) {
+    functions.sendScore(bot, controller, userId, message.channel)
+  }
+})
+
+controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
+  controller.storage.users.all(function (err, data) {
+    if (!err) {
+      var attachment = []
+      data.forEach(function (value) {
+        var item = {
+          'text': '<@' + value.id + '>: ' + value.score,
+          'fallback': '<@' + value.id + '>: ' + value.score,
+          'score': value.score
+        }
+        if (value.score < 0) {
+          item.color = 'danger'
+        }
+        if (value.score > 0) {
+          item.color = 'good'
+        }
+        attachment.push(item)
+      })
+      attachment.sort(function (a, b) {
+        return b.score - a.score
+      })
+      functions.postAttachment(bot, attachment, message.channel)
+    }
+  })
 })

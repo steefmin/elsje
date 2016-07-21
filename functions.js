@@ -265,6 +265,9 @@ var postSingleTask = function (bot, taskStructure, message) {
 
 var changeScore = function (bot, controller, userId, change, channel) {
   controller.storage.users.get(userId, function (err, user) {
+    if (!err) {
+      // do nothing
+    }
     if (!user) {
       user = {'id': userId}
     }
@@ -273,25 +276,34 @@ var changeScore = function (bot, controller, userId, change, channel) {
     }
     user.score = user.score + change
     controller.storage.users.save(user, function (err, id) {
-      console.log(err)
       if (!err) {
-        var plural = 'en'
-        if (user.score === -1 || user.score === 1) {
-           plural = ''
-        }
-        var attachment = [{
-          'fallback': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.',
-          'text': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.'
-        }]
-        if (user.score > 0) {
-          attachment.color = 'good'
-        }
-        if (user.score < 0) {
-          attachment.color = 'danger'
-        }
-        postAttachment(bot, attachment, channel)
+        sendScore(bot, controller, userId, channel)
       }
     })
+  })
+}
+
+var sendScore = function (bot, controller, userId, channel) {
+  controller.storage.users.get(userId, function (err, user) {
+    if (!err) {
+      var plural = 'en'
+      if (user.score === -1 || user.score === 1) {
+        plural = ''
+      }
+      var attachment = [{
+        'fallback': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.',
+        'text': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.'
+      }]
+      if (user.score > 0) {
+        attachment.color = 'good'
+      }
+      if (user.score < 0) {
+        attachment.color = 'danger'
+      }
+      postAttachment(bot, attachment, channel)
+    } else {
+      postMessage(bot, '<@' + userId + '> doet nog niet mee aan de puntentelling :scream:', channel)
+    }
   })
 }
 
@@ -311,5 +323,6 @@ module.exports = {
   postMessage: postMessage,
   postAttachment: postAttachment,
   postSingleTask: postSingleTask,
-  changeScore: changeScore
+  changeScore: changeScore,
+  sendScore: sendScore
 }

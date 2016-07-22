@@ -1,6 +1,7 @@
 require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
+var Colormap = require('colormap')
 var os = require('os')
 
 if (!process.env.TOKEN) {
@@ -605,7 +606,7 @@ controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message
   }
 })
 
-controller.hears(['check(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
+controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
   var userId = functions.verifyUserName(message.match[1])
   if (userId) {
     functions.sendScore(bot, controller, userId, message.channel)
@@ -617,23 +618,27 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     if (!err) {
       var attachment = []
       data.forEach(function (value) {
-        var smiley = functions.getScoreSmiley(value.score)
         var item = {
-          'text': smiley + '<@' + value.id + '>: ' + value.score,
-          'fallback': smiley + '<@' + value.id + '>: ' + value.score,
+          'text': '<@' + value.id + '>: ' + value.score,
+          'fallback': '<@' + value.id + '>: ' + value.score,
           'score': value.score
-        }
-        if (value.score < 0) {
-          item.color = 'danger'
-        }
-        if (value.score > 0) {
-          item.color = 'good'
         }
         attachment.push(item)
       })
       attachment.sort(function (a, b) {
         return b.score - a.score
       })
+      var options = {
+        'colormap': 'jet',
+        'nshades': 2 * attachment.length + 1,
+        'format': 'hex',
+        'alpha': 1
+      }
+      var cg = Colormap(options).reverse()
+      console.log(cg)
+      for (var i = 0; i < attachment.length; i++) {
+        attachment[i].color = cg[2 * i]
+      }
       functions.postAttachment(bot, attachment, message.channel)
     }
   })

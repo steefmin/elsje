@@ -286,14 +286,16 @@ var changeScore = function (bot, controller, userId, change, channel) {
 var sendScore = function (bot, controller, userId, channel) {
   controller.storage.users.get(userId, function (err, user) {
     if (!err) {
-      var plural = 'en'
+      var plural
       if (user.score === -1 || user.score === 1) {
         plural = ''
+      } else {
+        plural = 'en'
       }
       var smiley = getScoreSmiley(user.score)
       var attachment = [{
-        'fallback': smiley + '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.',
-        'text': smiley + '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + '.'
+        'fallback': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + ' ' + smiley,
+        'text': ' <@' + userId + '> heeft nu ' + user.score + ' punt' + plural + ' ' + smiley
       }]
       if (user.score > 0) {
         attachment.color = 'good'
@@ -311,12 +313,18 @@ var sendScore = function (bot, controller, userId, channel) {
 var getScoreSmiley = function (score) {
   var high = 20
   var low = -20
+  if (score > high) {
+    score = high
+  }
+  if (score < low) {
+    score = low
+  }
   var positiveSmileys = [
-    ':heart_eyes:',
-    ':the_horns:',
-    ':dizzy_face:',
+    ':slightly_smiling_face:',
     ':grinning:',
-    ':slightly_smiling_face:'
+    ':dizzy_face:',
+    ':the_horns:',
+    ':heart_eyes:'
   ]
   var negativeSmileys = [
     ':slightly_frowning_face:',
@@ -327,13 +335,11 @@ var getScoreSmiley = function (score) {
     ':ghost:'
   ]
   var relativeScore
-  if (score > 1) {
-    // do calc here
-    relativeScore = (positiveSmileys.length - 1) / (high - 1) * (score - 1)
+  if (score > 0) {
+    relativeScore = Math.round((positiveSmileys.length - 1) / (high) * (score - 1))
     return positiveSmileys[relativeScore]
-  } else if (score < 1) {
-    // and here
-    relativeScore = (negativeSmileys.length - 1) / (-low - 1) * (-score - 1)
+  } else if (score < 0) {
+    relativeScore = Math.round((negativeSmileys.length - 1) / (-low - 1) * (-score - 1))
     return negativeSmileys[relativeScore]
   } else {
     return ':no_mouth:'

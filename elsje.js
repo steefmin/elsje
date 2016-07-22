@@ -21,6 +21,9 @@ var bot = controller.spawn({
   retry: Infinity
 }).startRTM()
 
+var weerwolvenChannel = process.env.WEERWOLVEN_CHANNEL
+var werewolfbotId = process.env.WEERWOLVEN_BOT_ID
+
 controller.on('rtm_open', function (bot, message) {
   if (!debug) {
     var attachment = [{
@@ -35,8 +38,6 @@ controller.on('rtm_open', function (bot, message) {
 })
 
 controller.on('presence_change', function (bot, message) {
-  var weerwolvenChannel = process.env.WEERWOLVEN_CHANNEL
-  var werewolfbotId = process.env.WEERWOLVEN_BOT_ID
   var attachment = [{
     'fallback': 'Sorry, werewolf-bot is herstart en is alles vergeten, start een nieuw spel met !new',
     'color': 'warning',
@@ -48,7 +49,7 @@ controller.on('presence_change', function (bot, message) {
   }
 })
 
-controller.hears(['hello(.*)', 'hi(.*)', 'hoi(.*)', 'hallo(.*)', 'hey(.*)'], 'ambient', function (bot, message) {
+controller.hears(['hello(.*)', 'hoi(.*)', 'hallo(.*)', 'hey(.*)'], 'ambient', function (bot, message) {
   if (message.match[1] === '') {
     bot.api.reactions.add({
       timestamp: message.ts,
@@ -570,6 +571,76 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
   }
 })
 
+controller.hears(['Role Summary'], 'ambient', function (bot, message) {
+  if (message.user === werewolfbotId && message.channel === weerwolvenChannel) {
+    bot.startConversation(message, getVictoryRole)
+  }
+})
+
+var getVictoryRole = function (response, convo) {
+  convo.ask('Ok, who won?', function () {
+    gameOver(response, convo)
+    convo.next()
+  })
+}
+
+var gameOver = function (response, convo) {
+  convo.on('end', function (convo) {
+    var source = convo.source_message.text
+    var roleArray = source.split('\n')
+    var res = convo.extractResponse('Ok, who won?')
+    var wonRole
+    if (functions.regexp(/Townsfolk/, res)) {
+      wonRole = 'villager'
+    } else if (functions.regexp(/Werewolves/, res)) {
+      wonRole = 'werewolf'
+    } else if (functions.regexp(/Tanner/, res)) {
+      wonRole = 'tanner'
+    }
+    console.log(wonRole)
+    for (var i = 2; i < roleArray.length; i++) {
+      var role = ''
+      var userId = functions.verifyUserName(roleArray[i])
+      var isBeholder = functions.regexp(/\(Beholder\)/, roleArray[i])
+      var isBodyguard = functions.regexp(/\(Bodyguard\)/, roleArray[i])
+      var isHunter = functions.regexp(/\(Hunter\)/, roleArray[i])
+      var isLycan = functions.regexp(/\(Lycan\)/, roleArray[i])
+      var isSeer = functions.regexp(/\(Seer\)/, roleArray[i])
+      var isTanner = functions.regexp(/\(Tanner\)/, roleArray[i])
+      var isVillager = functions.regexp(/\(Villager\)/, roleArray[i])
+      var isWerewolf = functions.regexp(/\(Werewolf\)/, roleArray[i])
+      var isWitch = functions.regexp(/\(Witch\)/, roleArray[i])
+      var isWolfMan = functions.regexp(/\(WolfMan\)/, roleArray[i])
+      var isDead = functions.regexp(/:x:/, roleArray[i])
+      if (isBeholder || isBodyguard || isHunter || isLycan || isSeer || isWitch || isVillager) {
+        role = 'villager'
+      } else if (isWerewolf || isWolfMan) {
+        role = 'werewolf'
+      } else if (isTanner) {
+        role = 'tanner'
+      } else {
+        role = 'unknown'
+      }
+      var points = 0
+      if (role === wonRole) {
+        points++
+        if (!isDead) {
+          points++
+        }
+      } else if (role === 'unknown') {
+        // do nothing
+      } else {
+        points--
+      }
+      console.log(userId)
+      console.log(points)
+      if (userId && points !== 0) {
+        functions.changeScore(bot, controller, userId, points, weerwolvenChannel)
+      }
+    }
+  })
+}
+
 controller.on('reaction_added', function (bot, message) {
   if (message.item_user !== message.user) {
     if (message.reaction === '+1') {
@@ -643,3 +714,4 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     }
   })
 })
+

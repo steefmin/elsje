@@ -589,7 +589,7 @@ var gameOver = function (response, convo) {
     var source = convo.source_message.text
     var roleArray = source.split('\n')
     var res = convo.extractResponse('Ok, who won?')
-    var wonRole
+    var wonRole = false
     if (functions.regexp(/Townsfolk/, res)) {
       wonRole = 'villager'
     } else if (functions.regexp(/Werewolves/, res)) {
@@ -597,45 +597,42 @@ var gameOver = function (response, convo) {
     } else if (functions.regexp(/Tanner/, res)) {
       wonRole = 'tanner'
     }
-    console.log(wonRole)
-    for (var i = 2; i < roleArray.length; i++) {
-      var role = ''
-      var userId = functions.verifyUserName(roleArray[i])
-      var isBeholder = functions.regexp(/\(Beholder\)/, roleArray[i])
-      var isBodyguard = functions.regexp(/\(Bodyguard\)/, roleArray[i])
-      var isHunter = functions.regexp(/\(Hunter\)/, roleArray[i])
-      var isLycan = functions.regexp(/\(Lycan\)/, roleArray[i])
-      var isSeer = functions.regexp(/\(Seer\)/, roleArray[i])
-      var isTanner = functions.regexp(/\(Tanner\)/, roleArray[i])
-      var isVillager = functions.regexp(/\(Villager\)/, roleArray[i])
-      var isWerewolf = functions.regexp(/\(Werewolf\)/, roleArray[i])
-      var isWitch = functions.regexp(/\(Witch\)/, roleArray[i])
-      var isWolfMan = functions.regexp(/\(WolfMan\)/, roleArray[i])
-      var isDead = functions.regexp(/:x:/, roleArray[i])
-      if (isBeholder || isBodyguard || isHunter || isLycan || isSeer || isWitch || isVillager) {
-        role = 'villager'
-      } else if (isWerewolf || isWolfMan) {
-        role = 'werewolf'
-      } else if (isTanner) {
-        role = 'tanner'
-      } else {
-        role = 'unknown'
-      }
-      var points = 0
-      if (role === wonRole) {
-        points++
-        if (!isDead) {
-          points++
+    if (wonRole) {
+      for (var i = 2; i < roleArray.length; i++) {
+        var role = false
+        var userId = functions.verifyUserName(roleArray[i])
+        var isBeholder = functions.regexp(/\(Beholder\)/, roleArray[i])
+        var isBodyguard = functions.regexp(/\(Bodyguard\)/, roleArray[i])
+        var isHunter = functions.regexp(/\(Hunter\)/, roleArray[i])
+        var isLycan = functions.regexp(/\(Lycan\)/, roleArray[i])
+        var isSeer = functions.regexp(/\(Seer\)/, roleArray[i])
+        var isTanner = functions.regexp(/\(Tanner\)/, roleArray[i])
+        var isVillager = functions.regexp(/\(Villager\)/, roleArray[i])
+        var isWerewolf = functions.regexp(/\(Werewolf\)/, roleArray[i])
+        var isWitch = functions.regexp(/\(Witch\)/, roleArray[i])
+        var isWolfMan = functions.regexp(/\(WolfMan\)/, roleArray[i])
+        var isDead = functions.regexp(/:x:/, roleArray[i])
+        if (isBeholder || isBodyguard || isHunter || isLycan || isSeer || isWitch || isVillager) {
+          role = 'villager'
+        } else if (isWerewolf || isWolfMan) {
+          role = 'werewolf'
+        } else if (isTanner) {
+          role = 'tanner'
         }
-      } else if (role === 'unknown') {
-        // do nothing
-      } else {
-        points--
-      }
-      console.log(userId)
-      console.log(points)
-      if (userId && points !== 0) {
-        functions.changeScore(bot, controller, userId, points, weerwolvenChannel)
+        var points = 0
+        if (role) {
+          if (role === wonRole) {
+            points++
+            if (!isDead) {
+              points++
+            }
+          } else {
+            points--
+          }
+          if (userId && points !== 0) {
+            functions.changeScore(bot, controller, userId, points, weerwolvenChannel)
+          }
+        }
       }
     }
   })

@@ -4,7 +4,9 @@
   "description": "Slack bot that manages a task list",
   "main": "elsje.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,8 @@
   "homepage": "https://github.com/steefmin/elsje#readme",
   "dependencies": {
     "botkit": "^0.2.2",
-    "colormap": "^2.2.0"
-  }
+    "colormap": "^2.2.0",
+    "snyk": "^1.17.1"
+  },
+  "snyk": true
 }

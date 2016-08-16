@@ -277,7 +277,7 @@ var changeScore = function (bot, controller, userId, change, channel) {
     user.score = user.score + change
     controller.storage.users.save(user, function (err, id) {
       if (!err) {
-        sendScore(bot, controller, userId, channel)
+        // sendScore(bot, controller, userId, channel)
       }
     })
   })

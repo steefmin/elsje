@@ -39,9 +39,9 @@ controller.on('rtm_open', function (bot, message) {
 
 controller.on('presence_change', function (bot, message) {
   var attachment = [{
-    'fallback': 'Sorry, werewolf-bot is herstart en is alles vergeten, start een nieuw spel met !new',
+    'fallback': 'Sorry, werewolf-bot is herstart en is alles vergeten, ik heb een nieuw spel gestart, doe mee met !join',
     'color': 'warning',
-    'text': 'Sorry, werewolf-bot is herstart en is alles vergeten, start een nieuw spel met !new'
+    'text': 'Sorry, werewolf-bot is herstart en is alles vergeten, ik heb een nieuw spel gestart, doe mee met !join'
   }]
   if (message.user === werewolfbotId && message.presence === 'active') {
     functions.postAttachment(bot, attachment, weerwolvenChannel)
@@ -377,7 +377,6 @@ var finishtask = function (convo, taskNumber) {
       controller.storage.teams.save(channelData)
     }
   })
-  functions.postMessage(bot, 'Ok, verwijderd van de lijst.', channelId)
   convo.stop()
 }
 

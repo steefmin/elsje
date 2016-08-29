@@ -215,7 +215,13 @@ var voegTaakToe = function (response, convo) {
 }
 var voorWie = function (reponse, convo) {
   convo.ask('Wie gaat dit doen? (@naam graag)', function (response, convo) {
-    var userid = functions.verifyUserName(response.text)
+    var userid
+    if (response.text === 'ik') {
+      console.log(response)
+      userid = functions.verifyUserId(response.user)
+    } else {
+      userid = functions.verifyUserName(response.text)
+    }
     if (userid) {
       response.text = userid
       convo.say('Ha, gesjaakt!')

@@ -280,7 +280,7 @@ var opslaanVanTaak = function (response, convo) {
 
 controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
   var parts = message.match[1].split('|')
-  if (parts.length !== 4) {
+  if (parts.length !== 5) {
     bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
     return false
   }

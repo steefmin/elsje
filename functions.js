@@ -82,7 +82,7 @@ var verifyUserName = function (input) {
 }
 
 var verifyChannelName = function (input) {
-  var patern = /<#.{9}>/
+  var patern = /<#.{9}/
   var channelid = patern.exec(input)
   if (channelid) {
     channelid = channelid[0].substr(2, 9)

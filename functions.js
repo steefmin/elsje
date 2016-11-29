@@ -262,8 +262,7 @@ var postSingleTask = function (bot, taskStructure, message) {
   }]
   postAttachment(bot, attachmentArray, taskStructure.channel.id)
   if (bot.TrelloChannels.indexOf(taskStructure.channel.id) >= 0) {
-    postMessage(bot, '/trello add ' + taskstructure.task, taskStructure.channel.id)
-    postMessage(bot, '/trello assign <@' + taskstructure.responsible.id + '>', taskStructure.channel.id)
+    postMessage(bot, '/trello add <@' + taskStructure.responsible.id + '> ' + taskstructure.task, taskStructure.channel.id)
     postMessage(bot, '/trello set-due ' + deadline.toUTCString().substr(5, 11), taskStructure.channel.id)
   }
 }

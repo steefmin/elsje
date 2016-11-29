@@ -261,6 +261,11 @@ var postSingleTask = function (bot, taskStructure, message) {
     ]
   }]
   postAttachment(bot, attachmentArray, taskStructure.channel.id)
+  if (taskStructure.channel.id == 'xxxxxxxx') {
+    postMessage(bot, '/trello add ' + taskstructure.task, taskStructure.channel.id)
+    postMessage(bot, '/trello assign <@' + taskstructure.responsible.id + '>', taskStructure.channel.id)
+    postMessage(bot, '/trello set-due ' + deadline.toUTCString().substr(5, 11), taskStructure.channel.id)
+  }
 }
 
 var changeScore = function (bot, controller, userId, change, channel) {

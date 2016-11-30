@@ -22,4 +22,4 @@ From your `elsje/` folder, run:
 ```node bot.js```
 
 # Integrations
-Current integrations are with [Slackwolf]() and [Trello]()
+Current integrations are with [Slackwolf](https://github.com/chrisgillis/slackwolf) and [Trello](http://trello.com)

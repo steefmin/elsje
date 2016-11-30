@@ -20,3 +20,6 @@ Create `env.js` from `env.js.example` and add your Slack API Token and storage f
 # Run
 From your `elsje/` folder, run:
 ```node bot.js```
+
+# Integrations
+Current integrations are with [Slackwolf]() and [Trello]()

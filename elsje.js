@@ -2,6 +2,7 @@ require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
+var Trello = require('node-trello')
 var os = require('os')
 
 if (!process.env.TOKEN) {
@@ -15,6 +16,8 @@ var controller = Botkit.slackbot({
   'json_file_store': process.env.STORAGE_LOCATION,
   'debug': debug
 })
+
+var trello = new Trello(process.env.TRELLO_KEY,process.env.TRELLO_TOKEN)
 
 var bot = controller.spawn({
   token: process.env.TOKEN,

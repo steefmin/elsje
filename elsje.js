@@ -2,7 +2,8 @@ require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
-var Trello = require('node-trello')
+var trello = require('./trello')
+var trellosetup = require('./trellosetup')
 var os = require('os')
 
 if (!process.env.TOKEN) {
@@ -16,8 +17,6 @@ var controller = Botkit.slackbot({
   'json_file_store': process.env.STORAGE_LOCATION,
   'debug': debug
 })
-
-var trello = new Trello(process.env.TRELLO_KEY,process.env.TRELLO_TOKEN)
 
 var bot = controller.spawn({
   token: process.env.TOKEN,
@@ -718,6 +717,20 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     }
   })
 })
+
+controller.hears(['trello setup'], 'direct_message', function (bot, message) {
+  if (!token) {
+    bot.startConversation(message, askToken)
+  } else {
+    bot.startConversation(message, trellosetup.askBoard)
+  }
+})
+
+var askToken = function (response, convo) {
+  convo.ask('klik button, copy token en geef deze aan elsje')
+  trellosetup.askBoard(response, convo)
+  convo.next()
+}
 
 var getTrelloListId = function (slackchannel, options, callback) {
   controller.storage.channels.get(slackchannel, function (err, data) {

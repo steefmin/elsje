@@ -358,8 +358,6 @@ var TaskDone = function (response, convo) {
       var res = convo.extractResponses()
       var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
       finishtask(convo, number)
-    } else {
-      bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
     }
   })
 }
@@ -716,4 +714,3 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     }
   })
 })
-

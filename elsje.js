@@ -324,6 +324,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'pretext': 'Nieuwe taak aangemaakt.'
         }
         functions.postSingleTask(bot, newTask, message)
+        getTrelloListId(channelId, newTask, trello.newTrelloCard)
       }
     })
   })
@@ -717,3 +718,16 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     }
   })
 })
+
+var getTrelloListId = function (slackchannel, options, callback) {
+  controller.storage.channels.get(slackchannel, function (err, data) {
+    if (!err) {
+      var sendThrough = {
+        trelloListId = data.trelloNewCardsList,
+        data = options
+      }
+      callback(sendThrough)
+    }
+  }
+}
+

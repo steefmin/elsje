@@ -15,7 +15,7 @@ var newTrelloCard = function (struct) {
       throw err
     }
     console.log(data)
-  }
+  })
 }
 
 module.exports = {

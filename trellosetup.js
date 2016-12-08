@@ -8,12 +8,12 @@ var askBoard = function (response, convo) {
       throw err
     }
     // bouw array van boards en boardId's
-      var array1 = [{
+    var array1 = [{
     //    name: boardname1
     //    text: boardname1
     //    value: boardId1
     //    type: 'button'
-      }] // ... etc...
+    }] // ... etc...
     convo.ask({
       attachments: [
         {

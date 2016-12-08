@@ -719,6 +719,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
 })
 
 controller.hears(['trello setup'], 'direct_message', function (bot, message) {
+  var token = '' // check if user has token already set
   if (!token) {
     bot.startConversation(message, askToken)
   } else {
@@ -736,11 +737,10 @@ var getTrelloListId = function (slackchannel, options, callback) {
   controller.storage.channels.get(slackchannel, function (err, data) {
     if (!err) {
       var sendThrough = {
-        trelloListId = data.trelloNewCardsList,
-        data = options
+        trelloListId: data.trelloNewCardsList,
+        data: options
       }
       callback(sendThrough)
     }
   })
 }
-

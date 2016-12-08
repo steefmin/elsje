@@ -8,7 +8,7 @@ var askTrelloBoard = function (response, convo) {
       throw err
     }
     // bouw array van boards en boardId's
-    //var array = {
+    //var array1 = {
     //  name: boardname1
     //  text: boardname1
     //  value: boardId1
@@ -20,7 +20,7 @@ var askTrelloBoard = function (response, convo) {
           title: 'Welk board?', 
           callback_id: 1,
           attachment_type: 'default',
-          actions: //eerdere array
+          actions: array1 //eerdere array
         }
       ]
     }, function (response, convo){

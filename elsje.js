@@ -741,6 +741,6 @@ var getTrelloListId = function (slackchannel, options, callback) {
       }
       callback(sendThrough)
     }
-  }
+  })
 }
 

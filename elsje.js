@@ -2,6 +2,7 @@ require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
+var ordinal = require('ordinal-numbers')
 var os = require('os')
 
 if (!process.env.TOKEN) {

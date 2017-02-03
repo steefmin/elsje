@@ -2,6 +2,8 @@ require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
+var trello = require('./trello')
+var trellosetup = require('./trellosetup')
 var os = require('os')
 
 if (!process.env.TOKEN) {
@@ -321,6 +323,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'pretext': 'Nieuwe taak aangemaakt.'
         }
         functions.postSingleTask(bot, newTask, message)
+        getTrelloListId(channelId, newTask, trello.newTrelloCard)
       }
     })
   })
@@ -500,30 +503,16 @@ var ShowList = function (channelName, userName, sendto) {
       formatted = functions.formatTasks(sortedtasks)
       userID = functions.verifyUserId(sendto)
       if (userID) {
-        sendTo(formatted, userID)
+        functions.sendTo(bot, formatted, userID)
         console.log('sending to user')
       }
       channelID = functions.verifyChannelId(sendto)
       if (channelID) {
-        sendTo(formatted, channelID)
+        functions.sendTo(bot, formatted, channelID)
         console.log('sending to channel')
       }
     })
   })
-}
-var sendTo = function (formatted, sendToID) {
-  if (functions.verifyUserId(sendToID)) {
-    bot.api.im.open({'user': sendToID}, function (err, response) {
-      if (!err) {
-        functions.postMessage(bot, formatted, response.channel.id)
-      }
-    })
-  } else if (functions.verifyChannelId(sendToID)) {
-    functions.postMessage(bot, formatted, sendToID)
-  } else {
-    console.log('err, no valid sendToID')
-    return false
-  }
 }
 
 controller.hears(['TGIF'], 'direct_message', function (bot, message) {
@@ -714,3 +703,30 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     }
   })
 })
+
+controller.hears(['trello setup'], 'direct_message', function (bot, message) {
+  var token = '' // check if user has token already set
+  if (!token) {
+    bot.startConversation(message, askToken)
+  } else {
+    bot.startConversation(message, trellosetup.askBoard)
+  }
+})
+
+var askToken = function (response, convo) {
+  convo.ask('klik button, copy token en geef deze aan elsje')
+  trellosetup.askBoard(response, convo)
+  convo.next()
+}
+
+var getTrelloListId = function (slackchannel, options, callback) {
+  controller.storage.channels.get(slackchannel, function (err, data) {
+    if (!err) {
+      var sendThrough = {
+        trelloListId: data.trelloNewCardsList,
+        data: options
+      }
+      callback(sendThrough)
+    }
+  })
+}

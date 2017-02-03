@@ -197,6 +197,21 @@ var formatTasks = function (tasks) {
   return formatted
 }
 
+var sendTo = function (bot, formatted, sendToID) {
+  if (verifyUserId(sendToID)) {
+    bot.api.im.open({'user': sendToID}, function (err, response) {
+      if (!err) {
+        postMessage(bot, formatted, response.channel.id)
+      }
+    })
+  } else if (verifyChannelId(sendToID)) {
+    postMessage(bot, formatted, sendToID)
+  } else {
+    console.log('err, no valid sendToID')
+    return false
+  }
+}
+
 var postMessage = function (bot, message, channel) {
   getBotImg(bot, function (image) {
     bot.api.chat.postMessage({
@@ -360,6 +375,7 @@ module.exports = {
   formatTasks: formatTasks,
   sortTasks: sortTasks,
   filterTasks: filterTasks,
+  sendTo: sendTo,
   postMessage: postMessage,
   postAttachment: postAttachment,
   postSingleTask: postSingleTask,

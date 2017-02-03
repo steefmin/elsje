@@ -503,30 +503,16 @@ var ShowList = function (channelName, userName, sendto) {
       formatted = functions.formatTasks(sortedtasks)
       userID = functions.verifyUserId(sendto)
       if (userID) {
-        sendTo(formatted, userID)
+        functions.sendTo(bot, formatted, userID)
         console.log('sending to user')
       }
       channelID = functions.verifyChannelId(sendto)
       if (channelID) {
-        sendTo(formatted, channelID)
+        functions.sendTo(bot, formatted, channelID)
         console.log('sending to channel')
       }
     })
   })
-}
-var sendTo = function (formatted, sendToID) {
-  if (functions.verifyUserId(sendToID)) {
-    bot.api.im.open({'user': sendToID}, function (err, response) {
-      if (!err) {
-        functions.postMessage(bot, formatted, response.channel.id)
-      }
-    })
-  } else if (functions.verifyChannelId(sendToID)) {
-    functions.postMessage(bot, formatted, sendToID)
-  } else {
-    console.log('err, no valid sendToID')
-    return false
-  }
 }
 
 controller.hears(['TGIF'], 'direct_message', function (bot, message) {

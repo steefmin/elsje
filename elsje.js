@@ -32,9 +32,9 @@ controller.on('rtm_open', function (bot, message) {
     if (reconnectcounter === 0) {
       reconnecttext += 'just connected.'
     } else {
-      reconnectcounter++
       reconnecttext += 'reconnected for the ' + ordinal(reconnectcounter) + ' time.'
     }
+    reconnectcounter++
     var attachment = [{
       'fallback': reconnecttext,
       'color': 'danger',

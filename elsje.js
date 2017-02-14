@@ -691,12 +691,12 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
         if (!err) {
           var users = userlist.members
           var disabledUsers = []
+          var attachment = []
           users.forEach(function (user) {
             if (user.deleted) {
               disabledUsers.push(user.id)
             }
           }
-          var attachment = []
           data.forEach(function (value) {
             if (disabledUsers.indexOf(value.id)===-1) {
               var item = {

@@ -699,16 +699,17 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       attachment.sort(function (a, b) {
         return b.score - a.score
       })
+      var lowestScore = attachment[attachment.length - 1].score
       var options = {
         'colormap': 'jet',
-        'nshades': 2 * attachment.length + 1,
+        'nshades': attachment[0].score - lowestScore,
         'format': 'hex',
         'alpha': 1
       }
       var cg = Colormap(options).reverse()
       console.log(cg)
       for (var i = 0; i < attachment.length; i++) {
-        attachment[i].color = cg[2 * i]
+        attachment[i].color = cg[attachment[i].score - lowestScore]
       }
       functions.postAttachment(bot, attachment, message.channel)
     }

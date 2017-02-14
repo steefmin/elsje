@@ -698,7 +698,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
           })
           var attachment = []
           data.forEach(function (value) {
-            if (disabledUsers.indexOf(value.id)===-1) {
+            if (disabledUsers.indexOf(value.id) === -1) {
               var item = {
                 'text': '<@' + value.id + '>: ' + value.score,
                 'fallback': '<@' + value.id + '>: ' + value.score,

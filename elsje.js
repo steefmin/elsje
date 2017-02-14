@@ -687,30 +687,43 @@ controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_mess
 controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
   controller.storage.users.all(function (err, data) {
     if (!err) {
-      var attachment = []
-      data.forEach(function (value) {
-        var item = {
-          'text': '<@' + value.id + '>: ' + value.score,
-          'fallback': '<@' + value.id + '>: ' + value.score,
-          'score': value.score
+      bot.api.users.list({}, function (err, userlist) {
+        if (!err) {
+          var users = userlist.members
+          var disabledUsers = []
+          users.forEach(function (user) {
+            if (user.deleted) {
+              disabledUsers.push(user.id)
+            }
+          })
+          var attachment = []
+          data.forEach(function (value) {
+            if (disabledUsers.indexOf(value.id) === -1) {
+              var item = {
+                'text': '<@' + value.id + '>: ' + value.score,
+                'fallback': '<@' + value.id + '>: ' + value.score,
+                'score': value.score
+              }
+              attachment.push(item)
+            }
+          })
+          attachment.sort(function (a, b) {
+            return b.score - a.score
+          })
+          var options = {
+            'colormap': 'jet',
+            'nshades': 2 * attachment.length + 1,
+            'format': 'hex',
+            'alpha': 1
+          }
+          var cg = Colormap(options).reverse()
+          console.log(cg)
+          for (var i = 0; i < attachment.length; i++) {
+            attachment[i].color = cg[2 * i]
+          }
+          functions.postAttachment(bot, attachment, message.channel)
         }
-        attachment.push(item)
       })
-      attachment.sort(function (a, b) {
-        return b.score - a.score
-      })
-      var options = {
-        'colormap': 'jet',
-        'nshades': 2 * attachment.length + 1,
-        'format': 'hex',
-        'alpha': 1
-      }
-      var cg = Colormap(options).reverse()
-      console.log(cg)
-      for (var i = 0; i < attachment.length; i++) {
-        attachment[i].color = cg[2 * i]
-      }
-      functions.postAttachment(bot, attachment, message.channel)
     }
   })
 })

@@ -687,14 +687,17 @@ controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_mess
 controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
   controller.storage.users.all(function (err, data) {
     if (!err) {
+      console.log(data)
       var attachment = []
       data.forEach(function (value) {
-        var item = {
-          'text': '<@' + value.id + '>: ' + value.score,
-          'fallback': '<@' + value.id + '>: ' + value.score,
-          'score': value.score
+        if ( functions.verifyUserId(value.id) ) {
+          var item = {
+            'text': '<@' + value.id + '>: ' + value.score,
+            'fallback': '<@' + value.id + '>: ' + value.score,
+            'score': value.score
+          }
+          attachment.push(item)
         }
-        attachment.push(item)
       })
       attachment.sort(function (a, b) {
         return b.score - a.score

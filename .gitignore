@@ -2,3 +2,5 @@ storage
 env.js
 node_modules
 nohup.out
+downtime.sh
+

@@ -2,6 +2,7 @@ require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
+var ordinal = require('ordinal-numbers')
 var os = require('os')
 
 if (!process.env.TOKEN) {
@@ -24,12 +25,20 @@ var bot = controller.spawn({
 var weerwolvenChannel = process.env.WEERWOLVEN_CHANNEL
 var werewolfbotId = process.env.WEERWOLVEN_BOT_ID
 
+var reconnectcounter = 0
 controller.on('rtm_open', function (bot, message) {
   if (!debug) {
+    var reconnecttext = 'Hi, this is a debug message: I '
+    if (reconnectcounter === 0) {
+      reconnecttext += 'just connected.'
+    } else {
+      reconnecttext += 'reconnected for the ' + ordinal(reconnectcounter) + ' time.'
+    }
+    reconnectcounter++
     var attachment = [{
-      'fallback': 'Hi, this is a debug message: I just reconnected',
+      'fallback': reconnecttext,
       'color': 'danger',
-      'text': 'Hi, this is a debug message: I just reconnected'
+      'text': reconnecttext
     }]
     functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
 //	  	enable next line to create fresh db

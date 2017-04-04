@@ -702,11 +702,11 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       var lowScore = attachment[attachment.length - 1].score
       var options = {
         'colormap': 'jet',
-        'nshades': attachment[0].score - lowScore || 1,
+        'nshades': attachment[0].score - lowScore + 1 || 1,
         'format': 'hex',
         'alpha': 1
       }
-      var cg = Colormap(options).reverse()
+      var cg = Colormap(options)
       console.log(cg)
       for (var i = 0; i < attachment.length; i++) {
         attachment[i].color = cg[attachment[i].score - lowScore]

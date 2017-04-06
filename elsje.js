@@ -40,7 +40,7 @@ controller.on('rtm_open', function (bot, message) {
       'color': 'danger',
       'text': reconnecttext
     }]
-    functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
+    functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL, 0)
 //	  	enable next line to create fresh db
 //  		controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
   }
@@ -53,8 +53,8 @@ controller.on('presence_change', function (bot, message) {
     'text': 'Sorry, werewolf-bot is herstart en is alles vergeten, ik heb een nieuw spel gestart, doe mee met !join'
   }]
   if (message.user === werewolfbotId && message.presence === 'active') {
-    functions.postAttachment(bot, attachment, weerwolvenChannel)
-    functions.postMessage(bot, '!new', weerwolvenChannel)
+    functions.postAttachment(bot, attachment, weerwolvenChannel, 0)
+    functions.postMessage(bot, '!new', weerwolvenChannel, 0)
   }
 })
 
@@ -524,11 +524,11 @@ var sendTo = function (formatted, sendToID) {
   if (functions.verifyUserId(sendToID)) {
     bot.api.im.open({'user': sendToID}, function (err, response) {
       if (!err) {
-        functions.postMessage(bot, formatted, response.channel.id)
+        functions.postMessage(bot, formatted, response.channel.id, 0)
       }
     })
   } else if (functions.verifyChannelId(sendToID)) {
-    functions.postMessage(bot, formatted, sendToID)
+    functions.postMessage(bot, formatted, sendToID, 0)
   } else {
     console.log('err, no valid sendToID')
     return false
@@ -544,7 +544,7 @@ var sendTGIF = function () {
     controller.storage.teams.get(teamid, function (err, data) {
       if (!err) {
         for (var channel in data.tgif) {
-          functions.postMessage(bot, data.tgif[channel], channel)
+          functions.postMessage(bot, data.tgif[channel], channel, 0)
         }
       }
     })
@@ -575,7 +575,7 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
           if (!err) {
             var channelName = response.channel.name
             var send = 'Er is een <http://' + domain + '.slack.com/archives/' + channelName + '/p' + timestamp.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
-            functions.postMessage(bot, send, isChannel)
+            functions.postMessage(bot, send, isChannel, 0)
           }
         })
       }
@@ -723,7 +723,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       for (var i = 0; i < attachment.length; i++) {
         attachment[i].color = cg[attachment[i].score - lowScore]
       }
-      functions.postAttachment(bot, attachment, message.channel)
+      functions.postAttachment(bot, attachment, message.channel, 0)
     }
   })
 })

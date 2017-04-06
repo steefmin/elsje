@@ -329,7 +329,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
           'pretext': 'Nieuwe taak aangemaakt.'
         }
-        functions.postSingleTask(bot, newTask, message)
+        functions.postSingleTask(bot, newTask, message, 0)
       }
     })
   })
@@ -383,7 +383,7 @@ var finishtask = function (convo, taskNumber) {
             'color': 'good',
             'pretext': 'Taak afgerond.'
           }
-          functions.postSingleTask(bot, value, message)
+          functions.postSingleTask(bot, value, message, 0)
           functions.changeScore(bot, controller, value.responsible.id, 1, channelId)
         }
       })
@@ -437,7 +437,7 @@ var UpdateDeadline = function (response, convo) {
                 'fallback': 'Taak van <@' + value.responsible.id + '> heeft nieuwe deadline: ' + value.deadline,
                 'pretext': 'Deze taak heeft een nieuwe deadline.'
               }
-              functions.postSingleTask(bot, value, message)
+              functions.postSingleTask(bot, value, message, 0)
             }
           })
           controller.storage.teams.save(channelData)

@@ -221,7 +221,7 @@ var postAttachment = function (bot, attachmentArray, channel, parent) {
   })
 }
 
-var postSingleTask = function (bot, taskStructure, message) {
+var postSingleTask = function (bot, taskStructure, message, parent) {
   console.log(taskStructure)
   if (typeof message.color === 'undefined') {
     message.color = '#3090C7'
@@ -262,7 +262,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       }
     ]
   }]
-  postAttachment(bot, attachmentArray, taskStructure.channel.id, 0)
+  postAttachment(bot, attachmentArray, taskStructure.channel.id, parent)
 }
 
 var changeScore = function (bot, controller, userId, change, channel) {

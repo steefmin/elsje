@@ -82,7 +82,7 @@ var verifyUserName = function (input) {
 }
 
 var verifyGroupName = function (input) {
-  var patern = /<!subteam\^.{9}|/
+  var patern = /<!subteam\^.{9}\|/
   var groupid = patern.exec(input)
   if (groupid) {
     groupid = groupid[0].substr(9, 9)

@@ -376,7 +376,7 @@ var finishtask = function (convo, taskNumber) {
   controller.storage.teams.get(teamId, function (err, channelData) {
     if (!err) {
       channelData.tasks.forEach(function (value, index, array) {
-        if (value.taskid === taskNumber) {
+        if (value.taskid === taskNumber && value.status === 'new') {
           value.status = 'done'
           var message = {
             'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,

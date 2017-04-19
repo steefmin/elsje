@@ -95,9 +95,17 @@ var verifyUserId = function (input) {
   var userid = patern.exec(input)
   if (userid) {
     return userid[0]
-  } else {
-    return false
   }
+  return false
+}
+
+var verifyGroupId = function (input) {
+  var patern = /S.{8}/
+  var groupid = patern.exec(input)
+  if (groupid) {
+    return groupid[0]
+  }
+  return false
 }
 
 var verifyChannelId = function (input) {
@@ -105,17 +113,15 @@ var verifyChannelId = function (input) {
   var channelid = patern.exec(input)
   if (channelid) {
     return channelid[0]
-  } else {
-    return false
   }
+  return false
 }
 
 var regexp = function (patern, string) {
   if (patern.exec(string)) {
     return true
-  } else {
-    return false
   }
+  return false
 }
 
 var getBotImg = function (bot, callback) {

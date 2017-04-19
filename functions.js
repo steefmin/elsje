@@ -81,6 +81,15 @@ var verifyUserName = function (input) {
   return userid
 }
 
+var verifyGroupName = function (input) {
+  var patern = /<!subteam\^.{9}|/
+  var groupid = patern.exec(input)
+  if (groupid) {
+    groupid = groupid[0].substr(9, 9)
+  }
+  return groupid
+}
+
 var verifyChannelName = function (input) {
   var patern = /<#.{9}/
   var channelid = patern.exec(input)

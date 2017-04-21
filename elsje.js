@@ -22,6 +22,7 @@ var bot = controller.spawn({
   retry: Infinity
 }).startRTM()
 
+bot.TrelloChannels = process.env.TRELLO_CHANNELS
 var weerwolvenChannel = process.env.WEERWOLVEN_CHANNEL
 var werewolfbotId = process.env.WEERWOLVEN_BOT_ID
 

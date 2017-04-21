@@ -4,7 +4,8 @@
   "description": "Slack bot that manages a task list",
   "main": "elsje.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node elsje.js",
+    "start": "node elsje.js production"
   },
   "repository": {
     "type": "git",

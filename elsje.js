@@ -469,7 +469,7 @@ var NewSendReminders = function () {
         }
       })
     }
-  }
+  })
 }
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
   var send
@@ -507,7 +507,7 @@ var ShowList = function (channelName, userName, sendto) {
       if (err) {
         return false
       }
-      var sortedtasks, formatted, userID, channelID
+      var sortedtasks, formatted, userID, channelID, groupID
       var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', teamData.tasks, userName), channelName), 'new')
       if (usertasks.length === 0) {
         console.log('empty tasks')
@@ -554,7 +554,7 @@ var sendToGroup = function (formatted, sendToGroupID) {
           sendTo(formatted, value)
         })
       }
-    }
+    })
   }
 }
 
@@ -722,7 +722,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       console.log(data)
       var attachment = []
       data.forEach(function (value) {
-        if ( functions.verifyUserId(value.id) ) {
+        if (functions.verifyUserId(value.id)) {
           var item = {
             'text': '<@' + value.id + '>: ' + value.score,
             'fallback': '<@' + value.id + '>: ' + value.score,

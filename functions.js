@@ -85,7 +85,7 @@ var verifyGroupName = function (input) {
   var patern = /<!subteam\^.{9}\|/
   var groupid = patern.exec(input)
   if (groupid) {
-    groupid = groupid[0].substr(9, 9)
+    groupid = groupid[0].substr(10, 9)
   }
   return groupid
 }
@@ -234,6 +234,16 @@ var postAttachment = function (bot, attachmentArray, channel) {
   })
 }
 
+function idToName (id) {
+  if (id.substring(0, 1) === 'U') {
+    return '<@' + id + '>'
+  } else if (id.substring(0, 1) === 'S') {
+    return '<!subteam^' + id + '>'
+  } else {
+    return false
+  }
+}
+
 var postSingleTask = function (bot, taskStructure, message) {
   console.log(taskStructure)
   if (typeof message.color === 'undefined') {
@@ -255,7 +265,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       },
       {
         'title': 'Verantwoordelijke',
-        'value': '<@' + taskStructure.responsible.id + '>',
+        'value': idToName(taskStructure.responsible.id),
         'short': true
       },
       {
@@ -366,8 +376,10 @@ module.exports = {
   verifyDate: verifyDate,
   addSpaces: addSpaces,
   verifyUserId: verifyUserId,
+  verifyGroupId: verifyGroupId,
   verifyChannelId: verifyChannelId,
   verifyUserName: verifyUserName,
+  verifyGroupName: verifyGroupName,
   verifyChannelName: verifyChannelName,
   regexp: regexp,
   getBotImg: getBotImg,

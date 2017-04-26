@@ -5,7 +5,7 @@
   "main": "elsje.js",
   "scripts": {
     "test": "node elsje.js",
-    "start": "node elsje.js production"
+    "start": "node elsje.js production > last.log"
   },
   "repository": {
     "type": "git",

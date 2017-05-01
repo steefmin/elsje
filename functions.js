@@ -81,6 +81,15 @@ var verifyUserName = function (input) {
   return userid
 }
 
+var verifyGroupName = function (input) {
+  var patern = /<!subteam\^.{9}\|/
+  var groupid = patern.exec(input)
+  if (groupid) {
+    groupid = groupid[0].substr(10, 9)
+  }
+  return groupid
+}
+
 var verifyChannelName = function (input) {
   var patern = /<#.{9}/
   var channelid = patern.exec(input)
@@ -95,9 +104,17 @@ var verifyUserId = function (input) {
   var userid = patern.exec(input)
   if (userid) {
     return userid[0]
-  } else {
-    return false
   }
+  return false
+}
+
+var verifyGroupId = function (input) {
+  var patern = /S.{8}/
+  var groupid = patern.exec(input)
+  if (groupid) {
+    return groupid[0]
+  }
+  return false
 }
 
 var verifyChannelId = function (input) {
@@ -105,17 +122,15 @@ var verifyChannelId = function (input) {
   var channelid = patern.exec(input)
   if (channelid) {
     return channelid[0]
-  } else {
-    return false
   }
+  return false
 }
 
 var regexp = function (patern, string) {
   if (patern.exec(string)) {
     return true
-  } else {
-    return false
   }
+  return false
 }
 
 var getBotImg = function (bot, callback) {
@@ -219,6 +234,16 @@ var postAttachment = function (bot, attachmentArray, channel) {
   })
 }
 
+function idToName (id) {
+  if (id.substring(0, 1) === 'U') {
+    return '<@' + id + '>'
+  } else if (id.substring(0, 1) === 'S') {
+    return '<!subteam^' + id + '>'
+  } else {
+    return false
+  }
+}
+
 var postSingleTask = function (bot, taskStructure, message) {
   console.log(taskStructure)
   if (typeof message.color === 'undefined') {
@@ -240,7 +265,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       },
       {
         'title': 'Verantwoordelijke',
-        'value': '<@' + taskStructure.responsible.id + '>',
+        'value': idToName(taskStructure.responsible.id),
         'short': true
       },
       {
@@ -351,8 +376,10 @@ module.exports = {
   verifyDate: verifyDate,
   addSpaces: addSpaces,
   verifyUserId: verifyUserId,
+  verifyGroupId: verifyGroupId,
   verifyChannelId: verifyChannelId,
   verifyUserName: verifyUserName,
+  verifyGroupName: verifyGroupName,
   verifyChannelName: verifyChannelName,
   regexp: regexp,
   getBotImg: getBotImg,

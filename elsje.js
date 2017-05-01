@@ -224,15 +224,14 @@ var voegTaakToe = function (response, convo) {
 }
 var voorWie = function (reponse, convo) {
   convo.ask('Wie gaat dit doen? (@naam graag)', function (response, convo) {
-    var userid
+    var id
     if (response.text === 'ik') {
-      console.log(response)
-      userid = functions.verifyUserId(response.user)
+      id = functions.verifyUserId(response.user)
     } else {
-      userid = functions.verifyUserName(response.text)
+      id = functions.verifyUserName(response.text) || functions.verifyGroupName(response.text)
     }
-    if (userid) {
-      response.text = userid
+    if (id) {
+      response.text = id
       convo.say('Ha, gesjaakt!')
       wanneerKlaar(response, convo)
       convo.next()
@@ -295,7 +294,7 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
   }
   var task = parts[0]
   var userId = message.user
-  var responsibleId = functions.verifyUserName(parts[1])
+  var responsibleId = functions.verifyUserName(parts[1]) || functions.verifyGroupName(parts[1])
   var channelId = functions.verifyChannelName(parts[3])
   var deadline = functions.verifyDate(parts[2])
   if (channelId && responsibleId && deadline) {
@@ -455,8 +454,17 @@ controller.hears(['newherinneringen', 'sendreminder'], 'direct_message', functio
 var NewSendReminders = function () {
   bot.api.users.list({}, function (err, reply) {
     if (!err) {
-      reply.members.forEach(function (value, index, array) {
+      reply.members.forEach(function (value) {
         if (value.deleted === false && value.is_bot === false) {
+          ShowList('all', value.id, value.id)
+        }
+      })
+    }
+  })
+  bot.api.usergroups.list({}, function (err, reply) {
+    if (!err) {
+      reply.usergroups.forEach(function (value) {
+        if (value.date_delete === 0 && parseInt(value.user_count, 10) > 0) {
           ShowList('all', value.id, value.id)
         }
       })
@@ -465,7 +473,7 @@ var NewSendReminders = function () {
 }
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
   var send
-  var userid = functions.verifyUserName(message.match[1])
+  var userid = functions.verifyUserName(message.match[1]) || functions.verifyGroupName(message.match[1])
   var channelid = functions.verifyChannelName(message.match[1])
   if (functions.verifyChannelId(message.channel)) {
     send = message.channel
@@ -477,7 +485,7 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_messag
     ShowList(channelid, userid, send)
   } else {
     if (userid) {
-      console.log('user')
+      console.log('user or group')
       ShowList('all', userid, send)
       return true
     } else if (channelid) {
@@ -499,7 +507,7 @@ var ShowList = function (channelName, userName, sendto) {
       if (err) {
         return false
       }
-      var sortedtasks, formatted, userID, channelID
+      var sortedtasks, formatted, userID, channelID, groupID
       var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', teamData.tasks, userName), channelName), 'new')
       if (usertasks.length === 0) {
         console.log('empty tasks')
@@ -511,6 +519,10 @@ var ShowList = function (channelName, userName, sendto) {
       if (userID) {
         sendTo(formatted, userID)
         console.log('sending to user')
+      }
+      groupID = functions.verifyGroupId(sendto)
+      if (groupID) {
+        sendToGroup(formatted, groupID)
       }
       channelID = functions.verifyChannelId(sendto)
       if (channelID) {
@@ -532,6 +544,17 @@ var sendTo = function (formatted, sendToID) {
   } else {
     console.log('err, no valid sendToID')
     return false
+  }
+}
+var sendToGroup = function (formatted, sendToGroupID) {
+  if (functions.verifyGroupId(sendToGroupID)) {
+    bot.api.usergroups.users.list({'usergroup': sendToGroupID}, function (err, response) {
+      if (!err) {
+        response.users.forEach(function (value) {
+          sendTo(formatted, value)
+        })
+      }
+    })
   }
 }
 
@@ -699,7 +722,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       console.log(data)
       var attachment = []
       data.forEach(function (value) {
-        if ( functions.verifyUserId(value.id) ) {
+        if (functions.verifyUserId(value.id)) {
           var item = {
             'text': '<@' + value.id + '>: ' + value.score,
             'fallback': '<@' + value.id + '>: ' + value.score,

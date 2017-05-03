@@ -17,7 +17,8 @@
     "botkit",
     "tasklist"
   ],
-  "author": "Steef Min",
+  "author" : "Stijn Holzhauer",
+  "original-author": "Steef Min",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/steefmin/elsje/issues"

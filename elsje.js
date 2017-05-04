@@ -380,9 +380,9 @@ var finishtask = function (convo, taskNumber) {
         if (value.taskid === taskNumber && value.status === 'new') {
           value.status = 'done'
           var message = {
-            'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,
+            'fallback': 'Taak van <@' + value.responsible.id + '> door <@' + userId + '> afgerond: ' + value.task,
             'color': 'good',
-            'pretext': 'Taak afgerond door ' + userId + '.'
+            'pretext': 'Taak afgerond door <@' + userId + '>.'
           }
           functions.postSingleTask(bot, value, message)
           functions.changeScore(bot, controller, value.responsible.id, 1, channelId)

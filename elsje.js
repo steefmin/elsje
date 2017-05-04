@@ -373,6 +373,7 @@ var TaskDone = function (response, convo) {
 var finishtask = function (convo, taskNumber) {
   var teamId = convo.source_message.team
   var channelId = convo.source_message.channel
+  var userId = convo.source_message.user
   controller.storage.teams.get(teamId, function (err, channelData) {
     if (!err) {
       channelData.tasks.forEach(function (value, index, array) {
@@ -381,7 +382,7 @@ var finishtask = function (convo, taskNumber) {
           var message = {
             'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,
             'color': 'good',
-            'pretext': 'Taak afgerond.'
+            'pretext': 'Taak afgerond door ' + userId + '.'
           }
           functions.postSingleTask(bot, value, message)
           functions.changeScore(bot, controller, value.responsible.id, 1, channelId)

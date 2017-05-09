@@ -40,7 +40,7 @@ controller.on('rtm_open', function (bot, message) {
       'color': 'danger',
       'text': reconnecttext
     }]
-    functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
+    functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL, 0)
 //	  	enable next line to create fresh db
 //  		controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
   }
@@ -53,8 +53,8 @@ controller.on('presence_change', function (bot, message) {
     'text': 'Sorry, werewolf-bot is herstart en is alles vergeten, ik heb een nieuw spel gestart, doe mee met !join'
   }]
   if (message.user === werewolfbotId && message.presence === 'active') {
-    functions.postAttachment(bot, attachment, weerwolvenChannel)
-    functions.postMessage(bot, '!new', weerwolvenChannel)
+    functions.postAttachment(bot, attachment, weerwolvenChannel, 0)
+    functions.postMessage(bot, '!new', weerwolvenChannel, 0)
   }
 })
 
@@ -159,7 +159,7 @@ controller.hears(['what is my name', 'who am i', 'wie ben ik', 'hoe heet ik', 'w
 })
 
 controller.hears(['help'], 'direct_message,direct_mention', function (bot, message) {
-  bot.startConversation(message, helpMe)
+  bot.startConversationInThread(message, helpMe)
 })
 var helpMe = function (response, convo) {
   convo.ask('Ik kan helpen met de "takenlijst" en onthouden van "namen"', function (response, convo) {
@@ -168,17 +168,17 @@ var helpMe = function (response, convo) {
     } else if (response.text === 'Namen' || response.text === 'namen') {
       helpWithNamen(response, convo)
     } else {
-      bot.reply(response, 'Sorry, daar kan ik je niet mee helpen')
+      bot.replyInThread(response, 'Sorry, daar kan ik je niet mee helpen')
       convo.stop()
     }
   })
 }
 var helpWithTakenlijst = function (response, convo) {
-  bot.reply(response, 'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.')
+  bot.replyInThread(response, 'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.')
   convo.stop()
 }
 var helpWithNamen = function (response, convo) {
-  bot.reply(response, 'Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)')
+  bot.replyInThread(response, 'Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)')
   convo.stop()
 }
 
@@ -213,7 +213,7 @@ controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'upt
 })
 
 controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
-  bot.startConversation(message, voegTaakToe)
+  bot.startConversationInThread(message, voegTaakToe)
 })
 var voegTaakToe = function (response, convo) {
   convo.ask('Wat moet er gedaan worden?', function (response, convo) {
@@ -279,9 +279,9 @@ var opslaanVanTaak = function (response, convo) {
       var deadline = res['Wanneer moet het klaar zijn?']
       var isStored = storeNewTask(userId, channelId, task, responsibleId, deadline)
       if (isStored) {
-        bot.reply(response, 'Ok, taak toegevoegd aan de lijst.')
+        bot.replyInThread(response, 'Ok, taak toegevoegd aan de lijst.')
       } else {
-        bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
+        bot.replyInThread(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
       }
     }
   })
@@ -301,12 +301,12 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
   if (channelId && responsibleId && deadline) {
     var isStored = storeNewTask(userId, channelId, task, responsibleId, deadline)
     if (isStored) {
-      bot.reply(message, 'Ok, taak toegevoegd aan de lijst.')
+      bot.replyInThread(message, 'Ok, taak toegevoegd aan de lijst.')
     } else {
-      bot.reply(message, 'Sorry, er is iets misgegaan bij het opslaan.')
+      bot.replyInThread(message, 'Sorry, er is iets misgegaan bij het opslaan.')
     }
   } else {
-    bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
+    bot.replyInThread(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
   }
 })
 
@@ -329,7 +329,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
           'pretext': 'Nieuwe taak aangemaakt.'
         }
-        functions.postSingleTask(bot, newTask, message)
+        functions.postSingleTask(bot, newTask, message, 0)
       }
     })
   })
@@ -337,7 +337,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
 }
 
 controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {
-  bot.startConversation(message, completeTask)
+  bot.startConversationInThread(message, completeTask)
 })
 var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
@@ -384,7 +384,7 @@ var finishtask = function (convo, taskNumber) {
             'color': 'good',
             'pretext': 'Taak afgerond door <@' + userId + '>.'
           }
-          functions.postSingleTask(bot, value, message)
+          functions.postSingleTask(bot, value, message, 0)
           functions.changeScore(bot, controller, value.responsible.id, 1, channelId)
         }
       })
@@ -395,7 +395,7 @@ var finishtask = function (convo, taskNumber) {
 }
 
 controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {
-  bot.startConversation(message, DeadlineNumber)
+  bot.startConversationInThread(message, DeadlineNumber)
 })
 var DeadlineNumber = function (response, convo) {
   var channel, send
@@ -438,13 +438,13 @@ var UpdateDeadline = function (response, convo) {
                 'fallback': 'Taak van <@' + value.responsible.id + '> heeft nieuwe deadline: ' + value.deadline,
                 'pretext': 'Deze taak heeft een nieuwe deadline.'
               }
-              functions.postSingleTask(bot, value, message)
+              functions.postSingleTask(bot, value, message, 0)
             }
           })
           controller.storage.teams.save(channelData)
         }
       })
-      bot.reply(response, 'Ok, nieuwe deadline genoteerd.')
+      bot.replyInThread(response, 'Ok, nieuwe deadline genoteerd.')
     }
   })
 }
@@ -525,11 +525,11 @@ var sendTo = function (formatted, sendToID) {
   if (functions.verifyUserId(sendToID)) {
     bot.api.im.open({'user': sendToID}, function (err, response) {
       if (!err) {
-        functions.postMessage(bot, formatted, response.channel.id)
+        functions.postMessage(bot, formatted, response.channel.id, 0)
       }
     })
   } else if (functions.verifyChannelId(sendToID)) {
-    functions.postMessage(bot, formatted, sendToID)
+    functions.postMessage(bot, formatted, sendToID, 0)
   } else {
     console.log('err, no valid sendToID')
     return false
@@ -545,7 +545,7 @@ var sendTGIF = function () {
     controller.storage.teams.get(teamid, function (err, data) {
       if (!err) {
         for (var channel in data.tgif) {
-          functions.postMessage(bot, data.tgif[channel], channel)
+          functions.postMessage(bot, data.tgif[channel], channel, 0)
         }
       }
     })
@@ -576,7 +576,7 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
           if (!err) {
             var channelName = response.channel.name
             var send = 'Er is een <http://' + domain + '.slack.com/archives/' + channelName + '/p' + timestamp.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
-            functions.postMessage(bot, send, isChannel)
+            functions.postMessage(bot, send, isChannel, 0)
           }
         })
       }
@@ -724,7 +724,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       for (var i = 0; i < attachment.length; i++) {
         attachment[i].color = cg[attachment[i].score - lowScore]
       }
-      functions.postAttachment(bot, attachment, message.channel)
+      functions.postAttachment(bot, attachment, message.channel, 0)
     }
   })
 })

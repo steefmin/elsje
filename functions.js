@@ -197,29 +197,31 @@ var formatTasks = function (tasks) {
   return formatted
 }
 
-var postMessage = function (bot, message, channel) {
+var postMessage = function (bot, message, channel, parent) {
   getBotImg(bot, function (image) {
     bot.api.chat.postMessage({
       'channel': channel,
       'text': message,
       'username': bot.identity.name,
-      'icon_url': image
+      'icon_url': image,
+      'thread_ts': parent
     })
   })
 }
 
-var postAttachment = function (bot, attachmentArray, channel) {
+var postAttachment = function (bot, attachmentArray, channel, parent) {
   getBotImg(bot, function (image) {
     bot.api.chat.postMessage({
       'channel': channel,
       'attachments': attachmentArray,
       'username': bot.identity.name,
-      'icon_url': image
+      'icon_url': image,
+      'thread_ts': parent
     })
   })
 }
 
-var postSingleTask = function (bot, taskStructure, message) {
+var postSingleTask = function (bot, taskStructure, message, parent) {
   console.log(taskStructure)
   if (typeof message.color === 'undefined') {
     message.color = '#3090C7'
@@ -260,7 +262,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       }
     ]
   }]
-  postAttachment(bot, attachmentArray, taskStructure.channel.id)
+  postAttachment(bot, attachmentArray, taskStructure.channel.id, parent)
 }
 
 var changeScore = function (bot, controller, userId, change, channel) {
@@ -303,9 +305,9 @@ var sendScore = function (bot, controller, userId, channel) {
       if (user.score < 0) {
         attachment.color = 'danger'
       }
-      postAttachment(bot, attachment, channel)
+      postAttachment(bot, attachment, channel, 0)
     } else {
-      postMessage(bot, '<@' + userId + '> doet nog niet mee aan de puntentelling :scream:', channel)
+      postMessage(bot, '<@' + userId + '> doet nog niet mee aan de puntentelling :scream:', channel, 0)
     }
   })
 }

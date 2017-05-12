@@ -41,8 +41,8 @@ controller.on('rtm_open', function (bot, message) {
       'text': reconnecttext
     }]
     functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
-//	  	enable next line to create fresh db
-//  		controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
+    // enable next line to create fresh db
+    // controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
   }
 })
 
@@ -700,7 +700,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       console.log(data)
       var attachment = []
       data.forEach(function (value) {
-        if ( functions.verifyUserId(value.id) ) {
+        if (functions.verifyUserId(value.id)) {
           var item = {
             'text': '<@' + value.id + '>: ' + value.score,
             'fallback': '<@' + value.id + '>: ' + value.score,

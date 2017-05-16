@@ -229,19 +229,20 @@ var TaskDone = function (response, convo) {
   })
 }
 var finishtask = function (convo, taskNumber) {
-  var channelId = convo.source_message.channel
   var userId = convo.source_message.user
   api.showAllTasks(function (error, res) {
     if (error) {
       console.log(error)
     } else {
-      api.showSingleTask(taskNumber, function(err, task) {
-        var message = {
-          'fallback': 'Taak van <@' + task.responsibleid + '> door <@' + userId + '> afgerond: ' + task.task,
-          'color': 'good',
-          'pretext': 'Taak afgerond door <@' + userId + '>.'
+      api.showSingleTask(taskNumber, function (err, task) {
+        if (!err) {
+          var message = {
+            'fallback': 'Taak van <@' + task.responsibleid + '> door <@' + userId + '> afgerond: ' + task.task,
+            'color': 'good',
+            'pretext': 'Taak afgerond door <@' + userId + '>.'
+          }
+          functions.postSingleTask(bot, task, message)
         }
-        functions.postSingleTask(bot, finishedTask, message)
       })
     }
   })

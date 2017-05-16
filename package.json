@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/steefmin/elsje#readme",
   "dependencies": {
+    "request": "^2.81.0",
     "botkit": "^0.4.2",
-    "colormap": "^2.2.0",
     "ordinal-numbers": "^1.0.3"
   }
 }

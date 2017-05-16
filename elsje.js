@@ -1,7 +1,7 @@
 require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
-var Colormap = require('colormap')
+// var Colormap = require('colormap')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
 var api = require('svlo-api')
@@ -171,28 +171,26 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
 })
 
 var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
-  // functions.getTeamId(bot, function (teamId) {
-  //   controller.storage.teams.get(teamId, function (err, list) {
-  //     if (!err) {
-        var newTask = {
-          'channel': {'id': channelId},
-          'taskid': list.tasks.length + 1,
-          'user': {'id': userId},
-          'task': task,
-          'responsible': {'id': responsibleId},
-          'deadline': deadline,
-          'status': 'new'
-        }
-  //       list.tasks.push(newTask)
-  //       controller.storage.teams.save(list)
-        var message = {
-          'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
-          'pretext': 'Nieuwe taak aangemaakt.'
-        }
-        functions.postSingleTask(bot, newTask, message)
-  //     }
-  //   })
-  // })
+  var newTask = {
+    'channel': channelId,
+    'user': userId,
+    'task': task,
+    'responsibleid': responsibleId,
+    'deadline': deadline
+  }
+  api.addTask(newTask, function (err, response) {
+    if (err) {
+      console.log(err)
+    } else {
+      newTask.taskid = response.taskid // !!!check this
+      newTask.status = 0
+      var message = {
+        'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
+        'pretext': 'Nieuwe taak aangemaakt.'
+      }
+      functions.postSingleTask(bot, newTask, message)
+    }
+  })
   return true
 }
 
@@ -231,26 +229,22 @@ var TaskDone = function (response, convo) {
   })
 }
 var finishtask = function (convo, taskNumber) {
-  // var teamId = convo.source_message.team
   var channelId = convo.source_message.channel
   var userId = convo.source_message.user
-  // controller.storage.teams.get(teamId, function (err, channelData) {
-  //   if (!err) {
-  //     channelData.tasks.forEach(function (value, index, array) {
-        if (value.taskid === taskNumber && value.status === 'new') {
-          value.status = 'done'
-          var message = {
-            'fallback': 'Taak van <@' + value.responsible.id + '> door <@' + userId + '> afgerond: ' + value.task,
-            'color': 'good',
-            'pretext': 'Taak afgerond door <@' + userId + '>.'
-          }
-          functions.postSingleTask(bot, value, message)
-          functions.changeScore(bot, controller, value.responsible.id, 1, channelId)
+  api.showAllTasks(function (error, res) {
+    if (error) {
+      console.log(error)
+    } else {
+      api.showSingleTask(taskNumber, function(err, task) {
+        var message = {
+          'fallback': 'Taak van <@' + task.responsibleid + '> door <@' + userId + '> afgerond: ' + task.task,
+          'color': 'good',
+          'pretext': 'Taak afgerond door <@' + userId + '>.'
         }
-  //     })
-  //     controller.storage.teams.save(channelData)
-  //   }
-  // })
+        functions.postSingleTask(bot, finishedTask, message)
+      })
+    }
+  })
   convo.stop()
 }
 
@@ -289,22 +283,24 @@ var UpdateDeadline = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      // controller.storage.teams.get(response.team, function (err, channelData) {
-      //   if (!err) {
-      //     channelData.tasks.forEach(function (value, index, array) {
-            if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)) {
-              value.deadline = res['Wat is de nieuwe deadline?']
+      var taskid = parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)
+      var deadline = res['Wat is de nieuwe deadline?']
+      api.updateTask({taskid: taskid, deadline: deadline}, function (err, res) {
+        if (err) {
+          console.log(err)
+        } else {
+          api.showSingleTask(taskid, function (err, task) {
+            if (!err) {
               var message = {
-                'fallback': 'Taak van <@' + value.responsible.id + '> heeft nieuwe deadline: ' + value.deadline,
+                'fallback': 'Taak van <@' + task.responsibleid + '> heeft nieuwe deadline: ' + task.deadline,
                 'pretext': 'Deze taak heeft een nieuwe deadline.'
               }
-              functions.postSingleTask(bot, value, message)
+              functions.postSingleTask(bot, task, message)
+              bot.reply(response, 'Ok, nieuwe deadline genoteerd.')
             }
-      //     })
-      //     controller.storage.teams.save(channelData)
-      //   }
-      // })
-      bot.reply(response, 'Ok, nieuwe deadline genoteerd.')
+          })
+        }
+      })
     }
   })
 }
@@ -355,30 +351,28 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_messag
   }
 })
 var ShowList = function (channelName, userName, sendto) {
-  functions.getTeamId(bot, function (teamid) {
-    // controller.storage.teams.get(teamid, function (err, teamData) {
-      if (err) {
-        return false
-      }
-      var sortedtasks, formatted, userID, channelID
-      var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', teamData.tasks, userName), channelName), 'new')
-      if (usertasks.length === 0) {
-        console.log('empty tasks')
-        return false
-      }
-      sortedtasks = functions.sortTasks(usertasks, 'channel')
-      formatted = functions.formatTasks(sortedtasks)
-      userID = functions.verifyUserId(sendto)
-      if (userID) {
-        sendTo(formatted, userID)
-        console.log('sending to user')
-      }
-      channelID = functions.verifyChannelId(sendto)
-      if (channelID) {
-        sendTo(formatted, channelID)
-        console.log('sending to channel')
-      }
-    // })
+  api.showAllTasks(function (err, response) {
+    if (err) {
+      return false
+    }
+    var sortedtasks, formatted, userID, channelID
+    var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', response.body.tasks, userName), channelName), 'new') // !!! this is one bad motherf...er
+    if (usertasks.length === 0) {
+      console.log('empty tasks')
+      return false
+    }
+    sortedtasks = functions.sortTasks(usertasks, 'channel')
+    formatted = functions.formatTasks(sortedtasks)
+    userID = functions.verifyUserId(sendto)
+    if (userID) {
+      sendTo(formatted, userID)
+      console.log('sending to user')
+    }
+    channelID = functions.verifyChannelId(sendto)
+    if (channelID) {
+      sendTo(formatted, channelID)
+      console.log('sending to channel')
+    }
   })
 }
 var sendTo = function (formatted, sendToID) {

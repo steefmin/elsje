@@ -1,39 +1,66 @@
-var addTask = function (taskStructure, cb) {
-  var err = false
-  var response = false
-  cb(err, response)
+var request = require('request')
+
+var addTask = function (taskItems, cb) {
+  var requestStructure = newRequestStructure()
+  requestStructure.method = 'addtask'
+  Object.assign(requestStructure, taskItems)
+  xmlcall(requestStructure, cb)
 }
 
-var updateTask = function (taskStructure, cb) {
-  var err = false
-  var response = false
-  cb(err, response)
+var updateTask = function (taskItems, cb) {
+  var requestStructure = newRequestStructure
+  requestStructure.method = 'updateTask'
+  Object.assign(requestStructure, taskItems)
+  xmlcall(requestStructure, cb)
 }
 
 var completeTask = function (taskid, cb) {
-  var taskStructure = newTaskStructure()
+  var taskStructure = newRequestStructure()
+  taskStructure.taskid = taskid
+  taskStructure.status = 1
   updateTask(taskStructure, cb)
 }
 
 var showChannelTasks = function (channelid, cb) {
-  var err = false
-  var response = false
-  cb(err, response)
+  var options = newRequestStructure()
+  options.channel = channelid
+  getTasks(options, cb)
 }
 
 var showUserTasks = function (userid, cb) {
-  var err = false
-  var response = false
-  cb(err, response)
+  var options = newRequestStructure()
+  options.userid = userid
+  getTasks(options, cb)
 }
 
 var showAllTasks = function (cb) {
-  var err = false
-  var response = false
-  cb(err, response)
+  var options = newRequestStructure()
+  getTasks(options, cb)
 }
 
-var newTaskStructure = function () {
+var showSingleTask = function (taskid, cb) {
+  showAllTasks(function (err, response) {
+    if (!err) {
+      var singletask = response.body.tasks.loopdieloop(function (task) { // !!! fix this
+        if (task.taskid === taskid) {
+          return task
+        } else {
+          return false
+        }
+      })
+      cb(err, singletask)
+    } else {
+      cb(err, null)
+    }
+  })
+}
+
+function getTasks (options, cb) {
+  options.method = 'showTasks'
+  xmlcall(options, cb)
+}
+
+function newRequestStructure () {
   return {
     'action': 'ToDo',
     'bot': 'Elsje',
@@ -47,6 +74,24 @@ var newTaskStructure = function () {
   }
 }
 
+function xmlcall (params, cb) {
+  var headers = {
+    'Content-Type': 'application/json'
+  }
+  var options = {
+    url: process.env.TASK_API_URL,
+    method: 'POST',
+    headers: headers,
+    form: params
+  }
+  request(options, function (error, response, body) {
+    var res
+    res.response = response
+    res.body = body
+    cb(error, res)
+  })
+}
+
 module.exports = {
   addTask: addTask,
   updateTask: updateTask,
@@ -54,5 +99,5 @@ module.exports = {
   showChannelTasks: showChannelTasks,
   showUserTasks: showUserTasks,
   showAllTasks: showAllTasks,
-  newTaskStructure: newTaskStructure
+  showSingleTask: showSingleTask
 }

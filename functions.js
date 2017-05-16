@@ -44,7 +44,7 @@ var verifyDate = function (text) {
     date = parseDate(text)
   }
   if (date !== 'Invalid Date' && date.getTime() >= currentDate.getTime()) {
-    return date
+    return date.toISOString().substr(0, 10)
   } else {
     return false
   }
@@ -140,7 +140,7 @@ var filterTasks = function (filterOn, tasks, filterFor) {
     return tasks
   } else {
     newtasks = []
-    if (filterOn === 'channel' || filterOn ===	'responsible') {
+    if (filterOn === 'channel' || filterOn === 'responsible') {
       tasks.forEach(function (value, index, array) {
         if (value[filterOn].id === filterFor) {
           newtasks.push(value)
@@ -186,7 +186,7 @@ var formatTasks = function (tasks) {
         addSpaces(4 - task.taskid.toString().length) +
         '<@' + task.responsible.id + '>' +
         addSpaces(2) +
-        deadline.toUTCString().substr(5, 11) +
+        deadline +
         addSpaces(2) +
         task.task +
         '\n'
@@ -227,7 +227,7 @@ var postSingleTask = function (bot, taskStructure, message) {
   if (typeof message.fallback === 'undefined') {
     message.fallback = message.pretext
   }
-  var deadline = new Date(taskStructure.deadline)
+  var status = taskStructure.status === 0 ? 'new' : 'done'
   var attachmentArray = [{
     'fallback': message.fallback,
     'color': message.color,
@@ -245,12 +245,12 @@ var postSingleTask = function (bot, taskStructure, message) {
       },
       {
         'title': 'Status',
-        'value': taskStructure.status,
+        'value': status,
         'short': true
       },
       {
         'title': 'Deadline',
-        'value': deadline.toUTCString().substr(5, 11),
+        'value': taskStructure.deadline,
         'short': true
       },
       {

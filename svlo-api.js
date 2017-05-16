@@ -41,14 +41,14 @@ var showAllTasks = function (cb) {
 var showSingleTask = function (taskid, cb) {
   showAllTasks(function (err, response) {
     if (!err) {
-      var singletask = response.body.tasks.loopdieloop(function (task) { // !!! fix this
+      var singletask = response.body.tasks.map(function (task) {
         if (task.taskid === taskid) {
           return task
         } else {
           return false
         }
       })
-      cb(err, singletask)
+      cb(err, singletask[0])
     } else {
       cb(err, null)
     }

@@ -182,7 +182,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
     if (err) {
       console.log(err)
     } else {
-      newTask.taskid = response.taskid // !!!check this
+      newTask.taskid = response.body.taskid
       newTask.status = 0
       var message = {
         'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,

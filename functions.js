@@ -263,89 +263,6 @@ var postSingleTask = function (bot, taskStructure, message) {
   postAttachment(bot, attachmentArray, taskStructure.channel.id)
 }
 
-var changeScore = function (bot, controller, userId, change, channel) {
-  controller.storage.users.get(userId, function (err, user) {
-    if (!err) {
-      // do nothing
-    }
-    if (!user) {
-      user = {'id': userId}
-    }
-    if (!user.score) {
-      user.score = 0
-    }
-    user.score = user.score + change
-    controller.storage.users.save(user, function (err, id) {
-      if (!err) {
-        // sendScore(bot, controller, userId, channel)
-      }
-    })
-  })
-}
-
-var sendScore = function (bot, controller, userId, channel) {
-  controller.storage.users.get(userId, function (err, user) {
-    if (!err) {
-      var plural
-      if (user.score === -1 || user.score === 1) {
-        plural = ''
-      } else {
-        plural = 'en'
-      }
-      var smiley = getScoreSmiley(user.score)
-      var attachment = [{
-        'fallback': '<@' + userId + '> heeft nu ' + user.score + ' punt' + plural + ' ' + smiley,
-        'text': ' <@' + userId + '> heeft nu ' + user.score + ' punt' + plural + ' ' + smiley
-      }]
-      if (user.score > 0) {
-        attachment.color = 'good'
-      }
-      if (user.score < 0) {
-        attachment.color = 'danger'
-      }
-      postAttachment(bot, attachment, channel)
-    } else {
-      postMessage(bot, '<@' + userId + '> doet nog niet mee aan de puntentelling :scream:', channel)
-    }
-  })
-}
-
-var getScoreSmiley = function (score) {
-  var high = 100
-  var low = -20
-  if (score > high) {
-    score = high
-  }
-  if (score < low) {
-    score = low
-  }
-  var positiveSmileys = [
-    ':slightly_smiling_face:',
-    ':grinning:',
-    ':dizzy_face:',
-    ':the_horns:',
-    ':heart_eyes:'
-  ]
-  var negativeSmileys = [
-    ':slightly_frowning_face:',
-    ':cry:',
-    ':sob:',
-    ':confounded:',
-    ':scream:',
-    ':ghost:'
-  ]
-  var relativeScore
-  if (score > 0) {
-    relativeScore = Math.round((positiveSmileys.length - 1) / (high) * (score - 1))
-    return positiveSmileys[relativeScore]
-  } else if (score < 0) {
-    relativeScore = Math.round((negativeSmileys.length - 1) / (-low - 1) * (-score - 1))
-    return negativeSmileys[relativeScore]
-  } else {
-    return ':no_mouth:'
-  }
-}
-
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -362,7 +279,5 @@ module.exports = {
   filterTasks: filterTasks,
   postMessage: postMessage,
   postAttachment: postAttachment,
-  postSingleTask: postSingleTask,
-  changeScore: changeScore,
-  sendScore: sendScore
+  postSingleTask: postSingleTask
 }

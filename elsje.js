@@ -4,6 +4,7 @@ var Botkit = require('botkit')
 var Colormap = require('colormap')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
+var api = require('svlo-api')
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
@@ -22,9 +23,6 @@ var bot = controller.spawn({
   retry: Infinity
 }).startRTM()
 
-var weerwolvenChannel = process.env.WEERWOLVEN_CHANNEL
-var werewolfbotId = process.env.WEERWOLVEN_BOT_ID
-
 var reconnectcounter = 0
 controller.on('rtm_open', function (bot, message) {
   if (!debug) {
@@ -41,146 +39,8 @@ controller.on('rtm_open', function (bot, message) {
       'text': reconnecttext
     }]
     functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
-    // enable next line to create fresh db
-    // controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
   }
 })
-
-controller.on('presence_change', function (bot, message) {
-  var attachment = [{
-    'fallback': 'Sorry, werewolf-bot is herstart en is alles vergeten, ik heb een nieuw spel gestart, doe mee met !join',
-    'color': 'warning',
-    'text': 'Sorry, werewolf-bot is herstart en is alles vergeten, ik heb een nieuw spel gestart, doe mee met !join'
-  }]
-  if (message.user === werewolfbotId && message.presence === 'active') {
-    functions.postAttachment(bot, attachment, weerwolvenChannel)
-    functions.postMessage(bot, '!new', weerwolvenChannel)
-  }
-})
-
-controller.hears(['hello(.*)', 'hoi(.*)', 'hallo(.*)', 'hey(.*)'], 'ambient', function (bot, message) {
-  if (message.match[1] === '') {
-    bot.api.reactions.add({
-      timestamp: message.ts,
-      channel: message.channel,
-      name: 'robot_face'
-    }, function (err, res) {
-      if (err) {
-        bot.botkit.log('Failed to add emoji reaction :(', err)
-      }
-    })
-    controller.storage.users.get(message.user, function (err, user) {
-      if (!err) {
-        if (user && user.name) {
-          bot.reply(message, 'Hoi ' + user.name + '!!')
-        } else {
-          bot.reply(message, 'Hoi')
-        }
-      }
-    })
-  }
-})
-
-controller.hears(['noem me (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
-  var name = message.match[1]
-  controller.storage.users.get(message.user, function (err, user) {
-    if (!err) {
-      if (!user) {
-        user = {
-          'id': message.user
-        }
-      }
-      user.name = name
-      controller.storage.users.save(user, function (err, id) {
-        if (!err) {
-          bot.reply(message, 'Prima, vanaf nu zal ik je ' + user.name + ' noemen.')
-        }
-      })
-    }
-  })
-})
-
-controller.hears(['what is my name', 'who am i', 'wie ben ik', 'hoe heet ik', 'wat is mijn naam'], 'direct_message,direct_mention,mention', function (bot, message) {
-  controller.storage.users.get(message.user, function (err, user) {
-    if (!err) {
-      if (user && user.name) {
-        bot.reply(message, 'Jouw naam is ' + user.name)
-      } else {
-        bot.startConversation(message, function (err, convo) {
-          if (!err) {
-            convo.say('Ik weet jouw naam nog niet!')
-            convo.ask('Hoe zal ik je noemen?', function (response, convo) {
-              convo.ask('Je wilt dat ik je  `' + response.text + '` noem?', [{
-                pattern: 'yes',
-                callback: function (response, convo) {
-                  convo.next()
-                }
-              }, {
-                pattern: 'no',
-                callback: function (response, convo) {
-                  convo.stop()
-                }
-              }, {
-                default: true,
-                callback: function (response, convo) {
-                  convo.repeat()
-                  convo.next()
-                }
-              }])
-              convo.next()
-            }, {
-              'key': 'nickname'
-            }) // store the results in a field called nickname
-            convo.on('end', function (convo) {
-              if (convo.status === 'completed') {
-                bot.reply(message, 'Ok! Dit ga ik even opschrijven...')
-                controller.storage.users.get(message.user, function (err, user) {
-                  if (!err) {
-                    if (!user) {
-                      user = {id: message.user}
-                    }
-                    user.name = convo.extractResponse('nickname')
-                    controller.storage.users.save(user, function (err, id) {
-                      if (!err) {
-                        bot.reply(message, 'Prima, vanaf nu noem ik je ' + user.name + '.')
-                      }
-                    })
-                  }
-                })
-              } else {
-                bot.reply(message, 'Ok, laat maar!')
-              }
-            })
-          }
-        })
-      }
-    }
-  })
-})
-
-controller.hears(['help'], 'direct_message,direct_mention', function (bot, message) {
-  bot.startConversation(message, helpMe)
-})
-var helpMe = function (response, convo) {
-  convo.ask('Ik kan helpen met de "takenlijst" en onthouden van "namen"', function (response, convo) {
-    if (response.text === 'Takenlijst' || response.text === 'takenlijst') {
-      helpWithTakenlijst(response, convo)
-    } else if (response.text === 'Namen' || response.text === 'namen') {
-      helpWithNamen(response, convo)
-    } else {
-      bot.reply(response, 'Sorry, daar kan ik je niet mee helpen')
-      convo.stop()
-    }
-  })
-}
-var helpWithTakenlijst = function (response, convo) {
-  bot.reply(response, 'Vraag me om een taak toe te voegen, dan voeg ik het toe aan de takenlijst van het kanaal waar we op dat moment in zitten.\nAls je me om de lijst vraagt, zal ik je deze geven.\nVraag me om een taak af te ronden of af te vinken dan haal ik deze van de lijst af.')
-  convo.stop()
-}
-var helpWithNamen = function (response, convo) {
-  bot.reply(response, 'Vertel me hoe ik je moet noemen, dan kan ik die naam in de toekomst gebruiken om te weten wie er bedoeld wordt. (bijv. noem me Elsje.)')
-  convo.stop()
-}
 
 controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function (bot, message) {
   bot.startConversation(message, function (err, convo) {
@@ -311,9 +171,9 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
 })
 
 var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
-  functions.getTeamId(bot, function (teamId) {
-    controller.storage.teams.get(teamId, function (err, list) {
-      if (!err) {
+  // functions.getTeamId(bot, function (teamId) {
+  //   controller.storage.teams.get(teamId, function (err, list) {
+  //     if (!err) {
         var newTask = {
           'channel': {'id': channelId},
           'taskid': list.tasks.length + 1,
@@ -323,16 +183,16 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
           'deadline': deadline,
           'status': 'new'
         }
-        list.tasks.push(newTask)
-        controller.storage.teams.save(list)
+  //       list.tasks.push(newTask)
+  //       controller.storage.teams.save(list)
         var message = {
           'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
           'pretext': 'Nieuwe taak aangemaakt.'
         }
         functions.postSingleTask(bot, newTask, message)
-      }
-    })
-  })
+  //     }
+  //   })
+  // })
   return true
 }
 
@@ -371,12 +231,12 @@ var TaskDone = function (response, convo) {
   })
 }
 var finishtask = function (convo, taskNumber) {
-  var teamId = convo.source_message.team
+  // var teamId = convo.source_message.team
   var channelId = convo.source_message.channel
   var userId = convo.source_message.user
-  controller.storage.teams.get(teamId, function (err, channelData) {
-    if (!err) {
-      channelData.tasks.forEach(function (value, index, array) {
+  // controller.storage.teams.get(teamId, function (err, channelData) {
+  //   if (!err) {
+  //     channelData.tasks.forEach(function (value, index, array) {
         if (value.taskid === taskNumber && value.status === 'new') {
           value.status = 'done'
           var message = {
@@ -387,10 +247,10 @@ var finishtask = function (convo, taskNumber) {
           functions.postSingleTask(bot, value, message)
           functions.changeScore(bot, controller, value.responsible.id, 1, channelId)
         }
-      })
-      controller.storage.teams.save(channelData)
-    }
-  })
+  //     })
+  //     controller.storage.teams.save(channelData)
+  //   }
+  // })
   convo.stop()
 }
 
@@ -429,9 +289,9 @@ var UpdateDeadline = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      controller.storage.teams.get(response.team, function (err, channelData) {
-        if (!err) {
-          channelData.tasks.forEach(function (value, index, array) {
+      // controller.storage.teams.get(response.team, function (err, channelData) {
+      //   if (!err) {
+      //     channelData.tasks.forEach(function (value, index, array) {
             if (value.taskid === parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)) {
               value.deadline = res['Wat is de nieuwe deadline?']
               var message = {
@@ -440,10 +300,10 @@ var UpdateDeadline = function (response, convo) {
               }
               functions.postSingleTask(bot, value, message)
             }
-          })
-          controller.storage.teams.save(channelData)
-        }
-      })
+      //     })
+      //     controller.storage.teams.save(channelData)
+      //   }
+      // })
       bot.reply(response, 'Ok, nieuwe deadline genoteerd.')
     }
   })
@@ -496,7 +356,7 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_messag
 })
 var ShowList = function (channelName, userName, sendto) {
   functions.getTeamId(bot, function (teamid) {
-    controller.storage.teams.get(teamid, function (err, teamData) {
+    // controller.storage.teams.get(teamid, function (err, teamData) {
       if (err) {
         return false
       }
@@ -518,7 +378,7 @@ var ShowList = function (channelName, userName, sendto) {
         sendTo(formatted, channelID)
         console.log('sending to channel')
       }
-    })
+    // })
   })
 }
 var sendTo = function (formatted, sendToID) {
@@ -535,34 +395,6 @@ var sendTo = function (formatted, sendToID) {
     return false
   }
 }
-
-controller.hears(['TGIF'], 'direct_message', function (bot, message) {
-  sendTGIF()
-})
-
-var sendTGIF = function () {
-  functions.getTeamId(bot, function (teamid) {
-    controller.storage.teams.get(teamid, function (err, data) {
-      if (!err) {
-        for (var channel in data.tgif) {
-          functions.postMessage(bot, data.tgif[channel], channel)
-        }
-      }
-    })
-  })
-}
-
-controller.hears(['setTGIF(.*)'], 'direct_mention,mention', function (bot, message) {
-  functions.getTeamId(bot, function (teamId) {
-    controller.storage.teams.get(teamId, function (err, channelData) {
-      if (!err) {
-        channelData.tgif[message.channel] = message.match[1]
-        controller.storage.teams.save(channelData)
-        bot.reply(message, 'Ik heb zin in het weekend!')
-      }
-    })
-  })
-})
 
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
   var isChannel = functions.verifyChannelId(message.match[1])
@@ -582,149 +414,4 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
       }
     })
   }
-})
-
-controller.hears(['Role Summary'], 'ambient', function (bot, message) {
-  if (message.user === werewolfbotId && message.channel === weerwolvenChannel) {
-    bot.startConversation(message, getVictoryRole)
-  }
-})
-
-var getVictoryRole = function (response, convo) {
-  convo.ask('Ok, who won?', function () {
-    gameOver(response, convo)
-    convo.next()
-  })
-}
-
-var gameOver = function (response, convo) {
-  convo.on('end', function (convo) {
-    var source = convo.source_message.text
-    var roleArray = source.split('\n')
-    var res = convo.extractResponse('Ok, who won?')
-    var wonRole = false
-    if (functions.regexp(/Townsfolk/, res)) {
-      wonRole = 'villager'
-    } else if (functions.regexp(/Werewolves/, res)) {
-      wonRole = 'werewolf'
-    } else if (functions.regexp(/Tanner/, res)) {
-      wonRole = 'tanner'
-    }
-    if (wonRole) {
-      for (var i = 2; i < roleArray.length; i++) {
-        var role = false
-        var userId = functions.verifyUserName(roleArray[i])
-        var isBeholder = functions.regexp(/\(Beholder\)/, roleArray[i])
-        var isBodyguard = functions.regexp(/\(Bodyguard\)/, roleArray[i])
-        var isHunter = functions.regexp(/\(Hunter\)/, roleArray[i])
-        var isLycan = functions.regexp(/\(Lycan\)/, roleArray[i])
-        var isSeer = functions.regexp(/\(Seer\)/, roleArray[i])
-        var isTanner = functions.regexp(/\(Tanner\)/, roleArray[i])
-        var isVillager = functions.regexp(/\(Villager\)/, roleArray[i])
-        var isWerewolf = functions.regexp(/\(Werewolf\)/, roleArray[i])
-        var isWitch = functions.regexp(/\(Witch\)/, roleArray[i])
-        var isWolfMan = functions.regexp(/\(WolfMan\)/, roleArray[i])
-        var isDead = functions.regexp(/:x:/, roleArray[i])
-        if (isBeholder || isBodyguard || isHunter || isLycan || isSeer || isWitch || isVillager) {
-          role = 'villager'
-        } else if (isWerewolf || isWolfMan) {
-          role = 'werewolf'
-        } else if (isTanner) {
-          role = 'tanner'
-        }
-        var points = 0
-        if (role) {
-          if (role === wonRole) {
-            points++
-            if (!isDead) {
-              points++
-            }
-          } else {
-            points--
-          }
-          if (userId && points !== 0) {
-            functions.changeScore(bot, controller, userId, points, weerwolvenChannel)
-          }
-        }
-      }
-    }
-  })
-}
-
-controller.on('reaction_added', function (bot, message) {
-  if (message.item_user !== message.user) {
-    if (message.reaction === '+1') {
-      functions.changeScore(bot, controller, message.item_user, 1, message.item.channel)
-    }
-    if (message.reaction === '-1') {
-      functions.changeScore(bot, controller, message.item_user, -1, message.item.channel)
-    }
-  }
-})
-
-controller.on('reaction_removed', function (bot, message) {
-  if (message.item_user !== message.user) {
-    if (message.reaction === '+1') {
-      functions.changeScore(bot, controller, message.item_user, -1, message.item.channel)
-    }
-    if (message.reaction === '-1') {
-      functions.changeScore(bot, controller, message.item_user, 1, message.item.channel)
-    }
-  }
-})
-
-controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message) {
-  var userId = functions.verifyUserName(message.match[1])
-  var input = message.match[0].replace(':', '').replace(' ', '')
-  var modifier = input.substring(12, 14)
-  if (userId && userId !== message.user) {
-    if (modifier === '++') {
-      functions.changeScore(bot, controller, userId, 1, message.channel)
-    }
-    if (modifier === '--') {
-      functions.changeScore(bot, controller, userId, -1, message.channel)
-    }
-  }
-})
-
-controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
-  var userId = functions.verifyUserName(message.match[1])
-  if (userId) {
-    functions.sendScore(bot, controller, userId, message.channel)
-  }
-})
-
-controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
-  controller.storage.users.all(function (err, data) {
-    if (!err) {
-      console.log(data)
-      var attachment = []
-      data.forEach(function (value) {
-        if (functions.verifyUserId(value.id)) {
-          var item = {
-            'text': '<@' + value.id + '>: ' + value.score,
-            'fallback': '<@' + value.id + '>: ' + value.score,
-            'score': value.score
-          }
-          attachment.push(item)
-        }
-      })
-      attachment.sort(function (a, b) {
-        return b.score - a.score
-      })
-      var lowScore = attachment[attachment.length - 1].score
-      var options = {
-        'colormap': 'jet',
-        'nshades': attachment[0].score - lowScore + 1 || 1,
-        'format': 'hex',
-        'alpha': 1
-      }
-      var cg = Colormap(options)
-      console.log(cg)
-      for (var i = 0; i < attachment.length; i++) {
-        attachment[i].color = cg[attachment[i].score - lowScore]
-      }
-      functions.postAttachment(bot, attachment, message.channel)
-    }
-  })
 })

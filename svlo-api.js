@@ -4,7 +4,13 @@ var addTask = function (taskItems, cb) {
   var requestStructure = newRequestStructure()
   requestStructure.method = 'addtask'
   Object.assign(requestStructure, taskItems)
-  xmlcall(requestStructure, cb)
+  xmlcall(requestStructure, function (err, response) {
+    if (err) {
+      cb(err, null)
+    } else {
+      cb(null, response.body.taskid)
+    }
+  })
 }
 
 var updateTask = function (taskItems, cb) {
@@ -27,16 +33,16 @@ var showAllTasks = function (cb) {
 }
 
 var showSingleTask = function (taskid, cb) {
-  showAllTasks(function (err, response) {
+  showAllTasks(function (err, tasks) {
     if (!err) {
-      var singletask = response.body.tasks.map(function (task) {
+      var singletask = tasks.map(function (task) {
         if (task.taskid === taskid) {
           return task
         } else {
           return false
         }
       })
-      cb(err, singletask[0])
+      cb(null, singletask[0])
     } else {
       cb(err, null)
     }
@@ -45,7 +51,13 @@ var showSingleTask = function (taskid, cb) {
 
 function getTasks (options, cb) {
   options.method = 'showTasks'
-  xmlcall(options, cb)
+  xmlcall(options, function (err, response) {
+    if (err) {
+      cb(err, null)
+    } else {
+      cb(null, response.body.tasks)
+    }
+  })
 }
 
 function newRequestStructure () {
@@ -104,7 +116,9 @@ var getScore = function (cb) {
 
 var changeScore = function (userid, score, cb) {
   getSingleScore(userid, function (err, singleScore) {
-    if (!err) {
+    if (err) {
+      cb(err, null)
+    } else {
       var options = newRequestStructure()
       options.method = 'changeScore'
       options.userid = userid

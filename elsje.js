@@ -183,11 +183,11 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
     'responsibleid': responsibleId,
     'deadline': deadline
   }
-  api.addTask(newTask, function (err, response) {
+  api.addTask(newTask, function (err, taskid) {
     if (err) {
       console.log(err)
     } else {
-      newTask.taskid = response.body.taskid
+      newTask.taskid = taskid
       newTask.status = 0
       var message = {
         'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
@@ -238,7 +238,7 @@ var TaskDone = function (response, convo) {
 
 var finishtask = function (convo, taskNumber) {
   var userId = convo.source_message.user
-  api.showAllTasks(function (error, res) {
+  api.completeTask(taskNumber, function (error) {
     if (error) {
       console.log(error)
     } else {
@@ -297,7 +297,7 @@ var UpdateDeadline = function (response, convo) {
       var res = convo.extractResponses()
       var taskid = parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)
       var deadline = res['Wat is de nieuwe deadline?']
-      api.updateTask({taskid: taskid, deadline: deadline}, function (err, res) {
+      api.updateTask({taskid: taskid, deadline: deadline}, function (err) {
         if (err) {
           console.log(err)
         } else {
@@ -365,12 +365,12 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_messag
 })
 
 var ShowList = function (channelName, userName, sendto) {
-  api.showAllTasks(function (err, response) {
+  api.showAllTasks(function (err, tasks) {
     if (err) {
       return false
     }
     var sortedtasks, formatted, userID, channelID
-    var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', response.body.tasks, userName), channelName), 'new')
+    var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', tasks, userName), channelName), 'new')
     if (usertasks.length === 0) {
       console.log('empty tasks')
       return false

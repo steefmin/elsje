@@ -53,12 +53,7 @@ function newRequestStructure () {
     'action': 'ToDo',
     'bot': 'Elsje',
     'token': process.env.TOKEN
-    // 'method': '',
-    // 'channel': '',
-    // 'task': '',
-    // 'userid': '',
-    // 'responsibleid': '',
-    // 'deadline': ''
+    // 'method': ''
   }
 }
 
@@ -80,18 +75,43 @@ function xmlcall (params, cb) {
   })
 }
 
+var getSingleScore = function (userid, cb) {
+  getScore(function (err, scoreboard) {
+    if (err) {
+      cb(err, null)
+    } else {
+      var score = scoreboard.map(function (entry) {
+        if (entry.id === userid) {
+          return entry.score
+        }
+      })
+      cb(null, score[0])
+    }
+  })
+}
+
 var getScore = function (cb) {
   var options = newRequestStructure()
   options.method = 'getScore'
-  xmlcall(options, cb)
+  xmlcall(options, function (err, res) {
+    if (err) {
+      cb(err, null)
+    } else {
+      cb(null, res.body.scoreboard)
+    }
+  })
 }
 
 var changeScore = function (userid, score, cb) {
-  var options = newRequestStructure()
-  options.method = 'changeScore'
-  options.userid = userid
-  options.score = score
-  xmlcall(options, cb)
+  getSingleScore(userid, function (err, singleScore) {
+    if (!err) {
+      var options = newRequestStructure()
+      options.method = 'changeScore'
+      options.userid = userid
+      options.score = singleScore + score
+      xmlcall(options, cb)
+    }
+  })
 }
 
 module.exports = {
@@ -101,5 +121,6 @@ module.exports = {
   showAllTasks: showAllTasks,
   showSingleTask: showSingleTask,
   getScore: getScore,
+  getSingleScore: getSingleScore,
   changeScore: changeScore
 }

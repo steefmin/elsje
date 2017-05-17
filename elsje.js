@@ -464,23 +464,19 @@ controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message
 controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
   var userId = functions.verifyUserName(message.match[1])
   if (userId) {
-    api.getScore(function (err, response) {
+    api.getSingleScore(userId, function (err, singleScore) {
       if (!err) {
-        response.body.scoreboard.map(function (entry) {
-          if (entry.id === userId) {
-            functions.sendScore(bot, userId, entry.score, message.channel)
-          }
-        })
+        functions.sendScore(bot, userId, singleScore, message.channel)
       }
     })
   }
 })
 
 controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
-  api.getScore(function (err, response) {
+  api.getScore(function (err, scoreboard) {
     if (!err) {
       var attachment = []
-      response.body.scoreboard.forEach(function (value) {
+      scoreboard.forEach(function (value) {
         if (functions.verifyUserId(value.id)) {
           var item = {
             'text': '<@' + value.id + '>: ' + value.score,

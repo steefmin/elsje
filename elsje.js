@@ -1,7 +1,6 @@
 require('./env.js')
 var functions = require('./functions')
 var Botkit = require('botkit')
-// var Colormap = require('colormap')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
 var api = require('svlo-api')
@@ -75,6 +74,7 @@ controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'upt
 controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.startConversation(message, voegTaakToe)
 })
+
 var voegTaakToe = function (response, convo) {
   convo.ask('Wat moet er gedaan worden?', function (response, convo) {
     convo.say('Ja, dat moet nodig gebeuren.')
@@ -82,6 +82,7 @@ var voegTaakToe = function (response, convo) {
     convo.next()
   })
 }
+
 var voorWie = function (reponse, convo) {
   convo.ask('Wie gaat dit doen? (@naam graag)', function (response, convo) {
     var userid
@@ -99,6 +100,7 @@ var voorWie = function (reponse, convo) {
     }
   })
 }
+
 var wanneerKlaar = function (response, convo) {
   convo.ask('Wanneer moet het klaar zijn?', function (response, convo) {
     var date = functions.verifyDate(response.text)
@@ -115,6 +117,7 @@ var wanneerKlaar = function (response, convo) {
     }
   })
 }
+
 var welkKanaal = function (response, convo) {
   convo.ask('In welke lijst zal ik dit zetten?', function (response, convo) {
     var channelid = functions.verifyChannelName(response.text)
@@ -125,6 +128,7 @@ var welkKanaal = function (response, convo) {
     }
   })
 }
+
 var opslaanVanTaak = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
@@ -197,6 +201,7 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
 controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.startConversation(message, completeTask)
 })
+
 var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
     finishtask(convo, parseInt(convo.source_message.match[1], 10))
@@ -219,6 +224,7 @@ var completeTask = function (response, convo) {
     })
   }
 }
+
 var TaskDone = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
@@ -228,6 +234,7 @@ var TaskDone = function (response, convo) {
     }
   })
 }
+
 var finishtask = function (convo, taskNumber) {
   var userId = convo.source_message.user
   api.showAllTasks(function (error, res) {
@@ -252,6 +259,7 @@ var finishtask = function (convo, taskNumber) {
 controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.startConversation(message, DeadlineNumber)
 })
+
 var DeadlineNumber = function (response, convo) {
   var channel, send
   if (functions.verifyChannelId(convo.source_message.channel)) {
@@ -269,6 +277,7 @@ var DeadlineNumber = function (response, convo) {
     }
   })
 }
+
 var NewDeadline = function (response, convo) {
   convo.ask('Wat is de nieuwe deadline?', function (response, convo) {
     var date = functions.verifyDate(response.text)
@@ -280,6 +289,7 @@ var NewDeadline = function (response, convo) {
     }
   })
 }
+
 var UpdateDeadline = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
@@ -321,6 +331,7 @@ var NewSendReminders = function () {
     }
   })
 }
+
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
   var send
   var userid = functions.verifyUserName(message.match[1])
@@ -351,6 +362,7 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_messag
     }
   }
 })
+
 var ShowList = function (channelName, userName, sendto) {
   api.showAllTasks(function (err, response) {
     if (err) {
@@ -376,6 +388,7 @@ var ShowList = function (channelName, userName, sendto) {
     }
   })
 }
+
 var sendTo = function (formatted, sendToID) {
   if (functions.verifyUserId(sendToID)) {
     bot.api.im.open({'user': sendToID}, function (err, response) {

@@ -247,6 +247,61 @@ var postSingleTask = function (bot, taskStructure, message) {
   postAttachment(bot, attachmentArray, taskStructure.channel)
 }
 
+var sendScore = function (bot, userId, score, channel) {
+  var plural = ''
+  if (Math.abs(score) > 1 || score === 0) {
+    plural = 'en'
+  }
+  var smiley = getScoreSmiley(score)
+  var attachment = [{
+    'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley,
+    'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
+  }]
+  if (score > 0) {
+    attachment.color = 'good'
+  }
+  if (score < 0) {
+    attachment.color = 'danger'
+  }
+  postAttachment(bot, attachment, channel)
+}
+
+var getScoreSmiley = function (score) {
+  var high = 100
+  var low = -20
+  if (score > high) {
+    score = high
+  }
+  if (score < low) {
+    score = low
+  }
+  var positiveSmileys = [
+    ':slightly_smiling_face:',
+    ':grinning:',
+    ':dizzy_face:',
+    ':the_horns:',
+    ':heart_eyes:'
+  ]
+  var negativeSmileys = [
+    ':slightly_frowning_face:',
+    ':cry:',
+    ':sob:',
+    ':confounded:',
+    ':scream:',
+    ':ghost:'
+  ]
+  var relativeScore
+  if (score > 0) {
+    relativeScore = Math.round((positiveSmileys.length - 1) / (high) * (score - 1))
+    return positiveSmileys[relativeScore]
+  } else if (score < 0) {
+    relativeScore = Math.round((negativeSmileys.length - 1) / (-low - 1) * (-score - 1))
+    return negativeSmileys[relativeScore]
+  } else {
+    return ':no_mouth:'
+  }
+}
+
 module.exports = {
   formatUptime: formatUptime,
   verifyDate: verifyDate,
@@ -263,5 +318,6 @@ module.exports = {
   filterTasks: filterTasks,
   postMessage: postMessage,
   postAttachment: postAttachment,
-  postSingleTask: postSingleTask
+  postSingleTask: postSingleTask,
+  sendScore: sendScore
 }

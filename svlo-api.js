@@ -92,6 +92,20 @@ function xmlcall (params, cb) {
   })
 }
 
+var getScore = function (cb) {
+  var options = newRequestStructure()
+  options.method = 'getScore'
+  xmlcall(options, cb)
+}
+
+var changeScore = function (userid, score, cb) {
+  var options = newRequestStructure()
+  options.method = 'changeScore'
+  options.userid = userid
+  options.score = score
+  xmlcall(options, cb)
+}
+
 module.exports = {
   addTask: addTask,
   updateTask: updateTask,
@@ -99,5 +113,7 @@ module.exports = {
   showChannelTasks: showChannelTasks,
   showUserTasks: showUserTasks,
   showAllTasks: showAllTasks,
-  showSingleTask: showSingleTask
+  showSingleTask: showSingleTask,
+  getScore: getScore,
+  changeScore: changeScore
 }

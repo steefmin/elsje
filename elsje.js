@@ -2,6 +2,7 @@ require('./env.js')
 var functions = require('./functions')
 var api = require('./svlo-api')
 var Botkit = require('botkit')
+var Colormap = require('colormap')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
 
@@ -422,4 +423,89 @@ controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, m
       }
     })
   }
+})
+
+controller.on('reaction_added', function (bot, message) {
+  if (message.item_user !== message.user) {
+    if (message.reaction === '+1') {
+      api.changeScore(message.item_user, 1)
+    }
+    if (message.reaction === '-1') {
+      api.changeScore(message.item_user, -1)
+    }
+  }
+})
+
+controller.on('reaction_removed', function (bot, message) {
+  if (message.item_user !== message.user) {
+    if (message.reaction === '+1') {
+      api.changeScore(message.item_user, -1)
+    }
+    if (message.reaction === '-1') {
+      api.changeScore(message.item_user, 1)
+    }
+  }
+})
+
+controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message) {
+  var userId = functions.verifyUserName(message.match[1])
+  var input = message.match[0].replace(':', '').replace(' ', '')
+  var modifier = input.substring(12, 14)
+  if (userId && userId !== message.user) {
+    if (modifier === '++') {
+      api.changeScore(userId, -1)
+    }
+    if (modifier === '--') {
+      api.changeScore(userId, -1)
+    }
+  }
+})
+
+controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
+  var userId = functions.verifyUserName(message.match[1])
+  if (userId) {
+    api.getScore(function (err, response) {
+      if (!err) {
+        response.body.scoreboard.map(function (entry) {
+          if (entry.id === userId) {
+            functions.sendScore(bot, userId, entry.score, message.channel)
+          }
+        })
+      }
+    })
+  }
+})
+
+controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
+  api.getScore(function (err, response) {
+    if (!err) {
+      var attachment = []
+      response.body.scoreboard.forEach(function (value) {
+        if (functions.verifyUserId(value.id)) {
+          var item = {
+            'text': '<@' + value.id + '>: ' + value.score,
+            'fallback': '<@' + value.id + '>: ' + value.score,
+            'score': value.score
+          }
+          attachment.push(item)
+        }
+      })
+      attachment.sort(function (a, b) {
+        return b.score - a.score
+      })
+      var lowScore = attachment[attachment.length - 1].score
+      var options = {
+        'colormap': 'jet',
+        'nshades': attachment[0].score - lowScore + 1 || 1,
+        'format': 'hex',
+        'alpha': 1
+      }
+      var cg = Colormap(options)
+      console.log(cg)
+      for (var i = 0; i < attachment.length; i++) {
+        attachment[i].color = cg[attachment[i].score - lowScore]
+      }
+      functions.postAttachment(bot, attachment, message.channel)
+    }
+  })
 })

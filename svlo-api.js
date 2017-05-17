@@ -93,7 +93,7 @@ var getSingleScore = function (userid, cb) {
       cb(err, null)
     } else {
       var score = scoreboard.map(function (entry) {
-        if (entry.id === userid) {
+        if (entry.userid === userid) {
           return entry.score
         }
       })

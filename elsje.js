@@ -477,10 +477,10 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     if (!err) {
       var attachment = []
       scoreboard.forEach(function (value) {
-        if (functions.verifyUserId(value.id)) {
+        if (functions.verifyUserId(value.userid)) {
           var item = {
-            'text': '<@' + value.id + '>: ' + value.score,
-            'fallback': '<@' + value.id + '>: ' + value.score,
+            'text': '<@' + value.userid + '>: ' + value.score,
+            'fallback': '<@' + value.userid + '>: ' + value.score,
             'score': value.score
           }
           attachment.push(item)

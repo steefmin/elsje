@@ -21,18 +21,6 @@ var completeTask = function (taskid, cb) {
   updateTask(taskStructure, cb)
 }
 
-var showChannelTasks = function (channelid, cb) {
-  var options = newRequestStructure()
-  options.channel = channelid
-  getTasks(options, cb)
-}
-
-var showUserTasks = function (userid, cb) {
-  var options = newRequestStructure()
-  options.userid = userid
-  getTasks(options, cb)
-}
-
 var showAllTasks = function (cb) {
   var options = newRequestStructure()
   getTasks(options, cb)
@@ -110,8 +98,6 @@ module.exports = {
   addTask: addTask,
   updateTask: updateTask,
   completeTask: completeTask,
-  showChannelTasks: showChannelTasks,
-  showUserTasks: showUserTasks,
   showAllTasks: showAllTasks,
   showSingleTask: showSingleTask,
   getScore: getScore,

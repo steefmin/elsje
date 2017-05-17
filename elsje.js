@@ -1,9 +1,9 @@
 require('./env.js')
 var functions = require('./functions')
+var api = require('./svlo-api')
 var Botkit = require('botkit')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
-var api = require('svlo-api')
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')

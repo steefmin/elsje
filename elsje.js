@@ -357,7 +357,7 @@ var ShowList = function (channelName, userName, sendto) {
       return false
     }
     var sortedtasks, formatted, userID, channelID
-    var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', response.body.tasks, userName), channelName), 'new') // !!! this is one bad motherf...er
+    var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', response.body.tasks, userName), channelName), 'new')
     if (usertasks.length === 0) {
       console.log('empty tasks')
       return false
@@ -380,7 +380,7 @@ var sendTo = function (formatted, sendToID) {
   if (functions.verifyUserId(sendToID)) {
     bot.api.im.open({'user': sendToID}, function (err, response) {
       if (!err) {
-        functions.postMessage(bot, formatted, response.channel.id)
+        functions.postMessage(bot, formatted, response.channel)
       }
     })
   } else if (functions.verifyChannelId(sendToID)) {

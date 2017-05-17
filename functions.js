@@ -135,37 +135,21 @@ var getTeamId = function (bot, callback) {
 }
 
 var filterTasks = function (filterOn, tasks, filterFor) {
-  var newtasks
   if (filterFor === 'all') {
     return tasks
   } else {
-    newtasks = []
-    if (filterOn === 'channel' || filterOn === 'responsible') {
-      tasks.forEach(function (value, index, array) {
-        if (value[filterOn].id === filterFor) {
-          newtasks.push(value)
-        }
-        return newtasks
-      })
-      return newtasks
-    } else {
-      tasks.forEach(function (value, index, array) {
-        if (value[filterOn] === filterFor) {
-          newtasks.push(value)
-        }
-        return newtasks
-      })
-      return newtasks
-    }
+    return tasks.filter(function (val) {
+      return val[filterOn] === filterFor
+    })
   }
 }
 
 var sortTasks = function (tasks, sortBy) {
   var sorted = tasks.sort(function (taska, taskb) {
-    if (taska[sortBy].id < taskb[sortBy].id) {
+    if (taska[sortBy] < taskb[sortBy]) {
       return 1
     }
-    if (taska[sortBy].id > taskb[sortBy].id) {
+    if (taska[sortBy] > taskb[sortBy]) {
       return -1
     }
     return 0
@@ -180,11 +164,11 @@ var formatTasks = function (tasks) {
     var deadline = new Date(task.deadline)
     if (task.status !== 'done') {
       addtostring =
-        '<#' + task.channel.id + '>' +
+        '<#' + task.channel + '>' +
         addSpaces(2) +
         task.taskid +
         addSpaces(4 - task.taskid.toString().length) +
-        '<@' + task.responsible.id + '>' +
+        '<@' + task.responsibleid + '>' +
         addSpaces(2) +
         deadline +
         addSpaces(2) +
@@ -240,7 +224,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       },
       {
         'title': 'Verantwoordelijke',
-        'value': '<@' + taskStructure.responsible.id + '>',
+        'value': '<@' + taskStructure.responsibleid + '>',
         'short': true
       },
       {
@@ -260,7 +244,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       }
     ]
   }]
-  postAttachment(bot, attachmentArray, taskStructure.channel.id)
+  postAttachment(bot, attachmentArray, taskStructure.channel)
 }
 
 module.exports = {

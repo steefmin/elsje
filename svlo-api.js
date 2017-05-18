@@ -62,7 +62,7 @@ function getTasks (options, cb) {
 
 function newRequestStructure () {
   return {
-    'action': 'ToDo',
+    'action': 'Slack',
     'bot': 'Elsje',
     'token': process.env.TOKEN
     // 'method': ''

@@ -81,9 +81,20 @@ function xmlcall (params, cb) {
   }
   request(options, function (error, response, body) {
     var res
-    res.response = response
-    res.body = body
-    cb(error, res)
+    body = JSON.parse(body)
+    console.log(error)
+    console.log(response)
+    console.log(body)
+    if (error) {
+      cb(error, null)
+    } else if (body.action === 'error') {
+      console.log('api returned error')
+      cb(body.action, null)
+    } else {
+      res.response = response
+      res.body = body
+      cb(null, res)
+    }
   })
 }
 

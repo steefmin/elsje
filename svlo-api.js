@@ -71,15 +71,15 @@ function newRequestStructure () {
 
 function xmlcall (params, cb) {
   var headers = {
-    'Content-Type': 'application/json'
+   // 'Content-Type': 'application/json'
   }
   var options = {
     url: process.env.TASK_API_URL,
-    method: 'POST',
+    json: true,
     headers: headers,
     form: params
   }
-  request(options, function (error, response, body) {
+  request.post(options, function (error, response, body) {
     var res
     res.response = response
     res.body = body

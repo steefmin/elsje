@@ -160,17 +160,17 @@ var sortTasks = function (tasks, sortBy) {
 var formatTasks = function (tasks) {
   var formatted = 'Takenlijst\n```'
   tasks.forEach(function (task, index, array) {
+      console.log(tasks)
     var addtostring = ''
-    var deadline = new Date(task.deadline)
     if (task.status !== 'done') {
       addtostring =
-        '<#' + task.channel + '>' +
+        '<#' + task.channelid + '>' +
         addSpaces(2) +
         task.taskid +
         addSpaces(4 - task.taskid.toString().length) +
         '<@' + task.responsibleid + '>' +
         addSpaces(2) +
-        deadline +
+        task.deadline +
         addSpaces(2) +
         task.task +
         '\n'

@@ -2,7 +2,7 @@ var request = require('request')
 
 var addTask = function (taskItems, cb) {
   var requestStructure = newRequestStructure()
-  requestStructure.method = 'addtask'
+  requestStructure.method = 'addTask'
   Object.assign(requestStructure, taskItems)
   xmlcall(requestStructure, function (err, response) {
     if (err) {
@@ -29,7 +29,13 @@ var completeTask = function (taskid, cb) {
 
 var showAllTasks = function (cb) {
   var options = newRequestStructure()
-  getTasks(options, cb)
+  getTasks(options, function (err, tasks) {
+    var goodtasks = tasks.map(function (task) {
+      task.deadline = task.deadline.substr(0, 10)
+      return goodtasks
+    })
+    cb(err, tasks)
+  })
 }
 
 var showSingleTask = function (taskid, cb) {
@@ -70,21 +76,16 @@ function newRequestStructure () {
 }
 
 function xmlcall (params, cb) {
-  var headers = {
-   // 'Content-Type': 'application/json'
-  }
   var options = {
     url: process.env.TASK_API_URL,
     json: true,
-    headers: headers,
-    form: params
+    body: params
   }
   request.post(options, function (error, response, body) {
-    var res
-    body = JSON.parse(body)
-    console.log(error)
-    console.log(response)
-    console.log(body)
+    var res = {
+      body: '',
+      response: {}
+    }
     if (error) {
       cb(error, null)
     } else if (body.action === 'error') {

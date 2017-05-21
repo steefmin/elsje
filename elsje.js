@@ -107,7 +107,7 @@ var wanneerKlaar = function (response, convo) {
     var date = functions.verifyDate(response.text)
     if (date) {
       response.text = date
-      convo.say('Ik zal het onthouden.')
+      convo.say('Ik zal het noteren.')
       if (convo.task.source_message.event === 'direct_message') {
         welkKanaal(response, convo)
         convo.next()
@@ -123,7 +123,7 @@ var welkKanaal = function (response, convo) {
   convo.ask('In welke lijst zal ik dit zetten?', function (response, convo) {
     var channelid = functions.verifyChannelName(response.text)
     if (channelid) {
-      convo.say('Kijk in het kanaal voor de lijst.')
+      convo.say('Kijk in <#' + channelid +'>.')
       opslaanVanTaak(response, convo)
       convo.next()
     }
@@ -196,7 +196,6 @@ var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
       functions.postSingleTask(bot, newTask, message)
     }
   })
-  return true
 }
 
 controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {
@@ -218,7 +217,7 @@ var completeTask = function (response, convo) {
     ShowList(channel, 'all', send)
     convo.ask('Kan je mij het nummer geven van de taak die van de lijst af mag?', function (response, convo) {
       if (!isNaN(parseInt(response.text, 10))) {
-        convo.say('BAM, weer wat gedaan. Goed werk <@' + response.user + '>.\n')
+//        convo.say('BAM, weer wat gedaan. Goed werk <@' + response.user + '>.\n')
         TaskDone(response, convo)
         convo.next()
       }
@@ -284,7 +283,7 @@ var NewDeadline = function (response, convo) {
     var date = functions.verifyDate(response.text)
     if (date) {
       response.text = date
-      convo.say('Ik zal het onthouden.')
+  //    convo.say('Ik zal het onthouden.')
       UpdateDeadline(response, convo)
       convo.next()
     }
@@ -370,7 +369,7 @@ var ShowList = function (channelName, userName, sendto) {
       return false
     }
     var sortedtasks, formatted, userID, channelID
-    var usertasks = functions.filterTasks('status', functions.filterTasks('channel', functions.filterTasks('responsible', tasks, userName), channelName), 'new')
+    var usertasks = functions.filterTasks('channelid', functions.filterTasks('responsibleid', tasks, userName), channelName)
     if (usertasks.length === 0) {
       console.log('empty tasks')
       return false
@@ -394,7 +393,7 @@ var sendTo = function (formatted, sendToID) {
   if (functions.verifyUserId(sendToID)) {
     bot.api.im.open({'user': sendToID}, function (err, response) {
       if (!err) {
-        functions.postMessage(bot, formatted, response.channel)
+        functions.postMessage(bot, formatted, response.channel.id)
       }
     })
   } else if (functions.verifyChannelId(sendToID)) {

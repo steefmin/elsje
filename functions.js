@@ -211,7 +211,7 @@ var postSingleTask = function (bot, taskStructure, message) {
   if (typeof message.fallback === 'undefined') {
     message.fallback = message.pretext
   }
-  var status = taskStructure.status === 0 ? 'new' : 'done'
+  var status = taskStructure.status !== 1 ? 'new' : 'done'
   var attachmentArray = [{
     'fallback': message.fallback,
     'color': message.color,

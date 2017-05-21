@@ -123,7 +123,8 @@ var welkKanaal = function (response, convo) {
   convo.ask('In welke lijst zal ik dit zetten?', function (response, convo) {
     var channelid = functions.verifyChannelName(response.text)
     if (channelid) {
-      convo.say('Kijk in <#' + channelid +'>.')
+      response.text = channelid
+      convo.say('Kijk in <#' + channelid + '>.')
       opslaanVanTaak(response, convo)
       convo.next()
     }
@@ -134,20 +135,14 @@ var opslaanVanTaak = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      var channelId = functions.verifyChannelName(res['In welke lijst zal ik dit zetten?'])
-      if (!channelId) {
-        channelId = response.channel
+      var task = {
+        'channel': res['In welke lijst zal ik dit zetten?'] || response.channel,
+        'user': response.user,
+        'task': res['Wat moet er gedaan worden?'],
+        'responsibleid': res['Wie gaat dit doen? (@naam graag)'],
+        'deadline': res['Wanneer moet het klaar zijn?']
       }
-      var userId = response.user
-      var task = res['Wat moet er gedaan worden?']
-      var responsibleId = res['Wie gaat dit doen? (@naam graag)']
-      var deadline = res['Wanneer moet het klaar zijn?']
-      var isStored = storeNewTask(userId, channelId, task, responsibleId, deadline)
-      if (isStored) {
-        bot.reply(response, 'Ok, taak toegevoegd aan de lijst.')
-      } else {
-        bot.reply(response, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
-      }
+      api.addTask(task, taskStoreResult)
     }
   })
 }
@@ -156,46 +151,37 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
   var parts = message.match[1].split('|')
   if (parts.length !== 5) {
     bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
-    return false
-  }
-  var task = parts[0]
-  var userId = message.user
-  var responsibleId = functions.verifyUserName(parts[1])
-  var channelId = functions.verifyChannelName(parts[3])
-  var deadline = functions.verifyDate(parts[2])
-  if (channelId && responsibleId && deadline) {
-    var isStored = storeNewTask(userId, channelId, task, responsibleId, deadline)
-    if (isStored) {
-      bot.reply(message, 'Ok, taak toegevoegd aan de lijst.')
-    } else {
-      bot.reply(message, 'Sorry, er is iets misgegaan bij het opslaan.')
-    }
   } else {
-    bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
+    var task = parts[0]
+    var userId = message.user
+    var responsibleId = functions.verifyUserName(parts[1])
+    var channelId = functions.verifyChannelName(parts[3])
+    var deadline = functions.verifyDate(parts[2])
+    if (channelId && responsibleId && deadline) {
+      var taskStructure = {
+        'channel': channelId,
+        'user': userId,
+        'task': task,
+        'responsibleid': responsibleId,
+        'deadline': deadline
+      }
+      api.addTask(taskStructure, taskStoreResult)
+    } else {
+      bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
+    }
   }
 })
 
-var storeNewTask = function (userId, channelId, task, responsibleId, deadline) {
-  var newTask = {
-    'channel': channelId,
-    'user': userId,
-    'task': task,
-    'responsibleid': responsibleId,
-    'deadline': deadline
-  }
-  api.addTask(newTask, function (err, taskid) {
-    if (err) {
-      console.log(err)
-    } else {
-      newTask.taskid = taskid
-      newTask.status = 0
-      var message = {
-        'fallback': 'Taak toegevoegd voor <@' + responsibleId + '>: ' + task,
-        'pretext': 'Nieuwe taak aangemaakt.'
-      }
-      functions.postSingleTask(bot, newTask, message)
+var taskStoreResult = function (err, task) {
+  if (err) {
+    bot.reply(message, 'Sorry, er is iets misgegaan bij het opslaan.')
+  } else {
+    var message = {
+      'fallback': 'Taak toegevoegd voor <@' + task.responsibleid + '>: ' + task.task,
+      'pretext': 'Nieuwe taak aangemaakt.'
     }
-  })
+    functions.postSingleTask(bot, task, message)
+  }
 }
 
 controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {

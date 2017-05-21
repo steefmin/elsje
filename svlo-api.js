@@ -8,7 +8,8 @@ var addTask = function (taskItems, cb) {
     if (err) {
       cb(err, null)
     } else {
-      cb(null, response.body.taskid)
+      taskItems.taskid = response.body.taskid
+      cb(null, taskItems)
     }
   })
 }

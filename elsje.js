@@ -174,13 +174,13 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
 
 var taskStoreResult = function (err, task) {
   if (err) {
-    bot.reply(message, 'Sorry, er is iets misgegaan bij het opslaan.')
+    functions.postMessage(bot, 'Sorry, er is iets misgegaan bij het opslaan.', task.channel)
   } else {
-    var message = {
+    var taskmessage = {
       'fallback': 'Taak toegevoegd voor <@' + task.responsibleid + '>: ' + task.task,
       'pretext': 'Nieuwe taak aangemaakt.'
     }
-    functions.postSingleTask(bot, task, message)
+    functions.postSingleTask(bot, task, taskmessage)
   }
 }
 
@@ -226,6 +226,7 @@ var finishtask = function (convo, taskNumber) {
   api.completeTask(taskNumber, function (error) {
     if (error) {
       console.log(error)
+      functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
     } else {
       api.showSingleTask(taskNumber, function (err, task) {
         if (!err) {
@@ -284,6 +285,7 @@ var UpdateDeadline = function (response, convo) {
       var deadline = res['Wat is de nieuwe deadline?']
       api.updateTask({taskid: taskid, deadline: deadline}, function (err) {
         if (err) {
+          functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
           console.log(err)
         } else {
           api.showSingleTask(taskid, function (err, task) {

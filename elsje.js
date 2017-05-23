@@ -223,13 +223,12 @@ var TaskDone = function (response, convo) {
 
 var finishtask = function (convo, taskNumber) {
   var userId = convo.source_message.user
-  api.completeTask(taskNumber, function (error) {
-    if (error) {
-      console.log(error)
-      functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
-    } else {
-      api.showSingleTask(taskNumber, function (err, task) {
-        if (!err) {
+  api.showSingleTask(taskNumber, function (err, task) {
+    if (!err) {
+      api.completeTask(taskNumber, function (error) {
+        if (error) {
+          functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
+        } else {
           var message = {
             'fallback': 'Taak van <@' + task.responsibleid + '> door <@' + userId + '> afgerond: ' + task.task,
             'color': 'good',

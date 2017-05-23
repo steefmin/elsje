@@ -15,16 +15,17 @@ var addTask = function (taskItems, cb) {
 }
 
 var updateTask = function (taskItems, cb) {
-  var requestStructure = newRequestStructure
+  var requestStructure = newRequestStructure()
   requestStructure.method = 'updateTask'
   Object.assign(requestStructure, taskItems)
   xmlcall(requestStructure, cb)
 }
 
 var completeTask = function (taskid, cb) {
-  var taskStructure = newRequestStructure()
-  taskStructure.taskid = taskid
-  taskStructure.status = 1
+  var taskStructure = {
+    taskid: taskid
+    status: 1
+  }
   updateTask(taskStructure, cb)
 }
 

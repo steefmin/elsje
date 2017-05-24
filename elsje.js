@@ -88,7 +88,6 @@ var voorWie = function (reponse, convo) {
   convo.ask('Wie gaat dit doen? (@naam graag)', function (response, convo) {
     var userid
     if (response.text === 'ik') {
-      console.log(response)
       userid = functions.verifyUserId(response.user)
     } else {
       userid = functions.verifyUserName(response.text)
@@ -285,7 +284,6 @@ var UpdateDeadline = function (response, convo) {
       api.updateTask({taskid: taskid, deadline: deadline}, function (err) {
         if (err) {
           functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
-          console.log(err)
         } else {
           api.showSingleTask(taskid, function (err, task) {
             if (!err) {
@@ -329,22 +327,17 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_messag
     send = message.user
   }
   if (userid && channelid) {
-    console.log('beide')
     ShowList(channelid, userid, send)
   } else {
     if (userid) {
-      console.log('user')
       ShowList('all', userid, send)
       return true
     } else if (channelid) {
-      console.log('channel')
       ShowList(channelid, 'all', send)
       return true
     } else if (functions.verifyChannelId(message.channel)) {
-      console.log('none -> channel')
       ShowList(send, 'all', send)
     } else {
-      console.log('none -> dm')
       ShowList('all', 'all', send)
     }
   }
@@ -358,7 +351,6 @@ var ShowList = function (channelName, userName, sendto) {
     var sortedtasks, formatted, userID, channelID
     var usertasks = functions.filterTasks('channelid', functions.filterTasks('responsibleid', tasks, userName), channelName)
     if (usertasks.length === 0) {
-      console.log('empty tasks')
       return false
     }
     sortedtasks = functions.sortTasks(usertasks, 'channel')
@@ -366,12 +358,10 @@ var ShowList = function (channelName, userName, sendto) {
     userID = functions.verifyUserId(sendto)
     if (userID) {
       sendTo(formatted, userID)
-      console.log('sending to user')
     }
     channelID = functions.verifyChannelId(sendto)
     if (channelID) {
       sendTo(formatted, channelID)
-      console.log('sending to channel')
     }
   })
 }
@@ -386,7 +376,6 @@ var sendTo = function (formatted, sendToID) {
   } else if (functions.verifyChannelId(sendToID)) {
     functions.postMessage(bot, formatted, sendToID)
   } else {
-    console.log('err, no valid sendToID')
     return false
   }
 }
@@ -483,7 +472,6 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
         'alpha': 1
       }
       var cg = Colormap(options)
-      console.log(cg)
       for (var i = 0; i < attachment.length; i++) {
         attachment[i].color = cg[attachment[i].score - lowScore]
       }

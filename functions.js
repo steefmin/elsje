@@ -160,7 +160,6 @@ var sortTasks = function (tasks, sortBy) {
 var formatTasks = function (tasks) {
   var formatted = 'Takenlijst\n```'
   tasks.forEach(function (task, index, array) {
-      console.log(tasks)
     var addtostring = ''
     if (task.status !== 'done') {
       addtostring =
@@ -204,7 +203,6 @@ var postAttachment = function (bot, attachmentArray, channel) {
 }
 
 var postSingleTask = function (bot, taskStructure, message) {
-  console.log(taskStructure)
   if (typeof message.color === 'undefined') {
     message.color = '#3090C7'
   }

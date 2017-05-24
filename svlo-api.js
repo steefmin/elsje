@@ -63,6 +63,7 @@ function getTasks (options, cb) {
     if (err) {
       cb(err, null)
     } else {
+      controller.storage.teams.save(response.body.tasks)
       cb(null, response.body.tasks)
     }
   })

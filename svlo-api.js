@@ -23,7 +23,7 @@ var updateTask = function (taskItems, cb) {
 
 var completeTask = function (taskid, cb) {
   var taskStructure = {
-    taskid: taskid
+    taskid: taskid,
     status: 1
   }
   updateTask(taskStructure, cb)

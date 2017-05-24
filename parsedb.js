@@ -17,11 +17,11 @@ json.tasks.forEach(function (oldtask, index, array) {
     responsibleid: oldtask.responsible.id,
     deadline: deadline.toISOString().substr(0, 10)
   }
-  console.log('transfering task #' + index + ' out of ' + array.length)
-  api.addTask(taskStructure, function(err, newtask) {
+  console.log('transfering task ' + index + ' out of ' + array.length)
+  api.addTask(taskStructure, function (err, newtask) {
     if (!err) {
       if (oldtask.status === 'done') {
-        console.log('marking done')
+        console.log('also marking the task done')
         api.completeTask(newtask.taskid, function (err) {
           if (!err) {
             console.log('succes')
@@ -32,5 +32,4 @@ json.tasks.forEach(function (oldtask, index, array) {
       }
     }
   })
-
 })

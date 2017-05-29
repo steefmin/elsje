@@ -112,7 +112,7 @@ var getSingleScore = function (userid, cb) {
           return entry.score
         }
       })
-      cb(null, score[0])
+      cb(null, parseInt(score[0], 10))
     }
   })
 }
@@ -141,6 +141,7 @@ var changeScore = function (userid, score, cb) {
       options.method = 'changeScore'
       options.userid = userid
       options.score = singleScore + score
+      options.score = options.score.toString()
       xmlcall(options, function (err, res) {
         // temporary logging function
         if (err) {

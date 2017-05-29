@@ -138,7 +138,16 @@ var changeScore = function (userid, score, cb) {
       options.method = 'changeScore'
       options.userid = userid
       options.score = singleScore + score
-      xmlcall(options, cb)
+      xmlcall(options, function (err, res) {
+        // temporary logging function
+        if (err) {
+          console.log('error: ')
+          console.log(err)
+        } else {
+          console.log('response: ')
+          console.log(res)
+        }
+      })
     }
   })
 }

@@ -136,7 +136,7 @@ var opslaanVanTaak = function (response, convo) {
       var res = convo.extractResponses()
       var task = {
         'channel': res['In welke lijst zal ik dit zetten?'] || response.channel,
-        'user': response.user,
+        'userid': response.user,
         'task': res['Wat moet er gedaan worden?'],
         'responsibleid': res['Wie gaat dit doen? (@naam graag)'],
         'deadline': res['Wanneer moet het klaar zijn?']
@@ -159,7 +159,7 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
     if (channelId && responsibleId && deadline) {
       var taskStructure = {
         'channel': channelId,
-        'user': userId,
+        'userid': userId,
         'task': task,
         'responsibleid': responsibleId,
         'deadline': deadline

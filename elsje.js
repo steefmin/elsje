@@ -428,7 +428,7 @@ controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message
   var modifier = input.substring(12, 14)
   if (userId && userId !== message.user) {
     if (modifier === '++') {
-      api.changeScore(userId, -1)
+      api.changeScore(userId, 1)
     }
     if (modifier === '--') {
       api.changeScore(userId, -1)

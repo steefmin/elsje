@@ -140,8 +140,8 @@ var changeScore = function (userid, score, cb) {
       var options = newRequestStructure()
       options.method = 'changeScore'
       options.userid = userid
-      options.score = singleScore + score
-      options.score = options.score.toString()
+      score = singleScore + score
+      options.score = score.toString()
       xmlcall(options, function (err, res) {
         // temporary logging function
         if (err) {

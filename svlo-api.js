@@ -107,10 +107,8 @@ var getSingleScore = function (userid, cb) {
     if (err) {
       cb(err, null)
     } else {
-      var score = scoreboard.map(function (entry) {
-        if (entry.userid === userid) {
-          return entry.score
-        }
+      var score = scoreboard.filter(function (entry) {
+        return entry.userid === userid
       })
       console.log('current score: ' + score)
       cb(null, score[0].score)

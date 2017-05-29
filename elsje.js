@@ -467,7 +467,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       var lowScore = attachment[attachment.length - 1].score
       var options = {
         'colormap': 'jet',
-        'nshades': attachment[0].score - lowScore + 1 || 1,
+        'nshades': Math.max(attachment[0].score - lowScore + 1, 6),
         'format': 'hex',
         'alpha': 1
       }

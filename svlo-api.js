@@ -145,7 +145,7 @@ var changeScore = function (userid, score, cb) {
           console.log(err)
         } else {
           console.log('response: ')
-          console.log(res)
+          console.log(res.body)
         }
       })
     }

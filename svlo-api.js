@@ -112,7 +112,8 @@ var getSingleScore = function (userid, cb) {
           return entry.score
         }
       })
-      cb(null, score[0])
+      console.log('current score: ' + score)
+      cb(null, score[0].score)
     }
   })
 }
@@ -134,7 +135,6 @@ var changeScore = function (userid, score, cb) {
     if (err) {
       cb(err, null)
     } else {
-      console.log('current score: ' + singleScore)
       if (singleScore === null) {
         singleScore = 0
       }

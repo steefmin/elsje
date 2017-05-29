@@ -110,7 +110,11 @@ var getSingleScore = function (userid, cb) {
       var score = scoreboard.filter(function (entry) {
         return entry.userid === userid
       })
-      cb(null, score[0].score || 0)
+      if (score[0]) {
+        cb(null, score[0].score)
+      } else {
+        cb(null, 0)
+      }
     }
   })
 }

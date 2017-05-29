@@ -112,7 +112,7 @@ var getSingleScore = function (userid, cb) {
           return entry.score
         }
       })
-      cb(null, parseInt(score[0], 10))
+      cb(null, score[0])
     }
   })
 }
@@ -134,14 +134,14 @@ var changeScore = function (userid, score, cb) {
     if (err) {
       cb(err, null)
     } else {
+      console.log('current score: ' + singleScore)
       if (singleScore === null) {
         singleScore = 0
       }
       var options = newRequestStructure()
       options.method = 'changeScore'
       options.userid = userid
-      score = singleScore + score
-      options.score = score.toString()
+      options.score = singleScore + score
       xmlcall(options, function (err, res) {
         // temporary logging function
         if (err) {

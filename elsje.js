@@ -55,9 +55,9 @@ controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function
           }, 3000)
         }
       }, {
-        pattern: bot.utterances.no,
-        default: true,
-        callback: function (response, convo) {
+        'pattern': bot.utterances.no,
+        'default': true,
+        'callback': function (response, convo) {
           convo.say('*Phew!*')
           convo.next()
         }

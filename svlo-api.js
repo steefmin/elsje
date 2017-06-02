@@ -23,8 +23,8 @@ var updateTask = function (taskItems, cb) {
 
 var completeTask = function (taskid, cb) {
   var taskStructure = {
-    taskid: taskid,
-    status: 1
+    'taskid': taskid,
+    'status': 1
   }
   updateTask(taskStructure, cb)
 }
@@ -80,14 +80,14 @@ function newRequestStructure () {
 
 function xmlcall (params, cb) {
   var options = {
-    url: process.env.TASK_API_URL,
-    json: true,
-    body: params
+    'url': process.env.TASK_API_URL,
+    'json': true,
+    'body': params
   }
   request.post(options, function (error, response, body) {
     var res = {
-      body: '',
-      response: {}
+      'body': '',
+      'response': {}
     }
     if (error) {
       cb(error, null)
@@ -158,12 +158,12 @@ var changeScore = function (userid, score, cb) {
 }
 
 module.exports = {
-  addTask: addTask,
-  updateTask: updateTask,
-  completeTask: completeTask,
-  showAllTasks: showAllTasks,
-  showSingleTask: showSingleTask,
-  getScore: getScore,
-  getSingleScore: getSingleScore,
-  changeScore: changeScore
+  'addTask': addTask,
+  'updateTask': updateTask,
+  'completeTask': completeTask,
+  'showAllTasks': showAllTasks,
+  'showSingleTask': showSingleTask,
+  'getScore': getScore,
+  'getSingleScore': getSingleScore,
+  'changeScore': changeScore
 }

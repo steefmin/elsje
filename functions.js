@@ -265,13 +265,9 @@ var sendScore = function (bot, userId, score, channel) {
 }
 
 var getScoreSmiley = function (score) {
-  var high = 100
-  var low = -20
-  if (score > high) {
-    score = high
-  }
-  if (score < low) {
-    score = low
+  var level = {
+    high: 100,
+    low: -20
   }
   var positiveSmileys = [
     ':slightly_smiling_face:',
@@ -289,11 +285,17 @@ var getScoreSmiley = function (score) {
     ':ghost:'
   ]
   var relativeScore
+  if (score > level.high) {
+    score = level.high
+  }
+  if (score < level.low) {
+    score = level.low
+  }
   if (score > 0) {
-    relativeScore = Math.round((positiveSmileys.length - 1) / (high) * (score - 1))
+    relativeScore = Math.round((positiveSmileys.length - 1) / (level.high) * (score - 1))
     return positiveSmileys[relativeScore]
   } else if (score < 0) {
-    relativeScore = Math.round((negativeSmileys.length - 1) / (-low - 1) * (-score - 1))
+    relativeScore = Math.round((negativeSmileys.length - 1) / (-level.low - 1) * (-score - 1))
     return negativeSmileys[relativeScore]
   } else {
     return ':no_mouth:'
@@ -301,21 +303,21 @@ var getScoreSmiley = function (score) {
 }
 
 module.exports = {
-  formatUptime: formatUptime,
-  verifyDate: verifyDate,
-  addSpaces: addSpaces,
-  verifyUserId: verifyUserId,
-  verifyChannelId: verifyChannelId,
-  verifyUserName: verifyUserName,
-  verifyChannelName: verifyChannelName,
-  regexp: regexp,
-  getBotImg: getBotImg,
-  getTeamId: getTeamId,
-  formatTasks: formatTasks,
-  sortTasks: sortTasks,
-  filterTasks: filterTasks,
-  postMessage: postMessage,
-  postAttachment: postAttachment,
-  postSingleTask: postSingleTask,
-  sendScore: sendScore
+  'formatUptime': formatUptime,
+  'verifyDate': verifyDate,
+  'addSpaces': addSpaces,
+  'verifyUserId': verifyUserId,
+  'verifyChannelId': verifyChannelId,
+  'verifyUserName': verifyUserName,
+  'verifyChannelName': verifyChannelName,
+  'regexp': regexp,
+  'getBotImg': getBotImg,
+  'getTeamId': getTeamId,
+  'formatTasks': formatTasks,
+  'sortTasks': sortTasks,
+  'filterTasks': filterTasks,
+  'postMessage': postMessage,
+  'postAttachment': postAttachment,
+  'postSingleTask': postSingleTask,
+  'sendScore': sendScore
 }

@@ -11,11 +11,11 @@ var json = JSON.parse(db)
 json.tasks.forEach(function (oldtask, index, array) {
   var deadline = new Date(oldtask.deadline)
   var taskStructure = {
-    task: oldtask.task,
-    channel: oldtask.channel.id,
-    userid: oldtask.user.id,
-    responsibleid: oldtask.responsible.id,
-    deadline: deadline.toISOString().substr(0, 10)
+    'task': oldtask.task,
+    'channel': oldtask.channel.id,
+    'userid': oldtask.user.id,
+    'responsibleid': oldtask.responsible.id,
+    'deadline': deadline.toISOString().substr(0, 10)
   }
   console.log('transfering task ' + index + ' out of ' + array.length)
   api.addTask(taskStructure, function (err, newtask) {

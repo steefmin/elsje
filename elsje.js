@@ -230,6 +230,7 @@ var finishtask = function (convo, taskNumber) {
         if (error) {
           functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
         } else {
+          task.status = 1
           var message = {
             'fallback': 'Taak van <@' + task.responsibleid + '> door <@' + userId + '> afgerond: ' + task.task,
             'color': 'good',

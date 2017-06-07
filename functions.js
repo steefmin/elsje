@@ -51,10 +51,8 @@ var verifyDate = function (text) {
 }
 
 var parseDate = function (text) {
-  text = text.replace(/-/g, '/')
-  var split = text.split('/')
-  if (typeof split[1] !== 'undefined' && typeof split[2] !== 'undefined') {
-    text = split[1] + '/' + split[0] + '/' + split[2]
+  if (regexp(/\d{2}-\d{2}-\d{4}/, text)) {
+    text = text.split('-').reverse().join('-')
   }
   text = text.replace('maa', 'mar')
   text = text.replace('mei', 'may')

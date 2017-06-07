@@ -223,7 +223,9 @@ var TaskDone = function (response, convo) {
 var finishtask = function (convo, taskNumber) {
   var userId = convo.source_message.user
   api.showSingleTask(taskNumber, function (err, task) {
-    if (!err) {
+    if (err) {
+      functions.postMessage(bot, 'Er is iets misggegaan bij het weergeven van de taak', convo.source_message.channel)
+    } else {
       api.completeTask(taskNumber, function (error) {
         if (error) {
           functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)

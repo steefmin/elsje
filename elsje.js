@@ -318,6 +318,13 @@ var NewSendReminders = function () {
       })
     }
   })
+  api.showAllTasks(function (err, tasks) {
+    if (!err) {
+      functions.getTeamId(function (team) {
+        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date})
+      })
+    }
+  })
 }
 
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {

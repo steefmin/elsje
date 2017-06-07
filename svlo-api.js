@@ -9,6 +9,7 @@ var addTask = function (taskItems, cb) {
       cb(err, null)
     } else {
       taskItems.taskid = response.body.taskid
+      taskItems.channelid = taskItems.channel
       cb(null, taskItems)
     }
   })
@@ -34,9 +35,9 @@ var showAllTasks = function (cb) {
   getTasks(options, function (err, tasks) {
     var goodtasks = tasks.map(function (task) {
       task.deadline = task.deadline.substr(0, 10)
-      return goodtasks
+      return task
     })
-    cb(err, tasks)
+    cb(err, goodtasks)
   })
 }
 

@@ -242,7 +242,7 @@ var postSingleTask = function (bot, taskStructure, message) {
       }
     ]
   }]
-  postAttachment(bot, attachmentArray, taskStructure.channel)
+  postAttachment(bot, attachmentArray, taskStructure.channelid)
 }
 
 var sendScore = function (bot, userId, score, channel) {

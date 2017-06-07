@@ -320,7 +320,7 @@ var NewSendReminders = function () {
   })
 }
 
-controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
   var send
   var userid = functions.verifyUserName(message.match[1])
   var channelid = functions.verifyChannelName(message.match[1])

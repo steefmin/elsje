@@ -43,12 +43,8 @@ var showAllTasks = function (cb) {
 var showSingleTask = function (taskid, cb) {
   showAllTasks(function (err, tasks) {
     if (!err) {
-      var singletask = tasks.map(function (task) {
-        if (task.taskid === taskid) {
-          return task
-        } else {
-          return false
-        }
+      var singletask = tasks.filter(function (task) {
+        return task.taskid === taskid
       })
       cb(null, singletask[0])
     } else {

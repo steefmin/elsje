@@ -175,6 +175,7 @@ var taskStoreResult = function (err, task) {
   if (err) {
     functions.postMessage(bot, 'Sorry, er is iets misgegaan bij het opslaan.', task.channel)
   } else {
+    task.channelid = task.channel
     var taskmessage = {
       'fallback': 'Taak toegevoegd voor <@' + task.responsibleid + '>: ' + task.task,
       'pretext': 'Nieuwe taak aangemaakt.'

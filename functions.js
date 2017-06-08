@@ -160,24 +160,22 @@ var formatTasks = function (tasks) {
 }
 
 var postMessage = function (bot, message, channel) {
-  getBotImg(bot, function (image) {
-    bot.api.chat.postMessage({
-      'channel': channel,
-      'text': message,
-      'username': bot.identity.name,
-      'icon_url': image
-    })
-  })
+  postGeneral(bot, {'text': message}, channel)
 }
 
 var postAttachment = function (bot, attachmentArray, channel) {
+  postGeneral(bot, {'attachments': attachmentArray}, channel)
+}
+
+var postGeneral = function (bot, something, channel) {
   getBotImg(bot, function (image) {
-    bot.api.chat.postMessage({
+    var general = {
       'channel': channel,
-      'attachments': attachmentArray,
       'username': bot.identity.name,
       'icon_url': image
-    })
+    }
+    Object.assign(general, something)
+    bot.api.chat.postMessage(general)
   })
 }
 

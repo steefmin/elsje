@@ -381,11 +381,10 @@ var sendTo = function (formatted, sendToID) {
 
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
   var isChannel = functions.verifyChannelId(message.match[1])
-  var timestamp = message.ts
   if (isChannel) {
     bot.api.team.info({}, function (err, response) {
       if (!err) {
-        var send = 'Er is een <http://' + response.team.domain + '.slack.com/archives/' + message.channel + '/p' + timestamp.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
+        var send = 'Er is een <http://' + response.team.domain + '.slack.com/archives/' + message.channel + '/p' + message.ts.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
         functions.postMessage(bot, send, isChannel)
       }
     })

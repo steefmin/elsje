@@ -132,9 +132,7 @@ var changeScore = function (userid, score, cb) {
     if (err) {
       cb(err, null)
     } else {
-      if (singleScore === null) {
-        singleScore = 0
-      }
+      singleScore = singleScore || 0
       var options = newRequestStructure()
       options.method = 'changeScore'
       options.userid = userid

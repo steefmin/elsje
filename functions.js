@@ -1,33 +1,18 @@
-var formatUptime = function (uptime) {
-  var unit = 'seconde'
-  var days
-  if (uptime >= 1.5) {
-    unit = unit + 'n'
+var formatUptime = function (seconds) {
+  seconds = (seconds < 1) ? 1 : seconds
+  var data = {
+    'base': [1, 60, 60 * 60, 60 * 60 * 24],
+    'singular': ['seconde', 'minuut', 'uur', 'dag'],
+    'plural': ['seconden', 'minuten', 'uren', 'dagen']
   }
-  if (uptime > 60) {
-    uptime = uptime / 60
-    unit = 'minuut'
-    if (uptime >= 1.5) {
-      unit = 'minuten'
-    }
-    if (uptime > 60) {
-      uptime = uptime / 60
-      unit = 'uur'
-      if (uptime > 24) {
-        days = uptime / 24
-        unit = 'dag'
-        if (uptime >= 1.5) {
-          unit = unit + 'en'
-        }
-      }
-    }
-  }
-  if (days) {
-    uptime = Math.floor(days) + ' ' + unit + ' en ' + Math.round(uptime - Math.floor(days) * 24) + ' uur'
-  } else {
-    uptime = Math.round(uptime) + ' ' + unit
-  }
-  return uptime
+  var uptimes = data.base.filter(function (base) {
+    return seconds >= base
+  }).map(function (base, index) {
+    var value = Math.round(seconds / base)
+    var unit = (value === 1) ? data.singular[index] : data.plural[index]
+    return value + ' ' + unit
+  })
+  return uptimes.pop()
 }
 
 var verifyDate = function (text) {

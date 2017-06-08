@@ -194,23 +194,19 @@ var postSingleTask = function (bot, taskStructure, message) {
         'title': 'Taak',
         'value': taskStructure.task,
         'short': false
-      },
-      {
+      }, {
         'title': 'Verantwoordelijke',
         'value': '<@' + taskStructure.responsibleid + '>',
         'short': true
-      },
-      {
+      }, {
         'title': 'Status',
         'value': status,
         'short': true
-      },
-      {
+      }, {
         'title': 'Deadline',
         'value': taskStructure.deadline,
         'short': true
-      },
-      {
+      }, {
         'title': 'Taaknummer',
         'value': taskStructure.taskid,
         'short': true

@@ -109,11 +109,7 @@ var verifyChannelId = function (input) {
 }
 
 var regexp = function (patern, string) {
-  if (patern.exec(string)) {
-    return true
-  } else {
-    return false
-  }
+  return patern.exec(string)
 }
 
 var getBotImg = function (bot, callback) {
@@ -201,12 +197,8 @@ var postAttachment = function (bot, attachmentArray, channel) {
 }
 
 var postSingleTask = function (bot, taskStructure, message) {
-  if (typeof message.color === 'undefined') {
-    message.color = '#3090C7'
-  }
-  if (typeof message.fallback === 'undefined') {
-    message.fallback = message.pretext
-  }
+  message.color = message.color || '#3090C7'
+  message.fallback = message.fallback || message.pretext
   var status = taskStructure.status !== 1 ? 'new' : 'done'
   var attachmentArray = [{
     'fallback': message.fallback,
@@ -244,21 +236,13 @@ var postSingleTask = function (bot, taskStructure, message) {
 }
 
 var sendScore = function (bot, userId, score, channel) {
-  var plural = ''
-  if (Math.abs(score) > 1 || score === 0) {
-    plural = 'en'
-  }
+  var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
   var smiley = getScoreSmiley(score)
   var attachment = [{
     'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley,
     'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
   }]
-  if (score > 0) {
-    attachment.color = 'good'
-  }
-  if (score < 0) {
-    attachment.color = 'danger'
-  }
+  attachment.color = score >= 0 ? 'good' : 'danger'
   postAttachment(bot, attachment, channel)
 }
 
@@ -283,12 +267,8 @@ var getScoreSmiley = function (score) {
     ':ghost:'
   ]
   var relativeScore
-  if (score > level.high) {
-    score = level.high
-  }
-  if (score < level.low) {
-    score = level.low
-  }
+  score = score > level.high ? level.high : score
+  score = score < level.low ? level.low : score
   if (score > 0) {
     relativeScore = Math.round((positiveSmileys.length - 1) / (level.high) * (score - 1))
     return positiveSmileys[relativeScore]

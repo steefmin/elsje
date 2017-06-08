@@ -191,22 +191,7 @@ var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
     finishtask(convo, parseInt(convo.source_message.match[1], 10))
   } else {
-    var channel, send
-    if (functions.verifyChannelId(convo.source_message.channel)) {
-      channel = convo.source_message.channel
-      send = channel
-    } else {
-      channel = 'all'
-      send = convo.source_message.user
-    }
-    ShowList(channel, 'all', send)
-    convo.ask('Kan je mij het nummer geven van de taak die van de lijst af mag?', function (response, convo) {
-      if (!isNaN(parseInt(response.text, 10))) {
-//        convo.say('BAM, weer wat gedaan. Goed werk <@' + response.user + '>.\n')
-        TaskDone(response, convo)
-        convo.next()
-      }
-    })
+    showListGetNum(response, convo, TaskDone)
   }
 }
 
@@ -249,6 +234,10 @@ controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 
 })
 
 var DeadlineNumber = function (response, convo) {
+  showListGetNum(response, convo, NewDeadline)
+}
+
+var showListGetNum = function (response, convo, cb) {
   var channel, send
   if (functions.verifyChannelId(convo.source_message.channel)) {
     channel = convo.source_message.channel
@@ -258,9 +247,9 @@ var DeadlineNumber = function (response, convo) {
     send = convo.source_message.user
   }
   ShowList(channel, 'all', send)
-  convo.ask('Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?', function (response, convo) {
+  convo.ask('Kan je mij het nummer geven van de taak?', function (response, convo) {
     if (!isNaN(parseInt(response.text, 10))) {
-      NewDeadline(response, convo)
+      cb(response, convo)
       convo.next()
     }
   })
@@ -321,7 +310,7 @@ var NewSendReminders = function () {
   api.showAllTasks(function (err, tasks) {
     if (!err) {
       functions.getTeamId(function (team) {
-        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date})
+        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
       })
     }
   })

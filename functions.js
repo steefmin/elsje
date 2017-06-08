@@ -189,29 +189,16 @@ var postSingleTask = function (bot, taskStructure, message) {
     'fallback': message.fallback,
     'color': message.color,
     'pretext': message.pretext,
-    'fields': [
-      {
-        'title': 'Taak',
-        'value': taskStructure.task,
-        'short': false
-      }, {
-        'title': 'Verantwoordelijke',
-        'value': '<@' + taskStructure.responsibleid + '>',
-        'short': true
-      }, {
-        'title': 'Status',
-        'value': status,
-        'short': true
-      }, {
-        'title': 'Deadline',
-        'value': taskStructure.deadline,
-        'short': true
-      }, {
-        'title': 'Taaknummer',
-        'value': taskStructure.taskid,
-        'short': true
-      }
-    ]
+    'fields':
+      [
+        ['Taak', taskStructure.task, false],
+        ['Verantwoordelijke', '<@' + taskStructure.responsibleid + '>', true],
+        ['Status', status, true],
+        ['Deadline', taskStructure.deadline, true],
+        ['Taaknummer', taskStructure.taskid, true]
+      ].map(function (obj) {
+        return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
+      })
   }]
   postAttachment(bot, attachmentArray, taskStructure.channelid)
 }

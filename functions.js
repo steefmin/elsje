@@ -39,9 +39,7 @@ var parseDate = function (text) {
   if (regexp(/\d{2}-\d{2}-\d{4}/, text)) {
     text = text.split('-').reverse().join('-')
   }
-  text = text.replace('maa', 'mar')
-  text = text.replace('mei', 'may')
-  text = text.replace('okt', 'oct')
+  text = text.replace('maa', 'mar').replace('mei', 'may').replace('okt', 'oct')
   var date = new Date(Date.parse(text))
   date.setDate(date.getDate() + 1)
   return date

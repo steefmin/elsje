@@ -5,7 +5,7 @@ module.exports = function (bot) {
   var newtask = require('./newtask')(bot)
   var verify = require('./../verify')
 
-  module.conversation = function taak (bot, message) {
+  module.taak = function taak (bot, message) {
     var parts = message.match[1].split('|')
     if (parts.length !== 5) {
       bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
@@ -28,7 +28,6 @@ module.exports = function (bot) {
         bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
       }
     }
-
-    return module
   }
+  return module
 }

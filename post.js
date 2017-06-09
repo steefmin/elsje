@@ -1,4 +1,5 @@
 var ordinal = require('ordinal-numbers')
+
 var bot = require('./elsje')
 var verify = require('./verify')
 var functions = require('./functions')
@@ -17,15 +18,14 @@ var reconnect = function (bot, reconnectcounter, debug, cb) {
       'color': 'danger',
       'text': reconnecttext
     }]
-    attachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
+    attachment(attachment, process.env.RESTART_MESSAGE_CHANNEL)
     cb(reconnectcounter++)
   }
 }
 
-var attachment = function (attachmentArray, channel, optionaltext) {
+var attachment = function (attachmentArray, channel) {
   bot.say({
     'attachment': attachmentArray,
-    'text': optionaltext,
     'channel': channel
   })
 }
@@ -56,7 +56,7 @@ var singleTask = function (task, message) {
         return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
       })
   }]
-  attachment(bot, attachmentArray, task.channelid)
+  attachment(attachmentArray, task.channelid)
 }
 
 var tasklist = function (response, convo) {

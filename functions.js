@@ -25,15 +25,6 @@ var addSpaces = function (numberOfSpaces) {
   return spaces
 }
 
-var verifyUserName = function (input) {
-  var patern = /<@.{9}>/
-  var userid = patern.exec(input)
-  if (userid) {
-    userid = userid[0].substr(2, 9)
-  }
-  return userid
-}
-
 var verifyChannelId = function (input) {
   var patern = /C.{8}/
   var channelid = patern.exec(input)

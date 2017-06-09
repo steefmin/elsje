@@ -84,7 +84,7 @@ function compileTask (response, convo) {
   api.addTask(task, taskStoreResult)
 }
 
-function taskStoreResult (err, task) {
+var taskStoreResult = function (err, task) {
   if (err) {
     post.message('Sorry, er is iets misgegaan bij het opslaan.', task.channel)
   } else {
@@ -97,5 +97,6 @@ function taskStoreResult (err, task) {
 }
 
 module.exports = {
-  'conversation': startConversation
+  'conversation': startConversation,
+  'taskStoreResult': taskStoreResult
 }

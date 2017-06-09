@@ -3,6 +3,11 @@ var userid = function (input) {
   return userid ? userid[0] : false
 }
 
+var username = function (text) {
+  var userid = /<@.{9}>/.exec(text)
+  return userid ? userid[0].substr(2, 9) : false
+}
+
 var date = function (text) {
   var date = new Date()
   var currentDate = date
@@ -44,6 +49,7 @@ var channelname = function (text) {
 
 module.exports = {
   'userid': userid, // done
+  'username': username, // done
   'date': date, // done
-  'channelname': channelname
+  'channelname': channelname // done
 }

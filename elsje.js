@@ -1,8 +1,11 @@
 require('./env.js')
+
 var functions = require('./functions')
 var api = require('./svlo-api')
 var post = require('./post')
-var newtask = require('./converstations/newtask')
+var newtask = require('./conversations/newtask')
+var instant = require('./conversations/instant')
+
 var Botkit = require('botkit')
 var Colormap = require('colormap')
 
@@ -36,30 +39,7 @@ controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention
   bot.createConversation(message, newtask.conversation)
 })
 
-controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
-  var parts = message.match[1].split('|')
-  if (parts.length !== 5) {
-    bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
-  } else {
-    var task = parts[0]
-    var userId = message.user
-    var responsibleId = functions.verifyUserName(parts[1])
-    var channelId = functions.verifyChannelName(parts[3])
-    var deadline = functions.verifyDate(parts[2])
-    if (channelId && responsibleId && deadline) {
-      var taskStructure = {
-        'channel': channelId,
-        'userid': userId,
-        'task': task,
-        'responsibleid': responsibleId,
-        'deadline': deadline
-      }
-      api.addTask(taskStructure, taskStoreResult)
-    } else {
-      bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
-    }
-  }
-})
+controller.hears(['instanttaak (.*)'], 'direct_message', instant.taak)
 
 
 

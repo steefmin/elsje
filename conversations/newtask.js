@@ -34,8 +34,6 @@ module.exports = function (bot) {
       response.text = userid
       convo.say('Ha, gesjaakt!')
       convo.next()
-    } else {
-      convo.repeat()
     }
   }
 
@@ -45,8 +43,6 @@ module.exports = function (bot) {
       response.text = date
       convo.say('Ik zal het noteren.')
       convo.next()
-    } else {
-      convo.repeat()
     }
   }
 
@@ -56,9 +52,7 @@ module.exports = function (bot) {
       response.text = channelid
       convo.say('Kijk in <#' + channelid + '>.')
       convo.next()
-    } else {
-      convo.repeat()
-    }
+    } 
   }
 
   function endCollection (response, convo) {

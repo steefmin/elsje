@@ -23,8 +23,6 @@ module.exports = function (bot) {
     if (tasknumber) {
       response.text = tasknumber
       convo.next()
-    } else {
-      convo.repeat()
     }
   }
 
@@ -33,8 +31,6 @@ module.exports = function (bot) {
     if (date) {
       response.text = date
       convo.next()
-    } else {
-      convo.repeat()
     }
   }
 

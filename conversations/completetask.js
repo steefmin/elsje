@@ -12,10 +12,18 @@ module.exports = function (bot) {
         convo.stop()
       } else {
         post.tasklist(err, convo)
-        convo.addQuestion('Kan je mij het nummer geven van de taak die van de lijst af mag?')
+        convo.addQuestion('Kan je mij het nummer geven van de taak die van de lijst af mag?', pass)
       }
       convo.on('end', TaskDone)
       convo.activate()
+    }
+  }
+
+  function pass (response, convo) {
+    var num = verify.tasknumber(response.text)
+    if (num) {
+      response.text = num
+      convo.next()
     }
   }
 

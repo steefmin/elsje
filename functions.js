@@ -25,50 +25,46 @@ var getTeamId = function (bot, callback) {
   })
 }
 
-var filterTasks = function (filterOn, tasks, filterFor) {
-  if (filterFor === 'all') {
-    return tasks
-  } else {
-    return tasks.filter(function (val) {
-      return val[filterOn] === filterFor
-    })
+var sortTasksByChannel = function (a, b) {
+  return sortTasks(a, b, 'channelid')
+}
+
+var sortTasksByResponsible = function (a, b) {
+  return sortTasks(a, b, 'responsibleid')
+}
+
+var sortTasksById = function (a, b) {
+  return sortTasks(a, b, 'taskid')
+}
+
+function sortTasks (taska, taskb, sortBy) {
+  if (taska[sortBy] < taskb[sortBy]) {
+    return 1
   }
+  if (taska[sortBy] > taskb[sortBy]) {
+    return -1
+  }
+  return 0
 }
 
-var sortTasks = function (tasks, sortBy) {
-  var sorted = tasks.sort(function (taska, taskb) {
-    if (taska[sortBy] < taskb[sortBy]) {
-      return 1
-    }
-    if (taska[sortBy] > taskb[sortBy]) {
-      return -1
-    }
-    return 0
-  })
-  return sorted
-}
-
-var formatTasks = function (tasks) {
-  var formatted = 'Takenlijst\n```'
-  tasks.forEach(function (task, index, array) {
-    var addtostring = ''
-    if (task.status !== 'done') {
-      addtostring =
-        '<#' + task.channelid + '>' +
-        addSpaces(2) +
-        task.taskid +
-        addSpaces(4 - task.taskid.toString().length) +
-        '<@' + task.responsibleid + '>' +
-        addSpaces(2) +
-        task.deadline +
-        addSpaces(2) +
-        task.task +
-        '\n'
-      formatted += addtostring
-    }
-  })
-  formatted += '```'
-  return formatted
+var formatTasks = function (accumulator, task, index, taskarray) {
+  if (index === 0) {
+    accumulator = 'Takenlijst\n```'
+  } else {
+    accumulator +=
+      '<#' + task.channelid + '>' +
+      addSpaces(2) +
+      task.taskid +
+      addSpaces(4 - task.taskid.toString().length) +
+      '<@' + task.responsibleid + '>' +
+      addSpaces(2) +
+      task.deadline +
+      addSpaces(2) +
+      task.task +
+      '\n'
+    accumulator += (taskarray.length === index) ? '```' : ''
+  }
+  return accumulator
 }
 
 function addSpaces (numberOfSpaces) {
@@ -113,8 +109,9 @@ module.exports = {
   'formatUptime': formatUptime,
   'getTeamId': getTeamId,
   'formatTasks': formatTasks,
-  'sortTasks': sortTasks,
-  'filterTasks': filterTasks,
+  'sortTasksById': sortTasksById,
+  'sortTasksByChannel': sortTasksByChannel,
+  'sortTasksByResponsible': sortTasksByResponsible,
   'shutdown': shutdown,
   'uptime': uptime
 }

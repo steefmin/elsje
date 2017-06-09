@@ -60,15 +60,14 @@ var singleTask = function (task, message) {
 }
 
 var tasklist = function (response, convo) {
-  var channel, send
-  if (verify.channelid(convo.source_message.channel)) {
-    channel = convo.source_message.channel
-    send = channel
+  var channel = verify.channelid(convo.source_message.channel)
+  if (channel) {
+    // if we come from a channel, post channeltasks in channel
+    ShowList(channel, 'all', channel)
   } else {
-    channel = 'all'
-    send = convo.source_message.user
+    // else we are a dm, so post all tasks back to user
+    ShowList('all', 'all', convo.source_message.user)
   }
-  ShowList(channel, 'all', send)
 }
 
 var ShowList = function (channelName, userName, sendto) {
@@ -76,20 +75,16 @@ var ShowList = function (channelName, userName, sendto) {
     if (err) {
       return false
     }
-    var sortedtasks, formatted, userID, channelID
-    var usertasks = functions.filterTasks('channelid', functions.filterTasks('responsibleid', tasks, userName), channelName)
-    if (usertasks.length === 0) {
-      return false
+    var formatted = tasks.filter(function (task) {
+      return channelName === 'all' || task['channelid'] === channelName
+    }).filter(function (task) {
+      return userName === 'all' || task['responsibleid'] === userName
+    }).sort(functions.sortTasksByChannel).reduce(functions.formatTasks, {})
+    if (verify.userid(sendto)) {
+      sendList(formatted, sendto)
     }
-    sortedtasks = functions.sortTasks(usertasks, 'channelid')
-    formatted = functions.formatTasks(sortedtasks)
-    userID = verify.userid(sendto)
-    if (userID) {
-      sendList(formatted, userID)
-    }
-    channelID = verify.channelid(sendto)
-    if (channelID) {
-      sendList(formatted, channelID)
+    if (verify.channelid(sendto)) {
+      sendList(formatted, sendto)
     }
   })
 }

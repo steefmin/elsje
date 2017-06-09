@@ -199,7 +199,7 @@ var TaskDone = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
+      var number = parseInt(res['Kan je mij het nummer geven van de taak?'], 10)
       finishtask(convo, number)
     }
   })
@@ -271,7 +271,7 @@ var UpdateDeadline = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      var taskid = parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)
+      var taskid = parseInt(res['Kan je mij het nummer geven van de taak?'], 10)
       var deadline = res['Wat is de nieuwe deadline?']
       api.updateTask({taskid: taskid, deadline: deadline}, function (err) {
         if (err) {

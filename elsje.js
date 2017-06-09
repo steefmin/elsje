@@ -8,6 +8,7 @@ var instant = require('./conversations/instant')
 var completetask = require('./conversations/completetask')
 var updatedeadline = require('./conversations/updatedeadline')
 var tasklist = require('./conversations/tasklist')
+var cc = require('./conversations/cc')
 
 var Botkit = require('botkit')
 var Colormap = require('colormap')
@@ -60,17 +61,7 @@ controller.hears(['newherinneringen', 'sendreminder'], 'direct_message', functio
 
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', tasklist.conversation)
 
-controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
-  var isChannel = functions.verifyChannelId(message.match[1])
-  if (isChannel) {
-    bot.api.team.info({}, function (err, response) {
-      if (!err) {
-        var send = 'Er is een <http://' + response.team.domain + '.slack.com/archives/' + message.channel + '/p' + message.ts.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
-        functions.postMessage(bot, send, isChannel)
-      }
-    })
-  }
-})
+controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', cc.conversation)
 
 controller.on('reaction_added', function (bot, message) {
   if (message.item_user !== message.user) {

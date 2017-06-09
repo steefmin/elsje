@@ -1,3 +1,5 @@
+var os = require('os')
+
 var formatUptime = function (seconds) {
   seconds = (seconds < 1) ? 1 : seconds
   var data = {
@@ -244,6 +246,36 @@ var getScoreSmiley = function (score) {
   }
 }
 
+var shutdown = function (bot, message) {
+  bot.startConversation(message, function (err, convo) {
+    if (!err) {
+      convo.ask('Are you sure you want me to shutdown?', [{
+        pattern: bot.utterances.yes,
+        callback: function (response, convo) {
+          convo.say('Bye!')
+          convo.next()
+          setTimeout(function () {
+            process.exit()
+          }, 3000)
+        }
+      }, {
+        'pattern': bot.utterances.no,
+        'default': true,
+        'callback': function (response, convo) {
+          convo.say('*Phew!*')
+          convo.next()
+        }
+      }])
+    }
+  })
+}
+
+var uptime = function (bot, message) {
+  var hostname = os.hostname()
+  var uptime = formatUptime(process.uptime())
+  bot.reply(message, ':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.')
+}
+
 module.exports = {
   'formatUptime': formatUptime,
   'verifyDate': verifyDate,
@@ -261,5 +293,7 @@ module.exports = {
   'postMessage': postMessage,
   'postAttachment': postAttachment,
   'postSingleTask': postSingleTask,
-  'sendScore': sendScore
+  'sendScore': sendScore,
+  'shutdown': shutdown,
+  'uptime': uptime
 }

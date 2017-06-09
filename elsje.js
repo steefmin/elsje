@@ -4,7 +4,6 @@ var api = require('./svlo-api')
 var post = require('./post')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
-var os = require('os')
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
@@ -28,35 +27,9 @@ controller.on('rtm_open', post.reconnect(bot, reconnectcounter, debug, function 
   reconnectcounter = increasedCounter
 })
 
-controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function (bot, message) {
-  bot.startConversation(message, function (err, convo) {
-    if (!err) {
-      convo.ask('Are you sure you want me to shutdown?', [{
-        pattern: bot.utterances.yes,
-        callback: function (response, convo) {
-          convo.say('Bye!')
-          convo.next()
-          setTimeout(function () {
-            process.exit()
-          }, 3000)
-        }
-      }, {
-        'pattern': bot.utterances.no,
-        'default': true,
-        'callback': function (response, convo) {
-          convo.say('*Phew!*')
-          convo.next()
-        }
-      }])
-    }
-  })
-})
+controller.hears(['shutdown'], 'direct_message,direct_mention,mention', functions.shutdown(bot, message))
 
-controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', function (bot, message) {
-  var hostname = os.hostname()
-  var uptime = functions.formatUptime(process.uptime())
-  bot.reply(message, ':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.')
-})
+controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', functions.uptime(bot, message))
 
 controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.startConversation(message, voegTaakToe)

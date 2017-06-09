@@ -1,6 +1,5 @@
 # Elsje 
-[![bitHound Overall Score](https://www.bithound.io/github/steefmin/elsje/badges/score.svg)](https://www.bithound.io/github/steefmin/elsje)
-[![Known Vulnerabilities](https://snyk.io/test/github/steefmin/elsje/f8a7d435684e6f105be64a31db6dc78d7f7533f8/badge.svg)](https://snyk.io/test/github/steefmin/elsje/f8a7d435684e6f105be64a31db6dc78d7f7533f8)
+[![codebeat badge](https://codebeat.co/badges/876ef633-f30b-4535-af7b-809e80e9d1fa)](https://codebeat.co/projects/github-com-steefmin-elsje-master)
 
 [![Waffle planned](https://badge.waffle.io/steefmin/elsje.svg?label=planned&title=Planned)](http://waffle.io/steefmin/elsje)
 [![Waffle busy](https://badge.waffle.io/steefmin/elsje.svg?label=busy&title=Busy)](http://waffle.io/steefmin/elsje)

@@ -1,4 +1,5 @@
 var os = require('os')
+var post = require('./post')
 
 var formatUptime = function (seconds) {
   seconds = (seconds < 1) ? 1 : seconds
@@ -23,16 +24,6 @@ var addSpaces = function (numberOfSpaces) {
     spaces += ' '
   }
   return spaces
-}
-
-var verifyChannelId = function (input) {
-  var patern = /C.{8}/
-  var channelid = patern.exec(input)
-  if (channelid) {
-    return channelid[0]
-  } else {
-    return false
-  }
 }
 
 var getBotImg = function (bot, callback) {
@@ -97,30 +88,6 @@ var formatTasks = function (tasks) {
   return formatted
 }
 
-var postMessage = function (bot, message, channel) {
-  postGeneral(bot, {'text': message}, channel)
-}
-
-var postAttachment = function (bot, attachmentArray, channel) {
-  postGeneral(bot, {'attachments': attachmentArray}, channel)
-}
-
-var postGeneral = function (bot, something, channel) {
-  getBotImg(bot, function (image) {
-    var general = {
-      'channel': channel,
-      'username': bot.identity.name,
-      'icon_url': image
-    }
-    Object.assign(general, something)
-    bot.api.chat.postMessage(general)
-  })
-}
-
-var postSingleTask = function (bot, taskStructure, message) {
-
-}
-
 var sendScore = function (bot, userId, score, channel) {
   var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
   var smiley = getScoreSmiley(score)
@@ -129,7 +96,7 @@ var sendScore = function (bot, userId, score, channel) {
     'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
   }]
   attachment.color = score >= 0 ? 'good' : 'danger'
-  postAttachment(bot, attachment, channel)
+  post.attachment(attachment, channel)
 }
 
 var getScoreSmiley = function (score) {
@@ -197,18 +164,14 @@ var uptime = function (bot, message) {
 }
 
 module.exports = {
-  'formatUptime': formatUptime,
+  'formatUptime': formatUptime, // is needed
   'addSpaces': addSpaces,
-  'verifyChannelId': verifyChannelId,
   'getBotImg': getBotImg,
-  'getTeamId': getTeamId,
-  'formatTasks': formatTasks,
-  'sortTasks': sortTasks,
-  'filterTasks': filterTasks,
-  'postMessage': postMessage,
-  'postAttachment': postAttachment,
-  'postSingleTask': postSingleTask,
+  'getTeamId': getTeamId, // is needed
+  'formatTasks': formatTasks, // is needed
+  'sortTasks': sortTasks, // is needed
+  'filterTasks': filterTasks, // is needed
   'sendScore': sendScore,
-  'shutdown': shutdown,
-  'uptime': uptime
+  'shutdown': shutdown, // is needed
+  'uptime': uptime // is needed
 }

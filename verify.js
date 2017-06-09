@@ -47,9 +47,15 @@ var channelname = function (text) {
   return channelid ? channelid[0].substr(2, 9) : false
 }
 
+var channelid = function (input) {
+  var channelid = /C.{8}/.exec(input)
+  return channelid ? channelid[0] : false
+}
+
 module.exports = {
   'userid': userid, // done
   'username': username, // done
   'date': date, // done
-  'channelname': channelname // done
+  'channelname': channelname, // done
+  'channelid': channelid // done
 }

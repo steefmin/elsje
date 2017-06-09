@@ -6,7 +6,9 @@ var startConversation = function (err, convo) {
     var insertedNumber = parseInt(convo.source_message.match[1], 10)
     if (Number.isInteger(insertedNumber)) {
       finishtask(convo, parseInt(convo.source_message.match[1], 10))
+      convo.stop()
     } else {
+      post.tasklist(err, convo)
       convo.addQuestion('Kan je mij het nummer geven van de taak die van de lijst af mag?')
     }
     convo.on('end', TaskDone)
@@ -15,13 +17,11 @@ var startConversation = function (err, convo) {
 }
 
 function TaskDone (response, convo) {
-  convo.on('end', function (convo) {
-    if (convo.status === 'completed') {
-      var res = convo.extractResponses()
-      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
-      finishtask(convo, number)
-    }
-  })
+  if (convo.status === 'completed') {
+    var res = convo.extractResponses()
+    var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
+    finishtask(convo, number)
+  }
 }
 
 function finishtask (convo, taskNumber) {
@@ -41,6 +41,7 @@ function finishtask (convo, taskNumber) {
             'pretext': 'Taak afgerond door <@' + userId + '>.'
           }
           post.singleTask(task, message)
+          post.message('Taak afgerond in <#' + task.channelid + '>', convo.source_message.channel)
         }
       })
     }
@@ -48,5 +49,5 @@ function finishtask (convo, taskNumber) {
 }
 
 module.exports = {
-  'conversation': startConversation
+  'conversation': startConversation // done
 }

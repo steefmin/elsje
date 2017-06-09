@@ -6,6 +6,8 @@ var post = require('./post')
 var newtask = require('./conversations/newtask')
 var instant = require('./conversations/instant')
 var completetask = require('./conversations/completetask')
+var updatedeadline = require('./conversations/updatedeadline')
+var tasklist = require('./conversations/tasklist')
 
 var Botkit = require('botkit')
 var Colormap = require('colormap')
@@ -36,165 +38,27 @@ controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function
 
 controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', functions.uptime)
 
+controller.hears(['instanttaak (.*)'], 'direct_message', instant.taak)
+
 controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.createConversation(message, newtask.conversation)
 })
-
-controller.hears(['instanttaak (.*)'], 'direct_message', instant.taak)
 
 controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.createConversation(message, completetask.conversation)
 })
 
-controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 'direct_mention,mention,direct_message', function (bot, message) {
-  bot.startConversation(message, DeadlineNumber)
+controller.hears(['update deadline (.*)', 'deadline (.*) veranderen', 'andere deadline (.*)'], 'direct_mention,mention,direct_message', function (bot, message) {
+  bot.createConversation(message, updatedeadline.conversation)
 })
-
-var DeadlineNumber = function (response, convo) {
-  showListGetNum(response, convo, NewDeadline)
-}
-
-var showListGetNum = function (response, convo, cb) {
-  var channel, send
-  if (functions.verifyChannelId(convo.source_message.channel)) {
-    channel = convo.source_message.channel
-    send = channel
-  } else {
-    channel = 'all'
-    send = convo.source_message.user
-  }
-  ShowList(channel, 'all', send)
-  convo.ask('Kan je mij het nummer geven van de taak?', function (response, convo) {
-    if (!isNaN(parseInt(response.text, 10))) {
-      cb(response, convo)
-      convo.next()
-    }
-  })
-}
-
-var NewDeadline = function (response, convo) {
-  convo.ask('Wat is de nieuwe deadline?', function (response, convo) {
-    var date = functions.verifyDate(response.text)
-    if (date) {
-      response.text = date
-  //    convo.say('Ik zal het onthouden.')
-      UpdateDeadline(response, convo)
-      convo.next()
-    }
-  })
-}
-
-var UpdateDeadline = function (response, convo) {
-  convo.on('end', function (convo) {
-    if (convo.status === 'completed') {
-      var res = convo.extractResponses()
-      var taskid = parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)
-      var deadline = res['Wat is de nieuwe deadline?']
-      api.updateTask({taskid: taskid, deadline: deadline}, function (err) {
-        if (err) {
-          functions.postMessage(bot, 'Er is iets misgegaan bij het bijwerken van de taak.', convo.source_message.channel)
-        } else {
-          api.showSingleTask(taskid, function (err, task) {
-            if (!err) {
-              var message = {
-                'fallback': 'Taak van <@' + task.responsibleid + '> heeft nieuwe deadline: ' + task.deadline,
-                'pretext': 'Deze taak heeft een nieuwe deadline.'
-              }
-              functions.postSingleTask(bot, task, message)
-              bot.reply(response, 'Ok, nieuwe deadline genoteerd.')
-            }
-          })
-        }
-      })
-    }
-  })
-}
 
 controller.hears(['newherinneringen', 'sendreminder'], 'direct_message', function (bot, message) {
-  NewSendReminders()
+  post.reminders(function (team, tasks) {
+    controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
+  })
 })
 
-var NewSendReminders = function () {
-  bot.api.users.list({}, function (err, reply) {
-    if (!err) {
-      reply.members.forEach(function (value, index, array) {
-        if (value.deleted === false && value.is_bot === false) {
-          ShowList('all', value.id, value.id)
-        }
-      })
-    }
-  })
-  api.showAllTasks(function (err, tasks) {
-    if (!err) {
-      functions.getTeamId(function (team) {
-        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
-      })
-    }
-  })
-}
-
-controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
-  var send
-  var userid = functions.verifyUserName(message.match[1])
-  var channelid = functions.verifyChannelName(message.match[1])
-  if (functions.verifyChannelId(message.channel)) {
-    send = message.channel
-  } else {
-    send = message.user
-  }
-  if (userid && channelid) {
-    ShowList(channelid, userid, send)
-  } else {
-    if (userid) {
-      ShowList('all', userid, send)
-      return true
-    } else if (channelid) {
-      ShowList(channelid, 'all', send)
-      return true
-    } else if (functions.verifyChannelId(message.channel)) {
-      ShowList(send, 'all', send)
-    } else {
-      ShowList('all', 'all', send)
-    }
-  }
-})
-
-var ShowList = function (channelName, userName, sendto) {
-  api.showAllTasks(function (err, tasks) {
-    if (err) {
-      return false
-    }
-    var sortedtasks, formatted, userID, channelID
-    var usertasks = functions.filterTasks('channelid', functions.filterTasks('responsibleid', tasks, userName), channelName)
-    if (usertasks.length === 0) {
-      return false
-    }
-    sortedtasks = functions.sortTasks(usertasks, 'channelid')
-    formatted = functions.formatTasks(sortedtasks)
-    userID = functions.verifyUserId(sendto)
-    if (userID) {
-      sendTo(formatted, userID)
-    }
-    channelID = functions.verifyChannelId(sendto)
-    if (channelID) {
-      sendTo(formatted, channelID)
-    }
-  })
-}
-
-var sendTo = function (formatted, sendToID) {
-  if (functions.verifyUserId(sendToID)) {
-    bot.api.im.open({'user': sendToID}, function (err, response) {
-      if (!err) {
-        functions.postMessage(bot, formatted, response.channel.id)
-      }
-    })
-  } else if (functions.verifyChannelId(sendToID)) {
-    functions.postMessage(bot, formatted, sendToID)
-  } else {
-    return false
-  }
-}
+controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', tasklist.conversation)
 
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
   var isChannel = functions.verifyChannelId(message.match[1])

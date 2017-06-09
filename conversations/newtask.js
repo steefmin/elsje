@@ -97,6 +97,6 @@ var taskStoreResult = function (err, task) {
 }
 
 module.exports = {
-  'conversation': startConversation,
-  'taskStoreResult': taskStoreResult
+  'conversation': startConversation, // done
+  'taskStoreResult': taskStoreResult // done
 }

@@ -200,7 +200,6 @@ module.exports = {
   'formatUptime': formatUptime,
   'addSpaces': addSpaces,
   'verifyChannelId': verifyChannelId,
-  'verifyUserName': verifyUserName,
   'getBotImg': getBotImg,
   'getTeamId': getTeamId,
   'formatTasks': formatTasks,

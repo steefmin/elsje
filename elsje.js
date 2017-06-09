@@ -1,9 +1,9 @@
 require('./env.js')
 var functions = require('./functions')
 var api = require('./svlo-api')
+var post = require('./post')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
-var ordinal = require('ordinal-numbers')
 var os = require('os')
 
 if (!process.env.TOKEN) {
@@ -24,22 +24,8 @@ var bot = controller.spawn({
 }).startRTM()
 
 var reconnectcounter = 0
-controller.on('rtm_open', function (bot, message) {
-  if (!debug) {
-    var reconnecttext = 'Hi, this is a debug message: I '
-    if (reconnectcounter === 0) {
-      reconnecttext += 'just connected.'
-    } else {
-      reconnecttext += 'reconnected for the ' + ordinal(reconnectcounter) + ' time.'
-    }
-    reconnectcounter++
-    var attachment = [{
-      'fallback': reconnecttext,
-      'color': 'danger',
-      'text': reconnecttext
-    }]
-    functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
-  }
+controller.on('rtm_open', post.reconnect(bot, reconnectcounter, debug, function (increasedCounter) {
+  reconnectcounter = increasedCounter
 })
 
 controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function (bot, message) {

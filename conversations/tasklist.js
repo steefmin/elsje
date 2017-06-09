@@ -22,4 +22,6 @@ var startConversation = function (bot, message) {
   }
 }
 
-module.exports = {'conversation': startConversation}
+module.exports = {
+  'conversation': startConversation
+}

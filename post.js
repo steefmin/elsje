@@ -173,12 +173,12 @@ function getScoreSmiley (score) {
 }
 
 module.exports = {
-  'reconnect': reconnect, // done
-  'attachment': attachment, // done
-  'message': message, // done
-  'singleTask': singleTask, // done
-  'tasklist': tasklist, // done
-  'reminders': reminders, // done
-  'ShowList': ShowList, // done
-  'score': score // done
+  'reconnect': reconnect,
+  'attachment': attachment,
+  'message': message,
+  'singleTask': singleTask,
+  'tasklist': tasklist,
+  'reminders': reminders,
+  'ShowList': ShowList,
+  'score': score
 }

@@ -14,5 +14,5 @@ var cc = function (bot, message) {
 }
 
 module.exports = {
-  'cc': cc
+  'conversation': cc
 }

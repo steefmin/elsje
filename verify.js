@@ -42,6 +42,11 @@ function regexp (patern, string) {
   return patern.exec(string)
 }
 
+var tasknumber = function (text) {
+  var num = parseInt(text, 10)
+  return Number.isInteger(num) ? num : false
+}
+
 var channelname = function (text) {
   var channelid = /<#.{9}/.exec(text)
   return channelid ? channelid[0].substr(2, 9) : false
@@ -56,6 +61,7 @@ module.exports = {
   'userid': userid,
   'username': username,
   'date': date,
+  'tasknumber': tasknumber,
   'channelname': channelname,
   'channelid': channelid
 }

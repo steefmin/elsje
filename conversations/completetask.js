@@ -1,11 +1,12 @@
 var api = require('./../svlo-api')
 var post = require('./../post')
+var verify = require('./../verify')
 
 var startConversation = function (err, convo) {
   if (!err) {
-    var insertedNumber = parseInt(convo.source_message.match[1], 10)
-    if (Number.isInteger(insertedNumber)) {
-      finishtask(convo, parseInt(convo.source_message.match[1], 10))
+    var insertedNumber = verify.tasknumber(convo.source_message.match[1])
+    if (insertedNumber) {
+      finishtask(convo, insertedNumber)
       convo.stop()
     } else {
       post.tasklist(err, convo)
@@ -49,5 +50,5 @@ function finishtask (convo, taskNumber) {
 }
 
 module.exports = {
-  'conversation': startConversation // done
+  'conversation': startConversation
 }

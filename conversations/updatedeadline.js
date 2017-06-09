@@ -4,8 +4,8 @@ var verify = require('./../verify')
 
 var startConversation = function (err, convo) {
   if (!err) {
-    var insertedNumber = parseInt(convo.source_message.match[1], 10)
-    if (!Number.isInteger(insertedNumber)) {
+    var insertedNumber = verify.tasknumber(convo.source_message.match[1])
+    if (!insertedNumber) {
       post.tasklist(err, convo)
       convo.addQuestion('Kan je mij het nummer geven van de taak die van de lijst af mag?', taskNumber)
     }
@@ -16,7 +16,13 @@ var startConversation = function (err, convo) {
 }
 
 var taskNumber = function (response, convo) {
-  convo.next()
+  var tasknumber = verify.tasknumber(response.text)
+  if (tasknumber) {
+    response.text = tasknumber
+    convo.next()
+  } else {
+    convo.repeat()
+  }
 }
 
 var NewDeadline = function (response, convo) {
@@ -32,7 +38,7 @@ var NewDeadline = function (response, convo) {
 var UpdateDeadline = function (response, convo) {
   if (convo.status === 'completed') {
     var res = convo.extractResponses()
-    var taskid = parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10) || parseInt(convo.source_message.match[1], 10)
+    var taskid = verify.tasknumber(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?']) || verify.tasknumber(convo.source_message.match[1])
     var deadline = res['Wat is de nieuwe deadline?']
     api.updateTask({'taskid': taskid, 'deadline': deadline}, function (err) {
       if (err) {
@@ -54,5 +60,5 @@ var UpdateDeadline = function (response, convo) {
 }
 
 module.exports = {
-  'conversation': startConversation // done
+  'conversation': startConversation
 }

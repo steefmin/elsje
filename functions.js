@@ -110,11 +110,11 @@ var uptime = function (bot, message) {
 }
 
 module.exports = {
-  'formatUptime': formatUptime, // is needed
-  'getTeamId': getTeamId, // is needed
-  'formatTasks': formatTasks, // is needed
-  'sortTasks': sortTasks, // is needed
-  'filterTasks': filterTasks, // is needed
-  'shutdown': shutdown, // is needed
-  'uptime': uptime // is needed
+  'formatUptime': formatUptime,
+  'getTeamId': getTeamId,
+  'formatTasks': formatTasks,
+  'sortTasks': sortTasks,
+  'filterTasks': filterTasks,
+  'shutdown': shutdown,
+  'uptime': uptime
 }

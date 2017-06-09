@@ -72,4 +72,4 @@ controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_mess
 
 controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', score.leaderboard)
 
-module.exports = {'bot': bot}
+module.exports = bot

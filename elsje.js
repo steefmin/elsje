@@ -71,5 +71,3 @@ controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', score.votes)
 controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', score.check)
 
 controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', score.leaderboard)
-
-module.exports = bot

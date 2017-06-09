@@ -2,6 +2,7 @@ require('./env.js')
 var functions = require('./functions')
 var api = require('./svlo-api')
 var post = require('./post')
+var newtask = require('./converstations/newtask')
 var Botkit = require('botkit')
 var Colormap = require('colormap')
 
@@ -32,78 +33,8 @@ controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function
 controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', functions.uptime(bot, message))
 
 controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
-  bot.startConversation(message, voegTaakToe)
+  bot.createConversation(message, newtask.conversation)
 })
-
-var voegTaakToe = function (response, convo) {
-  convo.ask('Wat moet er gedaan worden?', function (response, convo) {
-    convo.say('Ja, dat moet nodig gebeuren.')
-    voorWie(response, convo)
-    convo.next()
-  })
-}
-
-var voorWie = function (reponse, convo) {
-  convo.ask('Wie gaat dit doen? (@naam graag)', function (response, convo) {
-    var userid
-    if (response.text === 'ik') {
-      userid = functions.verifyUserId(response.user)
-    } else {
-      userid = functions.verifyUserName(response.text)
-    }
-    if (userid) {
-      response.text = userid
-      convo.say('Ha, gesjaakt!')
-      wanneerKlaar(response, convo)
-      convo.next()
-    }
-  })
-}
-
-var wanneerKlaar = function (response, convo) {
-  convo.ask('Wanneer moet het klaar zijn?', function (response, convo) {
-    var date = functions.verifyDate(response.text)
-    if (date) {
-      response.text = date
-      convo.say('Ik zal het noteren.')
-      if (convo.task.source_message.event === 'direct_message') {
-        welkKanaal(response, convo)
-        convo.next()
-      } else {
-        opslaanVanTaak(response, convo)
-        convo.next()
-      }
-    }
-  })
-}
-
-var welkKanaal = function (response, convo) {
-  convo.ask('In welke lijst zal ik dit zetten?', function (response, convo) {
-    var channelid = functions.verifyChannelName(response.text)
-    if (channelid) {
-      response.text = channelid
-      convo.say('Kijk in <#' + channelid + '>.')
-      opslaanVanTaak(response, convo)
-      convo.next()
-    }
-  })
-}
-
-var opslaanVanTaak = function (response, convo) {
-  convo.on('end', function (convo) {
-    if (convo.status === 'completed') {
-      var res = convo.extractResponses()
-      var task = {
-        'channel': res['In welke lijst zal ik dit zetten?'] || response.channel,
-        'userid': response.user,
-        'task': res['Wat moet er gedaan worden?'],
-        'responsibleid': res['Wie gaat dit doen? (@naam graag)'],
-        'deadline': res['Wanneer moet het klaar zijn?']
-      }
-      api.addTask(task, taskStoreResult)
-    }
-  })
-}
 
 controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
   var parts = message.match[1].split('|')
@@ -130,17 +61,7 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
   }
 })
 
-var taskStoreResult = function (err, task) {
-  if (err) {
-    functions.postMessage(bot, 'Sorry, er is iets misgegaan bij het opslaan.', task.channel)
-  } else {
-    var taskmessage = {
-      'fallback': 'Taak toegevoegd voor <@' + task.responsibleid + '>: ' + task.task,
-      'pretext': 'Nieuwe taak aangemaakt.'
-    }
-    functions.postSingleTask(bot, task, taskmessage)
-  }
-}
+
 
 controller.hears(['taak (.*)afronden', 'taak (.*)afvinken', 'ik ben klaar', 'taak (.*)gedaan'], 'direct_mention,mention,direct_message', function (bot, message) {
   bot.startConversation(message, completeTask)
@@ -429,3 +350,5 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
     }
   })
 })
+
+module.exports = {'bot': bot}

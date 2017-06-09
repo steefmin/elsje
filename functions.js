@@ -17,36 +17,6 @@ var formatUptime = function (seconds) {
   return uptimes.pop()
 }
 
-var verifyDate = function (text) {
-  var date = new Date()
-  var currentDate = date
-  if (regexp(/vandaag\s*/i, text)) {
-  } else if (regexp(/morgen\s*/i, text)) {
-    date.setDate(date.getDate() + 1)
-  } else if (regexp(/week\s*/i, text)) {
-    date.setDate(date.getDate() + 7)
-  } else if (regexp(/maand\s*/i, text)) {
-    date.setDate(date.getDate() + 30)
-  } else {
-    date = parseDate(text)
-  }
-  if (date !== 'Invalid Date' && date.getTime() >= currentDate.getTime()) {
-    return date.toISOString().substr(0, 10)
-  } else {
-    return false
-  }
-}
-
-var parseDate = function (text) {
-  if (regexp(/\d{2}-\d{2}-\d{4}/, text)) {
-    text = text.split('-').reverse().join('-')
-  }
-  text = text.replace('maa', 'mar').replace('mei', 'may').replace('okt', 'oct')
-  var date = new Date(Date.parse(text))
-  date.setDate(date.getDate() + 1)
-  return date
-}
-
 var addSpaces = function (numberOfSpaces) {
   var spaces = ''
   for (var i = 0; i < numberOfSpaces; i++) {
@@ -64,25 +34,6 @@ var verifyUserName = function (input) {
   return userid
 }
 
-var verifyChannelName = function (input) {
-  var patern = /<#.{9}/
-  var channelid = patern.exec(input)
-  if (channelid) {
-    channelid = channelid[0].substr(2, 9)
-  }
-  return channelid
-}
-
-var verifyUserId = function (input) {
-  var patern = /U.{8}/
-  var userid = patern.exec(input)
-  if (userid) {
-    return userid[0]
-  } else {
-    return false
-  }
-}
-
 var verifyChannelId = function (input) {
   var patern = /C.{8}/
   var channelid = patern.exec(input)
@@ -91,10 +42,6 @@ var verifyChannelId = function (input) {
   } else {
     return false
   }
-}
-
-var regexp = function (patern, string) {
-  return patern.exec(string)
 }
 
 var getBotImg = function (bot, callback) {
@@ -180,25 +127,7 @@ var postGeneral = function (bot, something, channel) {
 }
 
 var postSingleTask = function (bot, taskStructure, message) {
-  message.color = message.color || '#3090C7'
-  message.fallback = message.fallback || message.pretext
-  var status = taskStructure.status !== 1 ? 'new' : 'done'
-  var attachmentArray = [{
-    'fallback': message.fallback,
-    'color': message.color,
-    'pretext': message.pretext,
-    'fields':
-      [
-        ['Taak', taskStructure.task, false],
-        ['Verantwoordelijke', '<@' + taskStructure.responsibleid + '>', true],
-        ['Status', status, true],
-        ['Deadline', taskStructure.deadline, true],
-        ['Taaknummer', taskStructure.taskid, true]
-      ].map(function (obj) {
-        return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
-      })
-  }]
-  postAttachment(bot, attachmentArray, taskStructure.channelid)
+
 }
 
 var sendScore = function (bot, userId, score, channel) {
@@ -278,13 +207,9 @@ var uptime = function (bot, message) {
 
 module.exports = {
   'formatUptime': formatUptime,
-  'verifyDate': verifyDate,
   'addSpaces': addSpaces,
-  'verifyUserId': verifyUserId,
   'verifyChannelId': verifyChannelId,
   'verifyUserName': verifyUserName,
-  'verifyChannelName': verifyChannelName,
-  'regexp': regexp,
   'getBotImg': getBotImg,
   'getTeamId': getTeamId,
   'formatTasks': formatTasks,

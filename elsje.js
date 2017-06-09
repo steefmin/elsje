@@ -1,7 +1,7 @@
 require('./env.js')
 
 var functions = require('./functions')
-var post = require('./post')
+var post = require('./post')(bot)
 var newtask = require('./conversations/newtask')
 var instant = require('./conversations/instanttaak')
 var completetask = require('./conversations/completetask')

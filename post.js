@@ -117,7 +117,7 @@ module.exports = function (bot) {
     })
     api.showAllTasks(function (err, tasks) {
       if (!err) {
-          backupcallback(bot.identifyTeam(), tasks)
+        backupcallback(bot.identifyTeam(), tasks)
       }
     })
   }

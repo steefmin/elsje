@@ -29,10 +29,10 @@ var bot = controller.spawn({
   retry: Infinity
 }).startRTM()
 
-var reconnectcounter = 0
-controller.on('rtm_open', post.reconnect(bot, reconnectcounter, debug, function (increasedCounter) {
-  reconnectcounter = increasedCounter
-}))
+// var reconnectcounter = 0
+// controller.on('rtm_open', post.reconnect(bot, reconnectcounter, debug, function (increasedCounter) {
+//   reconnectcounter = increasedCounter
+// }))
 
 controller.hears(['shutdown'], 'direct_message,direct_mention,mention', functions.shutdown)
 

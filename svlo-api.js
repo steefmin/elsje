@@ -132,23 +132,12 @@ var changeScore = function (userid, score, cb) {
     if (err) {
       cb(err, null)
     } else {
-      if (singleScore === null) {
-        singleScore = 0
-      }
+      singleScore = singleScore || 0
       var options = newRequestStructure()
       options.method = 'changeScore'
       options.userid = userid
       options.score = singleScore + score
-      xmlcall(options, function (err, res) {
-        // temporary logging function
-        if (err) {
-          console.log('error: ')
-          console.log(err)
-        } else {
-          console.log('response: ')
-          console.log(res.body)
-        }
-      })
+      xmlcall(options, cb)
     }
   })
 }

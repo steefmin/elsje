@@ -191,22 +191,7 @@ var completeTask = function (response, convo) {
   if (!isNaN(parseInt(convo.source_message.match[1], 10))) {
     finishtask(convo, parseInt(convo.source_message.match[1], 10))
   } else {
-    var channel, send
-    if (functions.verifyChannelId(convo.source_message.channel)) {
-      channel = convo.source_message.channel
-      send = channel
-    } else {
-      channel = 'all'
-      send = convo.source_message.user
-    }
-    ShowList(channel, 'all', send)
-    convo.ask('Kan je mij het nummer geven van de taak die van de lijst af mag?', function (response, convo) {
-      if (!isNaN(parseInt(response.text, 10))) {
-//        convo.say('BAM, weer wat gedaan. Goed werk <@' + response.user + '>.\n')
-        TaskDone(response, convo)
-        convo.next()
-      }
-    })
+    showListGetNum(response, convo, TaskDone)
   }
 }
 
@@ -214,7 +199,7 @@ var TaskDone = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      var number = parseInt(res['Kan je mij het nummer geven van de taak die van de lijst af mag?'], 10)
+      var number = parseInt(res['Kan je mij het nummer geven van de taak?'], 10)
       finishtask(convo, number)
     }
   })
@@ -249,6 +234,10 @@ controller.hears(['update deadline', 'deadline veranderen', 'andere deadline'], 
 })
 
 var DeadlineNumber = function (response, convo) {
+  showListGetNum(response, convo, NewDeadline)
+}
+
+var showListGetNum = function (response, convo, cb) {
   var channel, send
   if (functions.verifyChannelId(convo.source_message.channel)) {
     channel = convo.source_message.channel
@@ -258,9 +247,9 @@ var DeadlineNumber = function (response, convo) {
     send = convo.source_message.user
   }
   ShowList(channel, 'all', send)
-  convo.ask('Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?', function (response, convo) {
+  convo.ask('Kan je mij het nummer geven van de taak?', function (response, convo) {
     if (!isNaN(parseInt(response.text, 10))) {
-      NewDeadline(response, convo)
+      cb(response, convo)
       convo.next()
     }
   })
@@ -282,7 +271,7 @@ var UpdateDeadline = function (response, convo) {
   convo.on('end', function (convo) {
     if (convo.status === 'completed') {
       var res = convo.extractResponses()
-      var taskid = parseInt(res['Kan je mij het nummer geven van de taak waarvan je de deadline wilt wijzigen?'], 10)
+      var taskid = parseInt(res['Kan je mij het nummer geven van de taak?'], 10)
       var deadline = res['Wat is de nieuwe deadline?']
       api.updateTask({taskid: taskid, deadline: deadline}, function (err) {
         if (err) {
@@ -321,7 +310,7 @@ var NewSendReminders = function () {
   api.showAllTasks(function (err, tasks) {
     if (!err) {
       functions.getTeamId(function (team) {
-        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date})
+        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
       })
     }
   })
@@ -392,19 +381,11 @@ var sendTo = function (formatted, sendToID) {
 
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
   var isChannel = functions.verifyChannelId(message.match[1])
-  var originalChannel = message.channel
-  var timestamp = message.ts
   if (isChannel) {
     bot.api.team.info({}, function (err, response) {
       if (!err) {
-        var domain = response.team.domain
-        bot.api.channels.info({'channel': originalChannel}, function (err, response) {
-          if (!err) {
-            var channelName = response.channel.name
-            var send = 'Er is een <http://' + domain + '.slack.com/archives/' + channelName + '/p' + timestamp.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
-            functions.postMessage(bot, send, isChannel)
-          }
-        })
+        var send = 'Er is een <http://' + response.team.domain + '.slack.com/archives/' + message.channel + '/p' + message.ts.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
+        functions.postMessage(bot, send, isChannel)
       }
     })
   }

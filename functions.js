@@ -1,33 +1,18 @@
-var formatUptime = function (uptime) {
-  var unit = 'seconde'
-  var days
-  if (uptime >= 1.5) {
-    unit = unit + 'n'
+var formatUptime = function (seconds) {
+  seconds = (seconds < 1) ? 1 : seconds
+  var data = {
+    'base': [1, 60, 60 * 60, 60 * 60 * 24],
+    'singular': ['seconde', 'minuut', 'uur', 'dag'],
+    'plural': ['seconden', 'minuten', 'uren', 'dagen']
   }
-  if (uptime > 60) {
-    uptime = uptime / 60
-    unit = 'minuut'
-    if (uptime >= 1.5) {
-      unit = 'minuten'
-    }
-    if (uptime > 60) {
-      uptime = uptime / 60
-      unit = 'uur'
-      if (uptime > 24) {
-        days = uptime / 24
-        unit = 'dag'
-        if (uptime >= 1.5) {
-          unit = unit + 'en'
-        }
-      }
-    }
-  }
-  if (days) {
-    uptime = Math.floor(days) + ' ' + unit + ' en ' + Math.round(uptime - Math.floor(days) * 24) + ' uur'
-  } else {
-    uptime = Math.round(uptime) + ' ' + unit
-  }
-  return uptime
+  var uptimes = data.base.filter(function (base) {
+    return seconds >= base
+  }).map(function (base, index) {
+    var value = Math.round(seconds / base)
+    var unit = (value === 1) ? data.singular[index] : data.plural[index]
+    return value + ' ' + unit
+  })
+  return uptimes.pop()
 }
 
 var verifyDate = function (text) {
@@ -54,9 +39,7 @@ var parseDate = function (text) {
   if (regexp(/\d{2}-\d{2}-\d{4}/, text)) {
     text = text.split('-').reverse().join('-')
   }
-  text = text.replace('maa', 'mar')
-  text = text.replace('mei', 'may')
-  text = text.replace('okt', 'oct')
+  text = text.replace('maa', 'mar').replace('mei', 'may').replace('okt', 'oct')
   var date = new Date(Date.parse(text))
   date.setDate(date.getDate() + 1)
   return date
@@ -109,11 +92,7 @@ var verifyChannelId = function (input) {
 }
 
 var regexp = function (patern, string) {
-  if (patern.exec(string)) {
-    return true
-  } else {
-    return false
-  }
+  return patern.exec(string)
 }
 
 var getBotImg = function (bot, callback) {
@@ -179,86 +158,55 @@ var formatTasks = function (tasks) {
 }
 
 var postMessage = function (bot, message, channel) {
-  getBotImg(bot, function (image) {
-    bot.api.chat.postMessage({
-      'channel': channel,
-      'text': message,
-      'username': bot.identity.name,
-      'icon_url': image
-    })
-  })
+  postGeneral(bot, {'text': message}, channel)
 }
 
 var postAttachment = function (bot, attachmentArray, channel) {
+  postGeneral(bot, {'attachments': attachmentArray}, channel)
+}
+
+var postGeneral = function (bot, something, channel) {
   getBotImg(bot, function (image) {
-    bot.api.chat.postMessage({
+    var general = {
       'channel': channel,
-      'attachments': attachmentArray,
       'username': bot.identity.name,
       'icon_url': image
-    })
+    }
+    Object.assign(general, something)
+    bot.api.chat.postMessage(general)
   })
 }
 
 var postSingleTask = function (bot, taskStructure, message) {
-  if (typeof message.color === 'undefined') {
-    message.color = '#3090C7'
-  }
-  if (typeof message.fallback === 'undefined') {
-    message.fallback = message.pretext
-  }
+  message.color = message.color || '#3090C7'
+  message.fallback = message.fallback || message.pretext
   var status = taskStructure.status !== 1 ? 'new' : 'done'
   var attachmentArray = [{
     'fallback': message.fallback,
     'color': message.color,
     'pretext': message.pretext,
-    'fields': [
-      {
-        'title': 'Taak',
-        'value': taskStructure.task,
-        'short': false
-      },
-      {
-        'title': 'Verantwoordelijke',
-        'value': '<@' + taskStructure.responsibleid + '>',
-        'short': true
-      },
-      {
-        'title': 'Status',
-        'value': status,
-        'short': true
-      },
-      {
-        'title': 'Deadline',
-        'value': taskStructure.deadline,
-        'short': true
-      },
-      {
-        'title': 'Taaknummer',
-        'value': taskStructure.taskid,
-        'short': true
-      }
-    ]
+    'fields':
+      [
+        ['Taak', taskStructure.task, false],
+        ['Verantwoordelijke', '<@' + taskStructure.responsibleid + '>', true],
+        ['Status', status, true],
+        ['Deadline', taskStructure.deadline, true],
+        ['Taaknummer', taskStructure.taskid, true]
+      ].map(function (obj) {
+        return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
+      })
   }]
   postAttachment(bot, attachmentArray, taskStructure.channelid)
 }
 
 var sendScore = function (bot, userId, score, channel) {
-  var plural = ''
-  if (Math.abs(score) > 1 || score === 0) {
-    plural = 'en'
-  }
+  var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
   var smiley = getScoreSmiley(score)
   var attachment = [{
     'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley,
     'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
   }]
-  if (score > 0) {
-    attachment.color = 'good'
-  }
-  if (score < 0) {
-    attachment.color = 'danger'
-  }
+  attachment.color = score >= 0 ? 'good' : 'danger'
   postAttachment(bot, attachment, channel)
 }
 
@@ -283,12 +231,8 @@ var getScoreSmiley = function (score) {
     ':ghost:'
   ]
   var relativeScore
-  if (score > level.high) {
-    score = level.high
-  }
-  if (score < level.low) {
-    score = level.low
-  }
+  score = score > level.high ? level.high : score
+  score = score < level.low ? level.low : score
   if (score > 0) {
     relativeScore = Math.round((positiveSmileys.length - 1) / (level.high) * (score - 1))
     return positiveSmileys[relativeScore]

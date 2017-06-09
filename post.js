@@ -26,6 +26,7 @@ module.exports = function (bot) {
   }
 
   module.attachment = function (attachmentArray, channel) {
+    console.log(bot)
     bot.say({
       'attachment': attachmentArray,
       'channel': channel
@@ -33,6 +34,7 @@ module.exports = function (bot) {
   }
 
   module.message = function (message, channel) {
+    console.log(bot)
     bot.say({
       'text': message,
       'channel': channel

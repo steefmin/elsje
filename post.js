@@ -127,6 +127,51 @@ var reminders = function (backupcallback) {
   })
 }
 
+var score = function (userId, score, channel) {
+  var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
+  var smiley = getScoreSmiley(score)
+  var attachmentArray = [{
+    'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley,
+    'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
+  }]
+  attachmentArray.color = score >= 0 ? 'good' : 'danger'
+  attachment(attachmentArray, channel)
+}
+
+function getScoreSmiley (score) {
+  var level = {
+    high: 100,
+    low: -20
+  }
+  var positiveSmileys = [
+    ':slightly_smiling_face:',
+    ':grinning:',
+    ':dizzy_face:',
+    ':the_horns:',
+    ':heart_eyes:'
+  ]
+  var negativeSmileys = [
+    ':slightly_frowning_face:',
+    ':cry:',
+    ':sob:',
+    ':confounded:',
+    ':scream:',
+    ':ghost:'
+  ]
+  var relativeScore
+  score = score > level.high ? level.high : score
+  score = score < level.low ? level.low : score
+  if (score > 0) {
+    relativeScore = Math.round((positiveSmileys.length - 1) / (level.high) * (score - 1))
+    return positiveSmileys[relativeScore]
+  } else if (score < 0) {
+    relativeScore = Math.round((negativeSmileys.length - 1) / (-level.low - 1) * (-score - 1))
+    return negativeSmileys[relativeScore]
+  } else {
+    return ':no_mouth:'
+  }
+}
+
 module.exports = {
   'reconnect': reconnect, // done
   'attachment': attachment, // done
@@ -134,5 +179,6 @@ module.exports = {
   'singleTask': singleTask, // done
   'tasklist': tasklist, // done
   'reminders': reminders, // done
-  'ShowList': ShowList // done
+  'ShowList': ShowList, // done
+  'score': score // done
 }

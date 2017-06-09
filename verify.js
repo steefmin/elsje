@@ -53,9 +53,9 @@ var channelid = function (input) {
 }
 
 module.exports = {
-  'userid': userid, // done
-  'username': username, // done
-  'date': date, // done
-  'channelname': channelname, // done
-  'channelid': channelid // done
+  'userid': userid,
+  'username': username,
+  'date': date,
+  'channelname': channelname,
+  'channelid': channelid
 }

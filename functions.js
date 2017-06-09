@@ -1,5 +1,4 @@
 var os = require('os')
-var post = require('./post')
 
 var formatUptime = function (seconds) {
   seconds = (seconds < 1) ? 1 : seconds
@@ -16,22 +15,6 @@ var formatUptime = function (seconds) {
     return value + ' ' + unit
   })
   return uptimes.pop()
-}
-
-var addSpaces = function (numberOfSpaces) {
-  var spaces = ''
-  for (var i = 0; i < numberOfSpaces; i++) {
-    spaces += ' '
-  }
-  return spaces
-}
-
-var getBotImg = function (bot, callback) {
-  bot.api.users.info({'user': bot.identity.id}, function (err, reply) {
-    if (!err) {
-      callback(reply.user.profile.image_original)
-    }
-  })
 }
 
 var getTeamId = function (bot, callback) {
@@ -88,49 +71,12 @@ var formatTasks = function (tasks) {
   return formatted
 }
 
-var sendScore = function (bot, userId, score, channel) {
-  var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
-  var smiley = getScoreSmiley(score)
-  var attachment = [{
-    'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley,
-    'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
-  }]
-  attachment.color = score >= 0 ? 'good' : 'danger'
-  post.attachment(attachment, channel)
-}
-
-var getScoreSmiley = function (score) {
-  var level = {
-    high: 100,
-    low: -20
+function addSpaces (numberOfSpaces) {
+  var spaces = ''
+  for (var i = 0; i < numberOfSpaces; i++) {
+    spaces += ' '
   }
-  var positiveSmileys = [
-    ':slightly_smiling_face:',
-    ':grinning:',
-    ':dizzy_face:',
-    ':the_horns:',
-    ':heart_eyes:'
-  ]
-  var negativeSmileys = [
-    ':slightly_frowning_face:',
-    ':cry:',
-    ':sob:',
-    ':confounded:',
-    ':scream:',
-    ':ghost:'
-  ]
-  var relativeScore
-  score = score > level.high ? level.high : score
-  score = score < level.low ? level.low : score
-  if (score > 0) {
-    relativeScore = Math.round((positiveSmileys.length - 1) / (level.high) * (score - 1))
-    return positiveSmileys[relativeScore]
-  } else if (score < 0) {
-    relativeScore = Math.round((negativeSmileys.length - 1) / (-level.low - 1) * (-score - 1))
-    return negativeSmileys[relativeScore]
-  } else {
-    return ':no_mouth:'
-  }
+  return spaces
 }
 
 var shutdown = function (bot, message) {
@@ -165,13 +111,10 @@ var uptime = function (bot, message) {
 
 module.exports = {
   'formatUptime': formatUptime, // is needed
-  'addSpaces': addSpaces,
-  'getBotImg': getBotImg,
   'getTeamId': getTeamId, // is needed
   'formatTasks': formatTasks, // is needed
   'sortTasks': sortTasks, // is needed
   'filterTasks': filterTasks, // is needed
-  'sendScore': sendScore,
   'shutdown': shutdown, // is needed
   'uptime': uptime // is needed
 }

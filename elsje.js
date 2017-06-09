@@ -1,7 +1,6 @@
 require('./env.js')
 
 var functions = require('./functions')
-var api = require('./svlo-api')
 var post = require('./post')
 var newtask = require('./conversations/newtask')
 var instant = require('./conversations/instant')
@@ -9,9 +8,9 @@ var completetask = require('./conversations/completetask')
 var updatedeadline = require('./conversations/updatedeadline')
 var tasklist = require('./conversations/tasklist')
 var cc = require('./conversations/cc')
+var score = require('./conversations/score')
 
 var Botkit = require('botkit')
-var Colormap = require('colormap')
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
@@ -63,84 +62,14 @@ controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'd
 
 controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', cc.conversation)
 
-controller.on('reaction_added', function (bot, message) {
-  if (message.item_user !== message.user) {
-    if (message.reaction === '+1') {
-      api.changeScore(message.item_user, 1)
-    }
-    if (message.reaction === '-1') {
-      api.changeScore(message.item_user, -1)
-    }
-  }
-})
+controller.on('reaction_added', score.reactionAdded)
 
-controller.on('reaction_removed', function (bot, message) {
-  if (message.item_user !== message.user) {
-    if (message.reaction === '+1') {
-      api.changeScore(message.item_user, -1)
-    }
-    if (message.reaction === '-1') {
-      api.changeScore(message.item_user, 1)
-    }
-  }
-})
+controller.on('reaction_removed', score.reactionRemoved)
 
-controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message) {
-  var userId = functions.verifyUserName(message.match[1])
-  var input = message.match[0].replace(':', '').replace(' ', '')
-  var modifier = input.substring(12, 14)
-  if (userId && userId !== message.user) {
-    if (modifier === '++') {
-      api.changeScore(userId, 1)
-    }
-    if (modifier === '--') {
-      api.changeScore(userId, -1)
-    }
-  }
-})
+controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', score.votes)
 
-controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
-  var userId = functions.verifyUserName(message.match[1])
-  if (userId) {
-    api.getSingleScore(userId, function (err, singleScore) {
-      if (!err) {
-        functions.sendScore(bot, userId, singleScore, message.channel)
-      }
-    })
-  }
-})
+controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', score.check)
 
-controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
-  api.getScore(function (err, scoreboard) {
-    if (!err) {
-      var attachment = []
-      scoreboard.forEach(function (value) {
-        if (functions.verifyUserId(value.userid)) {
-          var item = {
-            'text': '<@' + value.userid + '>: ' + value.score,
-            'fallback': '<@' + value.userid + '>: ' + value.score,
-            'score': value.score
-          }
-          attachment.push(item)
-        }
-      })
-      attachment.sort(function (a, b) {
-        return b.score - a.score
-      })
-      var lowScore = attachment[attachment.length - 1].score
-      var options = {
-        'colormap': 'jet',
-        'nshades': Math.max(attachment[0].score - lowScore + 1, 6),
-        'format': 'hex',
-        'alpha': 1
-      }
-      var cg = Colormap(options)
-      for (var i = 0; i < attachment.length; i++) {
-        attachment[i].color = cg[attachment[i].score - lowScore]
-      }
-      functions.postAttachment(bot, attachment, message.channel)
-    }
-  })
-})
+controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', score.leaderboard)
 
 module.exports = {'bot': bot}

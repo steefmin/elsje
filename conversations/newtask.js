@@ -52,7 +52,7 @@ module.exports = function (bot) {
       response.text = channelid
       convo.say('Kijk in <#' + channelid + '>.')
       convo.next()
-    } 
+    }
   }
 
   function endCollection (response, convo) {

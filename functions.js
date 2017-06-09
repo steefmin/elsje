@@ -17,14 +17,6 @@ var formatUptime = function (seconds) {
   return uptimes.pop()
 }
 
-var getTeamId = function (bot, callback) {
-  bot.api.users.info({'user': bot.identity.id}, function (err, reply) {
-    if (!err) {
-      callback(reply.user.team_id)
-    }
-  })
-}
-
 var sortTasksByChannel = function (a, b) {
   return sortTasks(a, b, 'channelid')
 }
@@ -107,7 +99,6 @@ var uptime = function (bot, message) {
 
 module.exports = {
   'formatUptime': formatUptime,
-  'getTeamId': getTeamId,
   'formatTasks': formatTasks,
   'sortTasksById': sortTasksById,
   'sortTasksByChannel': sortTasksByChannel,

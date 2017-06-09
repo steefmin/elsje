@@ -33,7 +33,7 @@ module.exports = function (bot) {
   }
 
   module.message = function (message, channel) {
-    bot.bot.say({
+    bot.say({
       'text': message,
       'channel': channel
     })
@@ -117,9 +117,7 @@ module.exports = function (bot) {
     })
     api.showAllTasks(function (err, tasks) {
       if (!err) {
-        functions.getTeamId(bot, function (team) {
-          backupcallback(team, tasks)
-        })
+          backupcallback(bot.identifyTeam(), tasks)
       }
     })
   }

@@ -142,12 +142,12 @@ var formatTasks = function (tasks) {
       addtostring =
         '<#' + task.channelid + '>' +
         addSpaces(2) +
-        task.taskid +
-        addSpaces(4 - task.taskid.toString().length) +
-        '<@' + task.responsibleid + '>' +
-        addSpaces(2) +
         task.deadline +
         addSpaces(2) +
+        '<@' + task.responsibleid + '>' +
+        addSpaces(4 - task.taskid.toString().length) +
+        task.taskid + ':' +
+        addSpaces(1) +
         task.task +
         '\n'
       formatted += addtostring

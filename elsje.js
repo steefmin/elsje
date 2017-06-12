@@ -352,7 +352,7 @@ var ShowList = function (channelName, userName, sendto) {
     if (usertasks.length === 0) {
       return false
     }
-    sortedtasks = functions.sortTasks(usertasks, 'channelid')
+    sortedtasks = functions.sortTasks(functions.sortTasks(usertasks, 'deadline'), 'channelid')
     formatted = functions.formatTasks(sortedtasks)
     userID = functions.verifyUserId(sendto)
     if (userID) {

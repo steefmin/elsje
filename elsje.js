@@ -309,7 +309,7 @@ var NewSendReminders = function () {
   })
   api.showAllTasks(function (err, tasks) {
     if (!err) {
-      functions.getTeamId(function (team) {
+      functions.getTeamId(bot, function (team) {
         controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
       })
     }

@@ -134,27 +134,42 @@ var sortTasks = function (tasks, sortBy) {
   return sorted
 }
 
-var formatTasks = function (tasks) {
+var formatTasks = function (bot, tasks) {
   var formatted = 'Takenlijst\n```'
-  tasks.forEach(function (task, index, array) {
-    var addtostring = ''
-    if (task.status !== 'done') {
-      addtostring =
-        '<#' + task.channelid + '>' +
-        addSpaces(2) +
-        task.deadline +
-        addSpaces(2) +
-        '<@' + task.responsibleid + '>' +
-        addSpaces(4 - task.taskid.toString().length) +
-        task.taskid + ':' +
-        addSpaces(1) +
-        task.task +
-        '\n'
-      formatted += addtostring
+  bot.api.channels.list({}, function (err, reply) {
+    if (!err) {
+      bot.api.users.list({}, function (error, response) {
+        if (!error) {
+          tasks.forEach(function (task, index, array) {
+            var addtostring = ''
+            if (task.status !== 'done') {
+              addtostring =
+                '<#' + task.channelid + '>' +
+                addSpaces(25 - nameLength(reply.channels, task.channelid)) +
+                task.deadline +
+                addSpaces(16 - nameLength(response.members, task.responsibleid)) +
+                '<@' + task.responsibleid + '>' +
+                addSpaces(4 - task.taskid.toString().length) +
+                task.taskid + ':' +
+                addSpaces(1) +
+                task.task +
+                '\n'
+              formatted += addtostring
+            }
+          })
+          formatted += '```'
+        }
+      })
     }
   })
-  formatted += '```'
   return formatted
+}
+
+function nameLength (channels, channelid) {
+  var channel = channels.filter(function (channelinfo) {
+    return channelinfo.id === channelid
+  })
+  return channel[0].name.length || 6
 }
 
 var postMessage = function (bot, message, channel) {

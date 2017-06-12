@@ -353,7 +353,7 @@ var ShowList = function (channelName, userName, sendto) {
       return false
     }
     sortedtasks = functions.sortTasks(functions.sortTasks(usertasks, 'deadline'), 'channelid')
-    formatted = functions.formatTasks(sortedtasks)
+    formatted = functions.formatTasks(bot, sortedtasks)
     userID = functions.verifyUserId(sendto)
     if (userID) {
       sendTo(formatted, userID)

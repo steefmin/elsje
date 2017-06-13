@@ -5,7 +5,8 @@
   "main": "elsje.js",
   "scripts": {
     "test": "node elsje.js",
-    "start": "forever start -l forever.log -o out.log -e error.log elsje.js"
+    "start": "forever start -l forever.log -o out.log -e error.log elsje.js", 
+    "stop": "forever stop elsje.js"
   },
   "repository": {
     "type": "git",

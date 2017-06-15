@@ -4,3 +4,4 @@ forever.json
 node_modules
 nohup.out
 downtime.sh
+*.log

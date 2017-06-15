@@ -1,6 +1,6 @@
 storage
 env.js
+forever.json
 node_modules
 nohup.out
 downtime.sh
-

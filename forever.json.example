@@ -5,7 +5,7 @@
     "script": "elsje.js",
     "args": ["production"],
     "sourceDir": "path/to/elsje",
-    "logFile": "elsje-forever.log",
-    "outFile": "elsje-out.log",
-    "errFile": "elsje-err.log"
+    "logFile": "elsje.log",
+    "outFile": "output.log",
+    "errFile": "error.log"
 }

@@ -2,10 +2,11 @@
     "uid": "elsje",
     "append": true,
     "watch": true,
+    "watchIgnore": "storage",
     "script": "elsje.js",
     "args": ["production"],
     "sourceDir": "path/to/elsje",
-    "logFile": "path/to/forever.log",
-    "outFile": "path/to/out.log",
-    "errFile": "path/to/err.log"
+    "logFile": "elsje-forever.log",
+    "outFile": "elsje-out.log",
+    "errFile": "elsje-err.log"
 }

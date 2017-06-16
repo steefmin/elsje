@@ -131,9 +131,7 @@ var opslaanVanTaak = function (response, convo) {
 
 controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
   var parts = message.match[1].split('|')
-  if (parts.length !== 5) {
-    bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
-  } else {
+  if (parts.length === 5 || (parts.length === 6 && parts[4] === 'silent')) {
     var task = parts[0]
     var userId = message.user
     var responsibleId = functions.verifyUserName(parts[1])
@@ -147,16 +145,28 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
         'responsibleid': responsibleId,
         'deadline': deadline
       }
-      api.addTask(taskStructure, taskStoreResult)
+      if (parts[4] === 'silent') {
+        api.addTask(taskStructure, taskStoreSilent)
+      } else {
+        api.addTask(taskStructure, taskStoreResult)
+      }
     } else {
       bot.reply(message, 'Sorry, ik heb iets niet begrepen, probeer het nog een keer.')
     }
+  } else {
+    bot.reply(message, 'Gebruik instanttaak als volgt: instanttaak taak | @naam | deadline | #kanaal')
   }
 })
 
+var taskStoreSilent = function (err, task) {
+  if (err) {
+    functions.postMessage(bot, 'Sorry, er is iets misgegaan bij het opslaan van de taak.', task.channel)
+  }
+}
+
 var taskStoreResult = function (err, task) {
   if (err) {
-    functions.postMessage(bot, 'Sorry, er is iets misgegaan bij het opslaan.', task.channel)
+    functions.postMessage(bot, 'Sorry, er is iets misgegaan bij het opslaan van de taak.', task.channel)
   } else {
     var taskmessage = {
       'fallback': 'Taak toegevoegd voor <@' + task.responsibleid + '>: ' + task.task,

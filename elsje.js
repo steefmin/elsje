@@ -131,7 +131,7 @@ var opslaanVanTaak = function (response, convo) {
 
 controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
   var parts = message.match[1].split('|')
-  if (parts.length === 5 || (parts.length === 6 && parts[4] === 'silent')) {
+  if (parts.length === 5 || (parts.length === 6 && functions.regexp('silent', parts[4]))) {
     var task = parts[0]
     var userId = message.user
     var responsibleId = functions.verifyUserName(parts[1])

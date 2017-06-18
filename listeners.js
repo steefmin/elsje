@@ -1,4 +1,7 @@
 var ordinal = require('ordinal-numbers')
+var os = require('os')
+
+var functions = require('./functions')
 
 var debug = (process.argv[2] !== 'production')
 
@@ -22,6 +25,12 @@ var restart = function (bot, message) {
   }
 }
 
+var uptime = function (bot, message) {
+  var hostname = os.hostname()
+  var uptime = functions.formatUptime(process.uptime())
+  bot.reply(message, ':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.')
+}
+
 // function postMessage (bot, message, channel) {
 //   postGeneral(bot, {'text': message}, channel)
 // }
@@ -39,5 +48,6 @@ function postGeneral (bot, something, channel) {
 }
 
 module.exports = {
-  'restart': restart
+  'restart': restart,
+  'uptime': uptime
 }

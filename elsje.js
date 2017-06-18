@@ -1,20 +1,20 @@
 require('./env.js')
-var functions = require('./functions')
-var api = require('./svlo-api')
+// var functions = require('./functions')
+// var api = require('./svlo-api')
 var bot = require('./listeners')
 
 var Botkit = require('botkit')
 
-var Colormap = require('colormap')
+// var Colormap = require('colormap')
 
-var os = require('os')
+// var os = require('os')
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
   process.exit(1)
 }
 
-debug = (process.argv[2] !== 'production')
+var debug = (process.argv[2] !== 'production')
 
 var controller = Botkit.slackbot({
   'json_file_store': process.env.STORAGE_LOCATION,
@@ -35,11 +35,7 @@ controller.hears(['restart'], 'direct_message,direct_mention,mention', function 
   }, 3000)
 })
 
-// controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', function (bot, message) {
-//   var hostname = os.hostname()
-//   var uptime = functions.formatUptime(process.uptime())
-//   bot.reply(message, ':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.')
-// })
+controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'uptime', 'identify yourself', 'who are you', 'what is your name'], 'direct_message,direct_mention,mention', bot.uptime)
 //
 // controller.hears(['nieuwe taak', 'voeg toe', 'taak (.*)voegen'], 'direct_mention,mention,direct_message', function (bot, message) {
 //   bot.startConversation(message, voegTaakToe)

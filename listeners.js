@@ -103,6 +103,8 @@ var leaderboard = function (bot, message) {
             'fallback': '<@' + value.userid + '>: ' + value.score,
             'score': value.score
           }
+        } else {
+          return false
         }
       }).sort(function (a, b) {
         return b.score - a.score

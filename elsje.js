@@ -131,7 +131,8 @@ var opslaanVanTaak = function (response, convo) {
 
 controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message) {
   var parts = message.match[1].split('|')
-  if (parts.length === 5 || (parts.length === 6 && functions.regexp(/silent/g, parts[5])[0] === 'silent')) {
+  var silent = functions.regexp(/silent/g, parts[5])[0] === 'silent'
+  if (parts.length === 5 || (parts.length === 6 && silent)) {
     var task = parts[0]
     var userId = message.user
     var responsibleId = functions.verifyUserName(parts[1])
@@ -145,7 +146,7 @@ controller.hears(['instanttaak (.*)'], 'direct_message', function (bot, message)
         'responsibleid': responsibleId,
         'deadline': deadline
       }
-      if (parts[4] === 'silent') {
+      if (silent) {
         api.addTask(taskStructure, taskStoreSilent)
       } else {
         api.addTask(taskStructure, taskStoreResult)

@@ -127,8 +127,7 @@ var leaderboard = function (bot, message) {
 }
 
 var scoreReactions = function (bot, message) {
-  console.log(message)
-  if (message.item_user !== message.user) {
+  if (message.item_user !== message.user && (message.reaction === '+1' || message.reaction === '-1')) {
     var score = 1
     if (message.reaction === '+1') {
       score = score * 1
@@ -136,13 +135,13 @@ var scoreReactions = function (bot, message) {
     if (message.reaction === '-1') {
       score = score * -1
     }
-    if (true) {
+    if (message.type === 'reaction_added') {
       score = score * 1
     }
-    if (false) {
+    if (message.type === 'reaction_removed') {
       score = score * -1
     }
-    api.changeScore(message.item_user, score)
+    api.changeScore(message.item_user, score, noresponse)
   }
 }
 
@@ -151,11 +150,17 @@ var scoreVotes = function (bot, message) {
   var modifier = message.match[0].replace(':', '').replace(' ', '').substring(12, 14)
   if (userId && userId !== message.user) {
     if (modifier === '++') {
-      api.changeScore(userId, 1)
+      api.changeScore(userId, 1, noresponse)
     }
     if (modifier === '--') {
-      api.changeScore(userId, -1)
+      api.changeScore(userId, -1, noresponse)
     }
+  }
+}
+
+function noresponse (err) {
+  if (err) {
+    console.log(err)
   }
 }
 

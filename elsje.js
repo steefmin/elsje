@@ -5,10 +5,6 @@ var bot = require('./listeners')
 
 var Botkit = require('botkit')
 
-// var Colormap = require('colormap')
-
-// var os = require('os')
-
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
   process.exit(1)
@@ -404,36 +400,5 @@ controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'upt
 // })
 //
 controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', bot.checkscore)
-//
-// controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
-//   api.getScore(function (err, scoreboard) {
-//     if (!err) {
-//       var attachment = []
-//       scoreboard.forEach(function (value) {
-//         if (functions.verifyUserId(value.userid)) {
-//           var item = {
-//             'text': '<@' + value.userid + '>: ' + value.score,
-//             'fallback': '<@' + value.userid + '>: ' + value.score,
-//             'score': value.score
-//           }
-//           attachment.push(item)
-//         }
-//       })
-//       attachment.sort(function (a, b) {
-//         return b.score - a.score
-//       })
-//       var lowScore = attachment[attachment.length - 1].score
-//       var options = {
-//         'colormap': 'jet',
-//         'nshades': Math.max(attachment[0].score - lowScore + 1, 6),
-//         'format': 'hex',
-//         'alpha': 1
-//       }
-//       var cg = Colormap(options)
-//       for (var i = 0; i < attachment.length; i++) {
-//         attachment[i].color = cg[attachment[i].score - lowScore]
-//       }
-//       functions.postAttachment(bot, attachment, message.channel)
-//     }
-//   })
-// })
+
+controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', bot.leaderboard)

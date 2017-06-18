@@ -1,5 +1,6 @@
 var ordinal = require('ordinal-numbers')
 var os = require('os')
+var Colormap = require('colormap')
 
 var functions = require('./functions')
 var api = require('./svlo-api')
@@ -92,8 +93,40 @@ function sendScore (bot, userId, score, channel) {
   postAttachment(bot, attachment, channel)
 }
 
+var leaderboard = function (bot, message) {
+  api.getScore(function (err, scoreboard) {
+    if (!err) {
+      var activeuserlist = scoreboard.map(function (value) {
+        if (functions.verifyUserId(value.userid)) {
+          return {
+            'text': '<@' + value.userid + '>: ' + value.score,
+            'fallback': '<@' + value.userid + '>: ' + value.score,
+            'score': value.score
+          }
+        }
+      }).sort(function (a, b) {
+        return b.score - a.score
+      })
+      var lowScore = activeuserlist[activeuserlist.length - 1].score
+      var options = {
+        'colormap': 'jet',
+        'nshades': Math.max(activeuserlist[0].score - lowScore + 1, 6),
+        'format': 'hex',
+        'alpha': 1
+      }
+      var cg = Colormap(options)
+      var coloredlist = activeuserlist.map(function (entry) {
+        entry.color = cg[entry.score - lowScore]
+        return entry
+      })
+      postAttachment(bot, coloredlist, message.channel)
+    }
+  })
+}
+
 module.exports = {
   'restart': restart,
   'uptime': uptime,
-  'checkscore': checkscore
+  'checkscore': checkscore,
+  'leaderboard': leaderboard
 }

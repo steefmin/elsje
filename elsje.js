@@ -403,16 +403,7 @@ controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'upt
 //   }
 // })
 //
-// controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', function (bot, message) {
-//   var userId = functions.verifyUserName(message.match[1])
-//   if (userId) {
-//     api.getSingleScore(userId, function (err, singleScore) {
-//       if (!err) {
-//         functions.sendScore(bot, userId, singleScore, message.channel)
-//       }
-//     })
-//   }
-// })
+controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', bot.checkscore)
 //
 // controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', function (bot, message) {
 //   api.getScore(function (err, scoreboard) {

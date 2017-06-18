@@ -157,39 +157,6 @@ var formatTasks = function (tasks) {
   return formatted
 }
 
-var postSingleTask = function (bot, taskStructure, message) {
-  message.color = message.color || '#3090C7'
-  message.fallback = message.fallback || message.pretext
-  var status = taskStructure.status !== 1 ? 'new' : 'done'
-  var attachmentArray = [{
-    'fallback': message.fallback,
-    'color': message.color,
-    'pretext': message.pretext,
-    'fields':
-      [
-        ['Taak', taskStructure.task, false],
-        ['Verantwoordelijke', '<@' + taskStructure.responsibleid + '>', true],
-        ['Status', status, true],
-        ['Deadline', taskStructure.deadline, true],
-        ['Taaknummer', taskStructure.taskid, true]
-      ].map(function (obj) {
-        return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
-      })
-  }]
-  postAttachment(bot, attachmentArray, taskStructure.channelid)
-}
-
-var sendScore = function (bot, userId, score, channel) {
-  var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
-  var smiley = getScoreSmiley(score)
-  var attachment = [{
-    'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley,
-    'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
-  }]
-  attachment.color = score >= 0 ? 'good' : 'danger'
-  postAttachment(bot, attachment, channel)
-}
-
 var getScoreSmiley = function (score) {
   var level = {
     high: 100,
@@ -238,8 +205,5 @@ module.exports = {
   'formatTasks': formatTasks,
   'sortTasks': sortTasks,
   'filterTasks': filterTasks,
-  'postMessage': postMessage,
-  'postAttachment': postAttachment,
-  'postSingleTask': postSingleTask,
-  'sendScore': sendScore
+  'getScoreSmiley': getScoreSmiley
 }

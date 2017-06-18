@@ -2,6 +2,7 @@ var ordinal = require('ordinal-numbers')
 var os = require('os')
 
 var functions = require('./functions')
+var api = require('./svlo-api')
 
 var debug = (process.argv[2] !== 'production')
 
@@ -31,6 +32,28 @@ var uptime = function (bot, message) {
   bot.reply(message, ':robot_face: Ik ben een bot genaamd <@' + bot.identity.name + '>. Ik draai al ' + uptime + ' op ' + hostname + '.')
 }
 
+// function postSingleTask (bot, taskStructure, message) {
+//   message.color = message.color || '#3090C7'
+//   message.fallback = message.fallback || message.pretext
+//   var status = taskStructure.status !== 1 ? 'new' : 'done'
+//   var attachmentArray = [{
+//     'fallback': message.fallback,
+//     'color': message.color,
+//     'pretext': message.pretext,
+//     'fields':
+//       [
+//         ['Taak', taskStructure.task, false],
+//         ['Verantwoordelijke', '<@' + taskStructure.responsibleid + '>', true],
+//         ['Status', status, true],
+//         ['Deadline', taskStructure.deadline, true],
+//         ['Taaknummer', taskStructure.taskid, true]
+//       ].map(function (obj) {
+//         return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
+//       })
+//   }]
+//   postAttachment(bot, attachmentArray, taskStructure.channelid)
+// }
+
 // function postMessage (bot, message, channel) {
 //   postGeneral(bot, {'text': message}, channel)
 // }
@@ -47,7 +70,30 @@ function postGeneral (bot, something, channel) {
   bot.say(general)
 }
 
+var checkscore = function (bot, message) {
+  var userId = functions.verifyUserName(message.match[1])
+  if (userId) {
+    api.getSingleScore(userId, function (err, score) {
+      if (!err) {
+        sendScore(bot, userId, score, message.channel)
+      }
+    })
+  }
+}
+
+function sendScore (bot, userId, score, channel) {
+  var plural = Math.abs(score) > 1 || score === 0 ? 'en' : ''
+  var smiley = functions.getScoreSmiley(score)
+  var attachment = [{
+    'fallback': '<@' + userId + '> heeft nu ' + score + ' punt' + plural,
+    'text': ' <@' + userId + '> heeft nu ' + score + ' punt' + plural + ' ' + smiley
+  }]
+  attachment.color = score >= 0 ? 'good' : 'danger'
+  postAttachment(bot, attachment, channel)
+}
+
 module.exports = {
   'restart': restart,
-  'uptime': uptime
+  'uptime': uptime,
+  'checkscore': checkscore
 }

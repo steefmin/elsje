@@ -363,42 +363,12 @@ controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'upt
 //   }
 // })
 //
-// controller.on('reaction_added', function (bot, message) {
-//   if (message.item_user !== message.user) {
-//     if (message.reaction === '+1') {
-//       api.changeScore(message.item_user, 1)
-//     }
-//     if (message.reaction === '-1') {
-//       api.changeScore(message.item_user, -1)
-//     }
-//   }
-// })
-//
-// controller.on('reaction_removed', function (bot, message) {
-//   if (message.item_user !== message.user) {
-//     if (message.reaction === '+1') {
-//       api.changeScore(message.item_user, -1)
-//     }
-//     if (message.reaction === '-1') {
-//       api.changeScore(message.item_user, 1)
-//     }
-//   }
-// })
-//
-// controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', function (bot, message) {
-//   var userId = functions.verifyUserName(message.match[1])
-//   var input = message.match[0].replace(':', '').replace(' ', '')
-//   var modifier = input.substring(12, 14)
-//   if (userId && userId !== message.user) {
-//     if (modifier === '++') {
-//       api.changeScore(userId, 1)
-//     }
-//     if (modifier === '--') {
-//       api.changeScore(userId, -1)
-//     }
-//   }
-// })
-//
+controller.on('reaction_added', bot.scoreReactions)
+
+controller.on('reaction_removed', bot.scoreReactions)
+
+controller.hears(['(.*)\\+\\+', '(.*)\\-\\-'], 'ambient', bot.scoreVotes)
+
 controller.hears(['check(.*)', 'score(.*)'], 'mention,direct_mention,direct_message', bot.checkscore)
 
 controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', bot.leaderboard)

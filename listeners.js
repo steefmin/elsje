@@ -126,9 +126,44 @@ var leaderboard = function (bot, message) {
   })
 }
 
+var scoreReactions = function (bot, message) {
+  console.log(message)
+  if (message.item_user !== message.user) {
+    var score = 1
+    if (message.reaction === '+1') {
+      score = score * 1
+    }
+    if (message.reaction === '-1') {
+      score = score * -1
+    }
+    if (true) {
+      score = score * 1
+    }
+    if (false) {
+      score = score * -1
+    }
+    api.changeScore(message.item_user, score)
+  }
+}
+
+var scoreVotes = function (bot, message) {
+  var userId = functions.verifyUserName(message.match[1])
+  var modifier = message.match[0].replace(':', '').replace(' ', '').substring(12, 14)
+  if (userId && userId !== message.user) {
+    if (modifier === '++') {
+      api.changeScore(userId, 1)
+    }
+    if (modifier === '--') {
+      api.changeScore(userId, -1)
+    }
+  }
+}
+
 module.exports = {
   'restart': restart,
   'uptime': uptime,
   'checkscore': checkscore,
-  'leaderboard': leaderboard
+  'leaderboard': leaderboard,
+  'scoreReactions': scoreReactions,
+  'scoreVotes': scoreVotes
 }

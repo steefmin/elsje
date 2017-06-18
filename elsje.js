@@ -350,19 +350,9 @@ controller.hears(['ken ik jou', 'wie ben jij', 'hoe lang ben je al wakker', 'upt
 //     return false
 //   }
 // }
-//
-// controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', function (bot, message) {
-//   var isChannel = functions.verifyChannelId(message.match[1])
-//   if (isChannel) {
-//     bot.api.team.info({}, function (err, response) {
-//       if (!err) {
-//         var send = 'Er is een <http://' + response.team.domain + '.slack.com/archives/' + message.channel + '/p' + message.ts.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
-//         functions.postMessage(bot, send, isChannel)
-//       }
-//     })
-//   }
-// })
-//
+
+controller.hears(['cc:(.*)', 'cc: (.*)', 'cc (.*)'], 'ambient', bot.cc)
+
 controller.on('reaction_added', bot.scoreReactions)
 
 controller.on('reaction_removed', bot.scoreReactions)

@@ -55,9 +55,9 @@ var uptime = function (bot, message) {
 //   postAttachment(bot, attachmentArray, taskStructure.channelid)
 // }
 
-// function postMessage (bot, message, channel) {
-//   postGeneral(bot, {'text': message}, channel)
-// }
+function postMessage (bot, message, channel) {
+  postGeneral(bot, {'text': message}, channel)
+}
 
 function postAttachment (bot, attachmentArray, channel) {
   postGeneral(bot, {'attachments': attachmentArray}, channel)
@@ -164,11 +164,24 @@ function noresponse (err) {
   }
 }
 
+var cc = function (bot, message) {
+  var isChannel = functions.verifyChannelId(message.match[1])
+  if (isChannel) {
+    bot.api.team.info({}, function (err, response) {
+      if (!err) {
+        var send = 'Er is een <http://' + response.team.domain + '.slack.com/archives/' + message.channel + '/p' + message.ts.replace('.', '') + '|bericht> geplaatst in <#' + message.channel + '> wat jullie misschien ook interessant vinden.'
+        postMessage(bot, send, isChannel)
+      }
+    })
+  }
+}
+
 module.exports = {
   'restart': restart,
   'uptime': uptime,
   'checkscore': checkscore,
   'leaderboard': leaderboard,
   'scoreReactions': scoreReactions,
-  'scoreVotes': scoreVotes
+  'scoreVotes': scoreVotes,
+  'cc': cc
 }

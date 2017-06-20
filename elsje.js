@@ -38,8 +38,8 @@ controller.on('rtm_open', function (bot, message) {
       'text': reconnecttext
     }]
     functions.postAttachment(bot, attachment, process.env.RESTART_MESSAGE_CHANNEL)
-//	  	enable next line to create fresh db
-//  		controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
+    // enable next line to create fresh db
+    // controller.storage.teams.save({id:message.user.team_id,tasks:[], tgif:{}})
   }
 })
 
@@ -358,15 +358,16 @@ var TaskDone = function (response, convo) {
 var finishtask = function (convo, taskNumber) {
   var teamId = convo.source_message.team
   var channelId = convo.source_message.channel
+  var userId = convo.source_message.user
   controller.storage.teams.get(teamId, function (err, channelData) {
     if (!err) {
       channelData.tasks.forEach(function (value, index, array) {
         if (value.taskid === taskNumber && value.status === 'new') {
           value.status = 'done'
           var message = {
-            'fallback': 'Taak van <@' + value.responsible.id + '> afgerond: ' + value.task,
+            'fallback': 'Taak van <@' + value.responsible.id + '> door <@' + userId + '> afgerond: ' + value.task,
             'color': 'good',
-            'pretext': 'Taak afgerond.'
+            'pretext': 'Taak afgerond door <@' + userId + '>.'
           }
           functions.postSingleTask(bot, value, message)
           functions.changeScore(bot, controller, value.responsible.id, 1, channelId)
@@ -625,7 +626,7 @@ controller.hears(['leaderboard'], 'mention,direct_mention,direct_message', funct
       console.log(data)
       var attachment = []
       data.forEach(function (value) {
-        if ( functions.verifyUserId(value.id) ) {
+        if (functions.verifyUserId(value.id)) {
           var item = {
             'text': '<@' + value.id + '>: ' + value.score,
             'fallback': '<@' + value.id + '>: ' + value.score,

@@ -311,7 +311,7 @@ var sendScore = function (bot, controller, userId, channel) {
 }
 
 var getScoreSmiley = function (score) {
-  var high = 20
+  var high = 100
   var low = -20
   if (score > high) {
     score = high

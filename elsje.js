@@ -293,18 +293,11 @@ controller.hears(['newherinneringen', 'sendreminder'], 'direct_message', functio
   NewSendReminders()
 })
 
-var ReminderCronJob = new CronJob({
-  cronTime: '0 7 * * 1,3',
-  onTick: NewSendReminders(),
-  start: true,
-  timeZone: 'Europe/Amsterdam'
-})
-
 var NewSendReminders = function () {
   bot.api.users.list({}, function (err, reply) {
     if (!err) {
       reply.members.forEach(function (value, index, array) {
-        if (value.deleted === false && value.is_bot === false && value.id === 'U02FYJ1PN') {
+        if (value.deleted === false && value.is_bot === false) {
           ShowList('all', value.id, value.id)
         }
       })
@@ -320,6 +313,15 @@ var NewSendReminders = function () {
 //    }
 //  })
 }
+
+var ReminderCronJob = new cronjob({
+  cronTime: '0 0 7 * * 1,3',
+  onTick: function(){
+    NewSendReminders()
+  },
+  start: true,
+  timeZone: 'Europe/Amsterdam'
+})
 
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
   var send

@@ -88,9 +88,13 @@ function xmlcall (params, cb) {
     if (error) {
       cb(error, null)
     } else if (body.action === 'error') {
-      console.log('api returned error')
-      cb(body.action, null)
+      console.log('api returned auth error')
+      cb('auth error', null)
+    } else if (body.succes === 1 && body.operation === 'error') {
+      console.log('api returned submethod error')
+      cb('submethod error', null)
     } else {
+      console.log('api succes')
       res.response = response
       res.body = body
       cb(null, res)

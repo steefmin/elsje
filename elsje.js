@@ -5,6 +5,7 @@ var Botkit = require('botkit')
 var Colormap = require('colormap')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
+var cronjob = require('cron').CronJob
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
@@ -288,26 +289,36 @@ var UpdateDeadline = function (response, convo) {
 }
 
 controller.hears(['newherinneringen', 'sendreminder'], 'direct_message', function (bot, message) {
+  console.log('reminders')
   NewSendReminders()
+})
+
+var ReminderCronJob = new CronJob({
+  cronTime: '0 7 * * 1,3',
+  onTick: NewSendReminders(),
+  start: true,
+  timeZone: 'Europe/Amsterdam'
 })
 
 var NewSendReminders = function () {
   bot.api.users.list({}, function (err, reply) {
     if (!err) {
       reply.members.forEach(function (value, index, array) {
-        if (value.deleted === false && value.is_bot === false) {
+        if (value.deleted === false && value.is_bot === false && value.id === 'U02FYJ1PN') {
           ShowList('all', value.id, value.id)
         }
       })
+    } else {
+      console.log(err)
     }
   })
-  api.showAllTasks(function (err, tasks) {
-    if (!err) {
-      functions.getTeamId(bot, function (team) {
-        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
-      })
-    }
-  })
+//  api.showAllTasks(function (err, tasks) {
+//    if (!err) {
+//      functions.getTeamId(bot, function (team) {
+//        controller.storage.teams.save({'id': team, 'db': tasks, 'timestamp': new Date()})
+//      })
+//    }
+//  })
 }
 
 controller.hears(['takenlijst(.*)', 'testlist(.*)', 'lijst(.*)', 'list(.*)'], 'direct_message,direct_mention,mention', function (bot, message) {

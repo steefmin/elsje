@@ -93,11 +93,15 @@ function xmlcall (params, cb) {
     } else if (body.succes === 1 && body.operation === 'error') {
       console.log('api returned submethod error')
       cb('submethod error', null)
-    } else {
-      console.log('api succes')
+    } else if (body.operation === 'ok') {
+      // succes
+      console.log('api returned succesfully')
       res.response = response
       res.body = body
       cb(null, res)
+    } else {
+      console.log('api returned unknown error')
+      cb('undefined error', null)
     }
   })
 }

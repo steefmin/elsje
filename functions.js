@@ -180,20 +180,18 @@ var postGeneral = function (bot, something, channel) {
 var postSingleTask = function (bot, taskStructure, message) {
   message.color = message.color || '#3090C7'
   message.fallback = message.fallback || message.pretext
-  var status = taskStructure.status !== 1 ? 'new' : 'done'
+  var status = taskStructure.status !== 1 ? 'Deadline: ' + taskStructure.deadline : 'Done'
   var attachmentArray = [{
     'fallback': message.fallback,
     'color': message.color,
     'pretext': message.pretext,
+    'title': '#' + taskStructure.taskid + ': ' + taskStructure.task,
     'fields':
       [
-        ['Taak', taskStructure.task, false],
-        ['Verantwoordelijke', '<@' + taskStructure.responsibleid + '>', true],
-        ['Status', status, true],
-        ['Deadline', taskStructure.deadline, true],
-        ['Taaknummer', taskStructure.taskid, true]
+        ['<@' + taskStructure.responsibleid + '>', true],
+        [status, true]
       ].map(function (obj) {
-        return {'title': obj[0], 'value': obj[1], 'short': obj[2]}
+        return {'value': obj[0], 'short': obj[1]}
       })
   }]
   postAttachment(bot, attachmentArray, taskStructure.channelid)

@@ -5,7 +5,7 @@ var Botkit = require('botkit')
 var Colormap = require('colormap')
 var ordinal = require('ordinal-numbers')
 var os = require('os')
-var cronjob = require('cron').CronJob
+var Cronjob = require('cron').CronJob
 
 if (!process.env.TOKEN) {
   console.log('Error: Specify token in environment')
@@ -314,9 +314,9 @@ var NewSendReminders = function () {
 //  })
 }
 
-var ReminderCronJob = new cronjob({
+var ReminderCronJob = new Cronjob({
   cronTime: '0 0 7 * * 1,3',
-  onTick: function(){
+  onTick: function () {
     NewSendReminders()
   },
   start: true,

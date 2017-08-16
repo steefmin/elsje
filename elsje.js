@@ -172,7 +172,7 @@ var taskStoreResult = function (err, task) {
   } else {
     var taskmessage = {
       'fallback': 'Taak toegevoegd voor <@' + task.responsibleid + '>: ' + task.task,
-      'pretext': 'Nieuwe taak aangemaakt.'
+      'pretext': 'Nieuwe taak aangemaakt:'
     }
     functions.postSingleTask(bot, task, taskmessage)
   }
@@ -214,7 +214,7 @@ var finishtask = function (convo, taskNumber) {
           var message = {
             'fallback': 'Taak van <@' + task.responsibleid + '> door <@' + userId + '> afgerond: ' + task.task,
             'color': 'good',
-            'pretext': 'Taak afgerond door <@' + userId + '>.'
+            'pretext': 'Taak afgerond door <@' + userId + '>:'
           }
           functions.postSingleTask(bot, task, message)
         }
@@ -276,7 +276,7 @@ var UpdateDeadline = function (response, convo) {
             if (!err) {
               var message = {
                 'fallback': 'Taak van <@' + task.responsibleid + '> heeft nieuwe deadline: ' + task.deadline,
-                'pretext': 'Deze taak heeft een nieuwe deadline.'
+                'pretext': 'Deze taak heeft een nieuwe deadline:'
               }
               functions.postSingleTask(bot, task, message)
               bot.reply(response, 'Ok, nieuwe deadline genoteerd.')

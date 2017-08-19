@@ -1,6 +1,6 @@
 {
   "name": "elsje",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Slack bot that manages a task list",
   "main": "elsje.js",
   "scripts": {

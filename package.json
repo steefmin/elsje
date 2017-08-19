@@ -1,11 +1,12 @@
 {
   "name": "elsje",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Slack bot that manages a task list",
   "main": "elsje.js",
   "scripts": {
     "test": "node elsje.js",
-    "start": "node elsje.js production > last.log"
+    "start": "forever start forever.json",
+    "stop": "forever stop elsje"
   },
   "repository": {
     "type": "git",
@@ -24,8 +25,11 @@
   },
   "homepage": "https://github.com/steefmin/elsje#readme",
   "dependencies": {
-    "botkit": "^0.4.2",
+    "botkit": "^0.5.7",
     "colormap": "^2.2.0",
-    "ordinal-numbers": "^1.0.3"
+    "cron": "^1.2.1",
+    "forever": "^0.15.3",
+    "ordinal-numbers": "^1.0.3",
+    "request": "^2.81.0"
   }
 }

@@ -135,7 +135,7 @@ var getScore = function (cb) {
   })
 }
 
-var changeScore = function (userid, score, cb) {
+var changeScore = function (userid, score, cb=function(){}) {
   getSingleScore(userid, function (err, singleScore) {
     if (err) {
       cb(err, null)

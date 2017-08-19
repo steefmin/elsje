@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/steefmin/elsje#readme",
   "dependencies": {
-    "botkit": "^0.5.4",
+    "botkit": "^0.5.7",
     "colormap": "^2.2.0",
     "cron": "^1.2.1",
     "forever": "^0.15.3",

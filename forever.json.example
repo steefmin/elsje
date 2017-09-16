@@ -1,0 +1,13 @@
+{
+    "uid": "elsje",
+    "append": true,
+    "watch": true,
+    "script": "elsje.js",
+    "args": ["production"],
+    "spinSleepTime": "10000",
+    "sourceDir": "path/to/elsje",
+    "workingDir": "path/to/elsje",
+    "logFile": "elsje.log",
+    "outFile": "output.log",
+    "errFile": "error.log"
+}
